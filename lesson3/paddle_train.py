@@ -166,7 +166,7 @@ def main():
             batch_size=256),
         feeding=feeding,
         event_handler=event_handler,
-        num_passes=2000)
+        num_passes=500)
 
     # 获取测试数据和训练数据，用来验证模型准确度
     train_data = get_train_data()
