@@ -5,16 +5,17 @@ import numpy as np
 import paddle.v2 as paddle
 import h5py
 import scipy
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 from PIL import Image
 from scipy import ndimage
 from lr_utils import load_dataset
 
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 
-TRAINING_DATA = None
-TEST_DATA = None
+
+TRAINING_SET = None
+TEST_SET = None
 datadim = None
 
 # 载入数据(cat/non-cat)
@@ -22,14 +23,12 @@ def load_data():
     global TRAINING_SET, TEST_SET, datadim
 
     train_set_x_orig, train_set_y, test_set_x_orig, test_set_y, classes = load_dataset()
-
     m_train = train_set_x_orig.shape[0]
     m_test = test_set_x_orig.shape[0]
     num_px = train_set_x_orig.shape[1]
 
     # 定义纬度
     datadim = num_px * num_px * 3
-
     # 数据展开,注意此处为了方便处理，没有加上.T的转置操作
     train_set_x_flatten = train_set_x_orig.reshape(m_train, -1)
     test_set_x_flatten = test_set_x_orig.reshape(m_test, -1)
@@ -130,9 +129,17 @@ def main():
     image = paddle.layer.data(
         name='image', type=paddle.data_type.dense_vector(datadim))
 
+    # 输入层，paddle.layer.data表示数据层
+    # name=’label’：名称为image
+    # type=paddle.data_type.dense_vector(datadim)：数据类型为datadim维向量
+
     y_predict = paddle.layer.fc(
         input=image, size=1, act=paddle.activation.Sigmoid())
 
+    # 输出层，paddle.layer.fc表示全连接层
+    # input=image: 该层输入数据为image
+    # size=1：神经元个数
+    # act=paddle.activation.Sigmoid()：激活函数为Sigmoid()
     y_label = paddle.layer.data(
         name='label', type=paddle.data_type.dense_vector(1))
 
@@ -142,7 +149,7 @@ def main():
     parameters = paddle.parameters.create(cost)
 
     #创建optimizer
-    optimizer = paddle.optimizer.Momentum(momentum=0, learning_rate=0.0001)
+    optimizer = paddle.optimizer.Momentum(momentum=0, learning_rate=0.01)
 
     feeding = {
         'image': 0,
@@ -155,6 +162,9 @@ def main():
                 print("Pass %d, Batch %d, Cost %f" % (event.pass_id, event.batch_id, event.cost))
             if event.pass_id % 100 == 0:
                 costs.append(event.cost)
+            with open('params_pass_%d.tar' % event.pass_id, 'w') as f:
+                parameters.to_tar(f)
+
 
 # 创建trainer
     trainer = paddle.trainer.SGD(
@@ -162,11 +172,11 @@ def main():
 
     trainer.train(
         reader=paddle.batch(
-            paddle.reader.shuffle(train(), buf_size=50000),
-            batch_size=256),
+            paddle.reader.shuffle(train(), buf_size=5000),
+            batch_size=128),
         feeding=feeding,
         event_handler=event_handler,
-        num_passes=500)
+        num_passes=200)
 
     # 获取测试数据和训练数据，用来验证模型准确度
     train_data = get_train_data()
@@ -193,5 +203,5 @@ def main():
     plt.show()
     plt.savefig("costs.jpg")
 
-if __name__=='__main__':
+if __name__ == '__main__':
     main()

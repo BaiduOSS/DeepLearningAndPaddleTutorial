@@ -44,7 +44,7 @@ def sigmoid(z):
 # initialize_w,b_with_zeros
 def initialize_with_zeros(dim):
     w = np.zeros((dim, 1), dtype=np.float)
-    b = 0
+    b = 0.1
 
     assert (w.shape == (dim, 1))
     assert (isinstance(b, float) or isinstance(b, int))
@@ -178,7 +178,7 @@ def model(X_train, Y_train, X_test, Y_test, num_iterations = 2000, learning_rate
 
     return d
 
-d = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 2000, learning_rate = 0.001, print_cost = True)
+d = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 1000, learning_rate = 0.008, print_cost = True)
 
 # Plot learning curve (with costs)
 costs = np.squeeze(d['costs'])
