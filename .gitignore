@@ -5,5 +5,6 @@
 *.egg-info
 dist
 build
-
+.idea
+*.tar
 .DS_Store
