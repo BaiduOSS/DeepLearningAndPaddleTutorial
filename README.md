@@ -1,6 +1,5 @@
 # Deep Learning And Paddle Tutorial
 
-Tutorial for Paddle
 
 it includes
 * lesson1  python basic
@@ -12,3 +11,4 @@ it includes
 * lesson7  recommend system with paddle
 * lesson8  paddlecloud
 * lesson9  ctr
+* lesson10 tuning
