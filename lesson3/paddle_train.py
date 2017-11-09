@@ -1,4 +1,14 @@
 # -*- coding:utf-8 -*-
+'''
+使用paddle框架实现逻辑回归识别猫案例，关键步骤如下：
+1.载入数据和预处理：load_data()
+2.初始化
+3.配置网络结构
+4.定义成本函数cost
+5.定义优化器optimizer
+6.定义两个reader()分别用于读取训练数据和测试数据
+7.预测并测试准确率train_accuracy和test_accuracy
+'''
 import sys
 import numpy as np
 

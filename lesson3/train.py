@@ -1,4 +1,15 @@
 # -*- coding:utf-8 -*-
+'''
+使用python及numpy库来实现逻辑回归识别猫案例，关键步骤如下：
+1.载入数据和预处理：load_data()
+2.初始化模型参数（Parameters）
+3.循环：
+    a)	计算成本（Cost）
+    b)	计算梯度（Gradient）
+    c)	更新参数（Gradient Descent）
+4.利用模型进行预测
+5.分析预测结果
+'''
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
