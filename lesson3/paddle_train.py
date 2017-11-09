@@ -149,7 +149,7 @@ def main():
     parameters = paddle.parameters.create(cost)
 
     #创建optimizer
-    optimizer = paddle.optimizer.Momentum(momentum=0, learning_rate=0.01)
+    optimizer = paddle.optimizer.Momentum(momentum=0, learning_rate=0.00005)
 
     feeding = {
         'image': 0,
@@ -162,8 +162,8 @@ def main():
                 print("Pass %d, Batch %d, Cost %f" % (event.pass_id, event.batch_id, event.cost))
             if event.pass_id % 100 == 0:
                 costs.append(event.cost)
-            with open('params_pass_%d.tar' % event.pass_id, 'w') as f:
-                parameters.to_tar(f)
+            # with open('params_pass_%d.tar' % event.pass_id, 'w') as f:
+            #     parameters.to_tar(f)
 
 
 # 创建trainer
@@ -172,11 +172,11 @@ def main():
 
     trainer.train(
         reader=paddle.batch(
-            paddle.reader.shuffle(train(), buf_size=5000),
-            batch_size=128),
+            paddle.reader.shuffle(train(), buf_size=500000),
+            batch_size=20),
         feeding=feeding,
         event_handler=event_handler,
-        num_passes=200)
+        num_passes=2000)
 
     # 获取测试数据和训练数据，用来验证模型准确度
     train_data = get_train_data()

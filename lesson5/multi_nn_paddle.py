@@ -97,18 +97,18 @@ def main():
             else:
                 sys.stdout.write('.')
                 sys.stdout.flush()
-        if isinstance(event, paddle.event.EndPass):
-            #     parameters
-            with open('params_pass_%d.tar' % event.pass_id, 'w') as f:
-                parameters.to_tar(f)
-
-            result = trainer.test(
-                reader=paddle.batch(
-                    test(), batch_size=30
-                ),
-                feeding=feeding
-            )
-            print("\nTest with Pass %d" % event.pass_id)
+        # if isinstance(event, paddle.event.EndPass):
+        #     #     parameters
+        #     with open('params_pass_%d.tar' % event.pass_id, 'w') as f:
+        #         parameters.to_tar(f)
+        #
+        #     result = trainer.test(
+        #         reader=paddle.batch(
+        #             test(), batch_size=30
+        #         ),
+        #         feeding=feeding
+        #     )
+        #     print("\nTest with Pass %d" % event.pass_id)
 
     trainer = paddle.trainer.SGD(
         cost=cost, parameters=parameters, update_equation=optimizer)
@@ -116,7 +116,7 @@ def main():
     trainer.train(
         reader=paddle.batch(
             paddle.reader.shuffle(train(), buf_size=50000),
-            batch_size=20),
+            batch_size=30),
         feeding=feeding,
         event_handler=event_handler,
         num_passes=2000)

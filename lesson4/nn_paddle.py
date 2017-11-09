@@ -115,7 +115,7 @@ def main():
             batch_size=30),
         feeding=feeding,
         event_handler=event_handler,
-        num_passes=1000)
+        num_passes=2000)
 
     test_data_creator = test()
     test_data_image = []
