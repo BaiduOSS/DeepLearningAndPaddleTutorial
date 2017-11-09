@@ -3,7 +3,9 @@ import PIL
 import sys
 import numpy as np
 import paddle.v2 as paddle
-# import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 import h5py
 import scipy
 from PIL import Image
@@ -80,12 +82,12 @@ def main():
     parameters = paddle.parameters.create(cost)
 
     #     optimizer
-    optimizer = paddle.optimizer.Momentum(momentum=0, learning_rate=0.0001)
+    optimizer = paddle.optimizer.Momentum(momentum=0, learning_rate=0.00001)
 
     feeding = {
         'image': 0,
         'label': 1}
-
+    costs = []
     def event_handler(event):
         if isinstance(event, paddle.event.EndIteration):
             if event.batch_id % 100 == 0:
@@ -93,6 +95,8 @@ def main():
             else:
                 sys.stdout.write('.')
                 sys.stdout.flush()
+            if event.pass_id % 100 == 0:
+                costs.append(event.cost)
         # if isinstance(event, paddle.event.EndPass):
         #     #     parameters
         #     with open('params_pass_%d.tar' % event.pass_id, 'w') as f:
@@ -112,10 +116,10 @@ def main():
     trainer.train(
         reader=paddle.batch(
             paddle.reader.shuffle(train(), buf_size=50000),
-            batch_size=20),
+            batch_size=256),
         feeding=feeding,
         event_handler=event_handler,
-        num_passes=1000)
+        num_passes=10000)
 
     test_data_creator = test()
     test_data_image = []
@@ -163,6 +167,15 @@ def main():
 
     print("test_accuracy: {} %".format((float(test_right) / float(test_total)) * 100))
     print(test_right, test_total)
+
+    # Plot learning curve (with costs)
+    costs = np.squeeze(costs)
+    plt.plot(costs)
+    plt.ylabel('cost')
+    plt.xlabel('iterations (per hundreds)')
+    plt.title("Learning rate = 0.00001")
+    plt.show()
+    plt.savefig("costs.jpg")
 
 if __name__=='__main__':
     main()

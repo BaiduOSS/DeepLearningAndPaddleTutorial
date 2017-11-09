@@ -115,7 +115,7 @@ y = np.mat(train_set_y)
 
 #设置相关量
 j = 4 #每个隐藏层节点苏
-u = 0.09 #学习率
+u = 0.06 #学习率
 n = 209 #数据个数
 
 #初始化参数
@@ -127,7 +127,7 @@ b2 = inin_para(y.shape[0],1,0.01)
 
 
 #训练
-for i in range(2000):
+for i in range(5000):
 
     yout = calculate(x, w1, w2, b1, b2) #计算y
     dyout = dy_out(yout, y) #计算dy
