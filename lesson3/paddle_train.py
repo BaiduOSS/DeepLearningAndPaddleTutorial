@@ -149,7 +149,7 @@ def main():
     parameters = paddle.parameters.create(cost)
 
     #创建optimizer
-    optimizer = paddle.optimizer.Momentum(momentum=0, learning_rate=0.00005)
+    optimizer = paddle.optimizer.Momentum(momentum=0, learning_rate=0.01)
 
     feeding = {
         'image': 0,
@@ -172,11 +172,11 @@ def main():
 
     trainer.train(
         reader=paddle.batch(
-            paddle.reader.shuffle(train(), buf_size=500000),
-            batch_size=20),
+            paddle.reader.shuffle(train(), buf_size=50000),
+            batch_size=2),
         feeding=feeding,
         event_handler=event_handler,
-        num_passes=2000)
+        num_passes=1000)
 
     # 获取测试数据和训练数据，用来验证模型准确度
     train_data = get_train_data()
