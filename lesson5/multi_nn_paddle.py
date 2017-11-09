@@ -3,7 +3,9 @@ import PIL
 import sys
 import numpy as np
 import paddle.v2 as paddle
-# import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 import h5py
 import scipy
 from PIL import Image
@@ -84,7 +86,7 @@ def main():
     parameters = paddle.parameters.create(cost)
 
     #     optimizer
-    optimizer = paddle.optimizer.Momentum(momentum=0, learning_rate=0.001)
+    optimizer = paddle.optimizer.Momentum(momentum=0, learning_rate=0.0001)
 
     feeding = {
         'image': 0,
