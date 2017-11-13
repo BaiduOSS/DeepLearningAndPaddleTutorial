@@ -1,5 +1,6 @@
+#!/usr/bin/env python
 # -*- coding:utf-8 -*-
-'''
+"""
 使用python及numpy库来实现逻辑回归识别猫案例，关键步骤如下：
 1.载入数据和预处理：load_data()
 2.初始化模型参数（Parameters）
@@ -9,15 +10,20 @@
     c)	更新参数（Gradient Descent）
 4.利用模型进行预测
 5.分析预测结果
-'''
+6.定义model函数来按顺序将上述步骤合并
+"""
+
 import numpy as np
 import matplotlib
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+
 import h5py
 import scipy
-from PIL import Image
 from scipy import ndimage
+from PIL import Image
+
 from lr_utils import load_dataset
 
 # 下载数据集(cat/non-cat)
@@ -26,54 +32,72 @@ train_set_x_orig, train_set_y, test_set_x_orig, test_set_y, classes = load_datas
 m_train = train_set_x_orig.shape[0]
 m_test = test_set_x_orig.shape[0]
 num_px = train_set_x_orig.shape[1]
-#
-# print ("Number of training examples: m_train = " + str(m_train))
-# print ("Number of testing examples: m_test = " + str(m_test))
-# print ("Height/Width of each image: num_px = " + str(num_px))
-# print ("Each image is of size: (" + str(num_px) + ", " + str(num_px) + ", 3)")
-# print ("train_set_x shape: " + str(train_set_x_orig.shape))
-# print ("train_set_y shape: " + str(train_set_y.shape))
-# print ("test_set_x shape: " + str(test_set_x_orig.shape))
-# print ("test_set_y shape: " + str(test_set_y.shape))
 
-# Reshape the training and test examples
-train_set_x_flatten = train_set_x_orig.reshape(m_train,-1).T
-test_set_x_flatten = test_set_x_orig.reshape(m_test,-1).T
-
-# print ("train_set_x_flatten shape: " + str(train_set_x_flatten.shape))
-# print ("train_set_y shape: " + str(train_set_y.shape))
-# print ("test_set_x_flatten shape: " + str(test_set_x_flatten.shape))
-# print ("test_set_y shape: " + str(test_set_y.shape))
-# print ("sanity check after reshaping: " + str(train_set_x_flatten[0:5,0]))
+# Reshape训练数据集和测试数据集
+train_set_x_flatten = train_set_x_orig.reshape(m_train, -1).T
+test_set_x_flatten = test_set_x_orig.reshape(m_test, -1).T
 
 # 数据归一化
-train_set_x = train_set_x_flatten/255.
-test_set_x = test_set_x_flatten/255.
+train_set_x = train_set_x_flatten / 255.
+test_set_x = test_set_x_flatten / 255.
 
-# sigmoid
+
+# sigmoid激活函数
 def sigmoid(z):
+    """
+    利用sigmoid计算z的激活值
+
+    Args:
+        z -- 一个标量或者numpy数组
+
+    Return:
+        s -- sigmoid(z)
+    """
     s = 1 / (1 + np.exp(-z))
     return s
 
-# initialize_w,b_with_zeros
+
+# 初始化w和b
 def initialize_with_zeros(dim):
+    """
+
+    初始化w为形状(dim, 1)的向量并初始化b为0
+
+    Args:
+        dim -- w向量的纬度
+
+    Returns:
+        w -- (dim, 1)维向量
+        b -- 标量，代表偏置bias
+    """
+
     w = np.zeros((dim, 1), dtype=np.float)
     b = 0.1
 
-    assert (w.shape == (dim, 1))
-    assert (isinstance(b, float) or isinstance(b, int))
+    assert w.shape == (dim, 1)
+    assert isinstance(b, float) or isinstance(b, int)
 
     return w, b
 
-# dim = 2
-# w, b = initialize_with_zeros(dim)
-#
-# print ("w = " + str(w))
-# print ("b = " + str(b))
 
-# propagate
+# 前向和后向传播
 def propagate(w, b, X, Y):
-    #m个特征
+    """
+    计算成本cost和梯度grads
+
+    Args:
+        w -- 权重， (num_px * num_px * 3, 1)维的numpy数组
+        b -- 偏置bias，标量
+        X -- 数据，形状为(num_px * num_px * 3, number of examples)
+        Y -- 数据的真实标签(包含值 0 if non-cat, 1 if cat) ，形状为 (1, number of examples)
+
+    Return:
+        cost -- 逻辑回归的损失函数
+        dw -- cost对参数w的梯度，形状与参数w一致
+        db -- cost对参数b的梯度，形状与参数b一致
+    """
+
+    # m个特征
     m = X.shape[1]
 
     A = sigmoid(np.dot(w.T, X) + b)
@@ -82,51 +106,56 @@ def propagate(w, b, X, Y):
     dw = np.dot(X, (A - Y).T) / m
     db = np.sum((A - Y)) / m
 
-    assert (dw.shape == w.shape)
-    assert (db.dtype == float)
+    assert dw.shape == w.shape
+    assert db.dtype == float
     cost = np.squeeze(cost)
-    assert (cost.shape == ())
+    assert cost.shape == ()
 
     grads = {"dw": dw,
              "db": db}
 
     return grads, cost
 
-# w, b ,X, Y = np.array([[1.], [2.]]), 2., np.array([[1., 2., -1.], [3., 4., -3.2]]), np.array([[1, 0, 1]])
-# grads, cost = propagate(w, b, X, Y)
-#
-# print ("dw = " + str(grads["dw"]))
-# print ("db = " + str(grads["db"]))
-# print ("cost = " + str(cost))
 
-# optimize
-# GRADED FUNCTION: optimize
+# 梯度下降
+def optimize(w, b, X, Y, num_iterations, learning_rate, print_cost=False):
+    """
+    使用梯度下降算法优化参数w和b
 
-def optimize(w, b, X, Y, num_iterations, learning_rate, print_cost = False):
+    Args:
+        w -- 权重， (num_px * num_px * 3, 1)维的numpy数组
+        b -- 偏置bias，标量
+        X -- 数据，形状为(num_px * num_px * 3, number of examples)
+        Y -- 数据的真实标签(包含值 0 if non-cat, 1 if cat) ，形状为 (1, number of examples)
+        num_iterations -- 优化的迭代次数
+        learning_rate -- 梯度下降的学习率，可控制收敛速度和效果
+        print_cost -- 每一百次迭代输出一次cost
+
+    Returns:
+        params -- 包含参数w和b的python字典
+        grads -- 包含梯度dw和db的python字典
+        costs -- 保存了优化过程cost的list，可以用于输出cost变化曲线
+    """
     costs = []
     dw = []
     db = 0
     for i in range(int(num_iterations)):
-        # Cost and gradient calculation (≈ 1-4 lines of code)
-        ### START CODE HERE ###
+        # 获取梯度grads和成本cost
         grads, cost = propagate(w, b, X, Y)
-        ### END CODE HERE ###
 
-        # Retrieve derivatives from grads
+        # 取出梯度dw和db
         dw = grads["dw"]
         db = grads["db"]
 
-        # update rule (≈ 2 lines of code)
-        ### START CODE HERE ###
+        # 更新规则
         w -= learning_rate * dw
         b -= learning_rate * db
-        ### END CODE HERE ###
 
-        # Record the costs
+        # 记录cost
         if i % 100 == 0:
             costs.append(cost)
 
-        # Print the cost every 100 training examples
+        # 每一百次迭代输出一次cost
         if print_cost and i % 100 == 0:
             print("Cost after iteration %i: %f" % (i, cost))
 
@@ -138,15 +167,22 @@ def optimize(w, b, X, Y, num_iterations, learning_rate, print_cost = False):
 
     return params, grads, costs
 
-# params, grads, costs = optimize(w, b, X, Y, num_iterations= 100, learning_rate = 0.009, print_cost = False)
-#
-# print ("w = " + str(params["w"]))
-# print ("b = " + str(params["b"]))
-# print ("dw = " + str(grads["dw"]))
-# print ("db = " + str(grads["db"]))
 
 # predict
 def predict(w, b, X):
+    """
+    用学习到的逻辑回归模型来预测图片是否为猫（1 cat or 0 non-cat）
+
+    Args:
+        w -- 权重， (num_px * num_px * 3, 1)维的numpy数组
+        b -- 偏置bias，标量
+        X -- 数据，形状为(num_px * num_px * 3, number of examples)
+
+    Returns:
+        Y_prediction -- 包含了对X数据集的所有预测结果，是一个numpy数组或向量
+
+    """
+
     m = X.shape[1]
     Y_prediction = np.zeros((1, m))
     w = w.reshape(X.shape[0], 1)
@@ -158,20 +194,37 @@ def predict(w, b, X):
             Y_prediction[0, i] = 1
         else:
             Y_prediction[0, i] = 0
-    assert(Y_prediction.shape == (1, m))
+    assert Y_prediction.shape == (1, m)
 
     return Y_prediction
 
-# w = np.array([[0.1124579],[0.23106775]])
-# b = -0.3
-# X = np.array([[1.,-1.1,-3.2],[1.2,2.,0.1]])
-# print ("predictions = " + str(predict(w, b, X)))
 
-#model
-def model(X_train, Y_train, X_test, Y_test, num_iterations = 2000, learning_rate = 0.05, print_cost = False):
+# model
+def model(X_train, Y_train, X_test, Y_test, num_iterations=2000,
+          learning_rate=0.05, print_cost=False):
+    """
+    按顺序调用上述方法，构建整体逻辑回归模型model
+
+    Args:
+        X_train -- 训练数据，形状为(num_px * num_px * 3, m_train)
+        Y_train -- 训练数据的真实标签(包含值 0 if non-cat, 1 if cat) ，形状为 (1, m_train)
+        X_test -- 测试数据，形状为(num_px * num_px * 3, m_test)
+        Y_test -- 测试数据的真实标签(包含值 0 if non-cat, 1 if cat) ，形状为 (1, m_test)
+        w -- 权重， (num_px * num_px * 3, 1)维的numpy数组
+        b -- 偏置bias，标量
+        X -- 数据，形状为(num_px * num_px * 3, number of examples)
+        Y -- 数据的真实标签(包含值 0 if non-cat, 1 if cat) ，形状为 (1, number of examples)
+        num_iterations -- 优化的迭代次数
+        learning_rate -- 梯度下降的学习率，可控制收敛速度和效果
+        print_cost -- 每一百次迭代输出一次cost
+
+    Returns:
+       d -- 包含模型信息的python字典
+    """
     w, b = initialize_with_zeros(X_train.shape[0])
 
-    parameters, grads, costs = optimize(w, b, X_train, Y_train, num_iterations, learning_rate, print_cost)
+    parameters, grads, costs = optimize(w, b, X_train, Y_train, num_iterations,
+                                        learning_rate, print_cost)
 
     w = parameters["w"]
     b = parameters["b"]
@@ -192,30 +245,14 @@ def model(X_train, Y_train, X_test, Y_test, num_iterations = 2000, learning_rate
 
     return d
 
-d = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 1000, learning_rate = 0.01, print_cost = True)
 
-# Plot learning curve (with costs)
+d = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations=1000,
+          learning_rate=0.01, print_cost=True)
+
+# 利用costs展示模型的学习曲线
 costs = np.squeeze(d['costs'])
 plt.plot(costs)
 plt.ylabel('cost')
 plt.xlabel('iterations (per hundreds)')
 plt.title("Learning rate =" + str(d["learning_rate"]))
 plt.show()
-#
-# learning_rates = [0.1, 0.01, 0.001, 0.0001]
-# models = {}
-# for i in learning_rates:
-#     print ("learning rate is: " + str(i))
-#     models[str(i)] = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations = 1500, learning_rate = i, print_cost = False)
-#     print ('\n' + "-------------------------------------------------------" + '\n')
-#
-# for i in learning_rates:
-#     plt.plot(np.squeeze(models[str(i)]["costs"]), label= str(models[str(i)]["learning_rate"]))
-#
-# plt.ylabel('cost')
-# plt.xlabel('iterations')
-#
-# legend = plt.legend(loc='upper center', shadow=True)
-# frame = legend.get_frame()
-# frame.set_facecolor('0.90')
-# plt.show()
