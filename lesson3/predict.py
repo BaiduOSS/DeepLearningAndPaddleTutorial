@@ -37,6 +37,17 @@ DATADIM = None
 
 
 def load_data():
+    """
+    载入数据，数据项包括：
+        train_set_x_orig：原始训练数据集
+        train_set_y：原始训练数据标签
+        test_set_x_orig：原始测试数据集
+        test_set_y：原始测试数据标签
+        classes(cat/non-cat)：分类list
+
+    Args:
+    Return:
+    """
     global TRAINING_SET, TEST_SET, DATADIM
 
     train_set_x_orig, train_set_y, test_set_x_orig, test_set_y, classes = load_dataset()
@@ -60,9 +71,23 @@ def load_data():
 
 # 训练数据集
 def train():
+    """
+    定义一个reader来获取训练数据集及其标签
+
+    Args:
+    Return:
+        reader -- 用于获取训练数据集及其标签的reader
+    """
     global TRAINING_SET
 
     def reader():
+        """
+        一个reader
+        Args:
+        Return:
+            data[:-1], data[-1:] -- 使用yield返回生成器(generator)，
+                    data[:-1]表示前n-1个元素，也就是训练数据，data[-1:]表示最后一个元素，也就是对应的标签
+        """
         for data in TRAINING_SET:
             yield data[:-1], data[-1:]
 
@@ -71,34 +96,38 @@ def train():
 
 # 测试数据集
 def test():
+    """
+    定义一个reader来获取测试数据集及其标签
+
+    Args:
+    Return:
+        reader -- 用于获取测试数据集及其标签的reader
+    """
     global TEST_SET
 
     def reader():
+        """
+            一个reader
+            Args:
+            Return:
+                data[:-1], data[-1:] -- 使用yield返回生成器(generator)，
+                        data[:-1]表示前n-1个元素，也就是测试数据，data[-1:]表示最后一个元素，也就是对应的标签
+            """
         for data in TEST_SET:
             yield data[:-1], data[-1:]
 
     return reader
 
 
-# 获取test_data
-def get_test_data():
-    test_data_creator = test()
-    test_data_image = []
-    test_data_label = []
-
-    for item in test_data_creator():
-        test_data_image.append((item[0],))
-        test_data_label.append(item[1])
-
-    result = {
-        "image": test_data_image,
-        "label": test_data_label
-    }
-    return result
-
-
 # 获取train_data
 def get_train_data():
+    """
+    使用train()来获取训练数据
+
+    Args:
+    Return:
+        result -- 包含训练数据(image)和标签(label)的python字典
+    """
     train_data_creator = train()
     train_data_image = []
     train_data_label = []
@@ -111,11 +140,47 @@ def get_train_data():
         "image": train_data_image,
         "label": train_data_label
     }
+
+    return result
+
+
+# 获取test_data
+def get_test_data():
+    """
+    使用test()来获取测试数据
+
+    Args:
+    Return:
+        result -- 包含测试数据(image)和标签(label)的python字典
+    """
+    test_data_creator = test()
+    test_data_image = []
+    test_data_label = []
+
+    for item in test_data_creator():
+        test_data_image.append((item[0],))
+        test_data_label.append(item[1])
+
+    result = {
+        "image": test_data_image,
+        "label": test_data_label
+    }
+
     return result
 
 
 # 训练集准确度
 def train_accuracy(probs_train, train_data):
+    """
+    根据训练数据集来计算训练准确度train_accuracy
+
+    Args:
+        probs_train -- 训练数据集的预测结果，调用paddle.infer()来获取
+        train_data -- 训练数据集
+
+    Return:
+        train_accuracy -- 训练准确度train_accuracy
+    """
     train_right = 0
     train_total = len(train_data['label'])
     for i in range(len(probs_train)):
@@ -123,11 +188,23 @@ def train_accuracy(probs_train, train_data):
             train_right += 1
         elif float(probs_train[i][0]) < 0.5 and train_data['label'][i] == 0:
             train_right += 1
-    return (float(train_right) / float(train_total)) * 100
+    train_accuracy = (float(train_right) / float(train_total)) * 100
+
+    return train_accuracy
 
 
 # 测试集准确度
 def test_accuracy(probs_test, test_data):
+    """
+    根据测试数据集来计算测试准确度test_accuracy
+
+    Args:
+        probs_test -- 测试数据集的预测结果，调用paddle.infer()来获取
+        test_data -- 测试数据集
+
+    Return:
+        test_accuracy -- 测试准确度test_accuracy
+    """
     test_right = 0
     test_total = len(test_data['label'])
     for i in range(len(probs_test)):
@@ -135,10 +212,17 @@ def test_accuracy(probs_test, test_data):
             test_right += 1
         elif float(probs_test[i][0]) < 0.5 and test_data['label'][i] == 0:
             test_right += 1
-    return (float(test_right) / float(test_total)) * 100
+    test_accuracy = (float(test_right) / float(test_total)) * 100
+
+    return test_accuracy
 
 
 def main():
+    """
+    预测结果并检验模型准确率
+    Args:
+    Return:
+    """
     global PARAMETERS
     paddle.init(use_gpu=False, trainer_count=1)
     load_data()

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  -*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 ################################################################################
 #
 # Copyright (c) 2017 Baidu.com, Inc. All Rights Reserved
@@ -88,6 +88,13 @@ def train():
     global TRAINING_SET
 
     def reader():
+        """
+        一个reader
+        Args:
+        Return:
+            data[:-1], data[-1:] -- 使用yield返回生成器(generator)，
+                    data[:-1]表示前n-1个元素，也就是训练数据，data[-1:]表示最后一个元素，也就是对应的标签
+        """
         for data in TRAINING_SET:
             yield data[:-1], data[-1:]
 
@@ -106,6 +113,13 @@ def test():
     global TEST_SET
 
     def reader():
+        """
+            一个reader
+            Args:
+            Return:
+                data[:-1], data[-1:] -- 使用yield返回生成器(generator)，
+                        data[:-1]表示前n-1个元素，也就是测试数据，data[-1:]表示最后一个元素，也就是对应的标签
+            """
         for data in TEST_SET:
             yield data[:-1], data[-1:]
 
@@ -210,7 +224,30 @@ def test_accuracy(probs_test, test_data):
     return test_accuracy
 
 
+# 展示模型训练曲线
+def plot_costs(costs):
+    """
+    利用costs展示模型的训练曲线
+
+    Args:
+        costs -- 记录了训练过程的cost变化的list，每一百次迭代记录一次
+    Return:
+    """
+    costs = np.squeeze(costs)
+    plt.plot(costs)
+    plt.ylabel('cost')
+    plt.xlabel('iterations (per hundreds)')
+    plt.title("Learning rate = 0.00002")
+    plt.show()
+    plt.savefig("costs.jpg")
+
+
 def main():
+    """
+    定义神经网络结构，训练、预测、检验准确率并打印学习曲线
+    Args:
+    Return:
+    """
     global DATADIM
     # 初始化，设置是否使用gpu，trainer数量
     paddle.init(use_gpu=False, trainer_count=1)
@@ -218,21 +255,17 @@ def main():
     # 载入数据
     load_data()
 
-    # 输入层，paddle.layer.data表示数据层
-    # name=’image’：名称为image
+    # 输入层，paddle.layer.data表示数据层,name=’image’：名称为image,
     # type=paddle.data_type.dense_vector(DATADIM)：数据类型为DATADIM维稠密向量
     image = paddle.layer.data(
         name='image', type=paddle.data_type.dense_vector(DATADIM))
 
-    # 输出层，paddle.layer.fc表示全连接层
-    # input=image: 该层输入数据为image
-    # size=1：神经元个数
-    # act=paddle.activation.Sigmoid()：激活函数为Sigmoid()
+    # 输出层，paddle.layer.fc表示全连接层，input=image: 该层输入数据为image
+    # size=1：神经元个数，act=paddle.activation.Sigmoid()：激活函数为Sigmoid()
     y_predict = paddle.layer.fc(
         input=image, size=1, act=paddle.activation.Sigmoid())
 
-    # 数据层，paddle.layer.data表示数据层
-    # name=’label’：名称为label
+    # 数据层，paddle.layer.data表示数据层，name=’label’：名称为label
     # type=paddle.data_type.dense_vector(1)：数据类型为1维稠密向量
     y_label = paddle.layer.data(
         name='label', type=paddle.data_type.dense_vector(1))
@@ -261,7 +294,6 @@ def main():
 
         Args:
             event -- 事件对象，包含event.pass_id, event.batch_id, event.cost等信息
-
         Return:
         """
         if isinstance(event, paddle.event.EndIteration):
@@ -282,7 +314,7 @@ def main():
     大小的数据并打乱顺序
     paddle.batch(reader(), batch_size=256)：表示从打乱的数据中再取出batch_size=256大小的数据进行一次迭代训练
     feeding：用到了之前定义的feeding索引，将数据层image和label输入trainer
-    event_handler：事件管理机制，读者可以自定义event_handler，根据事件信息作相应的操作
+    event_handler：事件管理机制，可以自定义event_handler，根据事件信息作相应的操作
     num_passes：定义训练的迭代次数
     """
     trainer.train(
@@ -309,14 +341,7 @@ def main():
     print("train_accuracy: {} %".format(train_accuracy(probs_train, train_data)))
     print("test_accuracy: {} %".format(test_accuracy(probs_test, test_data)))
 
-    # 利用costs展示模型的训练曲线
-    costs = np.squeeze(costs)
-    plt.plot(costs)
-    plt.ylabel('cost')
-    plt.xlabel('iterations (per hundreds)')
-    plt.title("Learning rate = 0.00002")
-    plt.show()
-    plt.savefig("costs.jpg")
+    plot_costs(costs)
 
 
 if __name__ == '__main__':
