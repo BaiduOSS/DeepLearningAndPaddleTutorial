@@ -6,8 +6,6 @@
 #
 ################################################################################
 """
-This module provide configure file management service in i18n environment.
-
 Authors: weixing(wx_crome@163.com)
 Date:    2017/11/12 17:23:06
 
