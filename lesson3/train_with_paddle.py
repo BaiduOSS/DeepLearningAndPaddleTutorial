@@ -237,8 +237,7 @@ def plot_costs(costs):
     plt.xlabel('iterations (per hundreds)')
     plt.title("Learning rate = 0.00002")
     plt.show()
-    plt.savefig("costs.jpg")
-
+    plt.savefig('costs.png')
 
 def main():
     """
@@ -295,9 +294,8 @@ def main():
         Return:
         """
         if isinstance(event, paddle.event.EndIteration):
-            if event.batch_id % 100 == 0:
-                print("Pass %d, Batch %d, Cost %f" % (event.pass_id, event.batch_id, event.cost))
             if event.pass_id % 100 == 0:
+                print("Pass %d, Batch %d, Cost %f" % (event.pass_id, event.batch_id, event.cost))
                 costs.append(event.cost)
                 # with open('params_pass_%d.tar' % event.pass_id, 'w') as f:
                 #     parameters.to_tar(f)
@@ -321,7 +319,7 @@ def main():
             batch_size=256),
         feeding=feeding,
         event_handler=event_handler,
-        num_passes=5000)
+        num_passes=2000)
 
     # 获取测试数据和训练数据，用来验证模型准确度
     train_data = get_train_data()
