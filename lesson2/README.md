@@ -3,7 +3,7 @@
 Tutorial for Paddle
 
 it includes
-* lesson2  paddle basic
+* lesson1  python basic
 
 features:
 * 1
