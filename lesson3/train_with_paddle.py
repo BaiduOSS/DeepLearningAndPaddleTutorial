@@ -112,12 +112,12 @@ def test():
 
     def reader():
         """
-            一个reader
-            Args:
-            Return:
-                data[:-1], data[-1:] -- 使用yield返回生成器(generator)，
-                        data[:-1]表示前n-1个元素，也就是测试数据，data[-1:]表示最后一个元素，也就是对应的标签
-            """
+        一个reader
+        Args:
+        Return:
+            data[:-1], data[-1:] -- 使用yield返回生成器(generator)，
+                    data[:-1]表示前n-1个元素，也就是测试数据，data[-1:]表示最后一个元素，也就是对应的标签
+        """
         for data in TEST_SET:
             yield data[:-1], data[-1:]
 
