@@ -124,7 +124,7 @@ def plot_costs(costs):
     plt.plot(costs)
     plt.ylabel('cost')
     plt.xlabel('iterations (per hundreds)')
-    plt.title("Learning rate = 0.00002")
+    plt.title("House Price Distributions of Beijing Beiyuan Area")
     plt.show()
     plt.savefig('costs.png')
 
@@ -169,7 +169,7 @@ def main():
         Return:
         """
         if isinstance(event, paddle.event.EndIteration):
-            if event.pass_id % 20 == 0:
+            if event.pass_id % 100 == 0:
                 print "Pass %d, Batch %d, Cost %f" % (
                     event.pass_id, event.batch_id, event.cost)
                 costs.append(event.cost)
