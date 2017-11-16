@@ -20,6 +20,9 @@ Date:    2017/11/16
 """
 import numpy as np
 import paddle.v2 as paddle
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 CODEMASTER_TRAIN_DATA = None
 X_RAW = None
@@ -108,6 +111,24 @@ def test():
     return reader
 
 
+# 展示模型训练曲线
+def plot_costs(costs):
+    """
+    利用costs展示模型的训练曲线
+
+    Args:
+        costs -- 记录了训练过程的cost变化的list，每一百次迭代记录一次
+    Return:
+    """
+    costs = np.squeeze(costs)
+    plt.plot(costs)
+    plt.ylabel('cost')
+    plt.xlabel('iterations (per hundreds)')
+    plt.title("Learning rate = 0.00002")
+    plt.show()
+    plt.savefig('costs.png')
+
+
 def main():
     """
     初始化，定义神经网络结构，训练
@@ -136,6 +157,8 @@ def main():
     # mapping data
     feeding = {'x': 0, 'y': 1}
 
+    # 记录cost
+    costs = []
     # event_handler to print training and testing info
     def event_handler(event):
         """
@@ -146,9 +169,10 @@ def main():
         Return:
         """
         if isinstance(event, paddle.event.EndIteration):
-            if event.batch_id % 100 == 0:
+            if event.pass_id % 20 == 0:
                 print "Pass %d, Batch %d, Cost %f" % (
                     event.pass_id, event.batch_id, event.cost)
+                costs.append(event.cost)
 
         if isinstance(event, paddle.event.EndPass):
             result = trainer.test(
@@ -160,7 +184,7 @@ def main():
     trainer.train(
         reader=paddle.batch(
             paddle.reader.shuffle(train(), buf_size=500),
-            batch_size=2),
+            batch_size=256),
         feeding=feeding,
         event_handler=event_handler,
         num_passes=300)
@@ -183,6 +207,6 @@ def main():
     print 'a = ', a
     print 'b = ', b
 
-
+    plot_costs(costs)
 if __name__ == '__main__':
     main()
