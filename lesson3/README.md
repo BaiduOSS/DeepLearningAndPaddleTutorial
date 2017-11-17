@@ -9,7 +9,7 @@
 
 包含内容
 
-* [datasets](#datasets)：数据集，包含train_catvnoncat.h5和test_catvnoncat.h5两个h5py文件，分别为训练数据和测试数据来源
+* [datasets](https://github.com/BaiduOSS/DeepLearningAndPaddleTutorial/edit/master/lesson3/datasets)：数据集，包含train_catvnoncat.h5和test_catvnoncat.h5两个h5py文件，分别为训练数据和测试数据来源
 
 * [lr_util.py]()：工具类，包含load_data()函数，用于载入数据
 
