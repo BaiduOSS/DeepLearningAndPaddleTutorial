@@ -9,6 +9,6 @@
 
 文件清单：
 
-  * [train.py](train.py)：在paddlePaddle上完成推荐模型的训练
+  * [train.py](train.py)：在PaddlePaddle上完成推荐模型的训练
 
-  * [predict.py](predict.py)：在paddlePaddle上完成推荐模型的预测
+  * [predict.py](predict.py)：在PaddlePaddle上完成推荐模型的预测
