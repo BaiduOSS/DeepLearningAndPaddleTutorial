@@ -1,10 +1,10 @@
-# Deep Learning And Paddle Tutorial
+本实验内容主要为分别利用python和paddlepaddle框架来实现前层神经网络，用于解决花型图案分类问题。
 
-Tutorial for Paddle
+注意: 实验假设读者已经对Numpy以及Paddlepaddle知识有基本的了解，并且掌握了深度学习的基本概念和神经网络的实现原理。
+包含内容
 
-it includes
-* lesson4  shallow network with numpy and paddle
+planar_utils.py：工具类，包含load_data()函数，用于载入数据
 
-features:
-* 1 
-* 2
+nn_python.py：浅层神经网络的Python版本实现
+
+nn_paddle.py：浅层神经网络的Paddlepaddle版本实现
