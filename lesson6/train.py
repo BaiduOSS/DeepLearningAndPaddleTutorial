@@ -115,7 +115,7 @@ def main():
     """
     输入层:
         paddle.layer.data表示数据层,
-        name=’images’：名称为images,对应输入图片
+        name=’pixel’：名称为pixel,对应输入图片特征
         type=paddle.data_type.dense_vector(784)：数据类型为784维(输入图片的尺寸为28*28)稠密向量
     """
     images = paddle.layer.data(
