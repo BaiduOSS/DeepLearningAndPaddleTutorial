@@ -9,6 +9,6 @@
 
 文件清单：
 
-  * [prepare_data.py](prepare_data.py)：在paddlePaddle cloud平台上完成训练数据的预处理
+  * [prepare_data.py](prepare_data.py)：在PaddlePaddle Cloud平台上完成训练数据的预处理
 
-  * [cloud_train.py](cloud_train.py)：在paddlePaddle cloud平台上分布式训练推荐模型
+  * [cloud_train.py](cloud_train.py)：在PaddlePaddle Cloud平台上分布式训练推荐模型
