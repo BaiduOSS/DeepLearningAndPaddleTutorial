@@ -155,13 +155,14 @@ def main():
     inference = paddle.layer.cos_sim(
         a=usr_combined_features, b=mov_combined_features, size=1, scale=5)
 
+    # 读取模型参数
     if not os.path.exists('params.tar'):
         print("Params file doesn't exists.")
         return
     with open('params.tar', 'r') as f:
         PARAMETERS = paddle.parameters.Parameters.from_tar(f)
 	
-	# 数据层和数组索引映射，用于trainer训练时读取数据
+    # 数据层和数组索引映射，用于trainer训练时读取数据
     feeding = {
         'user_id': 0,
         'gender_id': 1,
@@ -173,7 +174,7 @@ def main():
         'score': 7
     }
 		
-	# 定义用户编号值和电影编号值
+    # 定义用户编号值和电影编号值
     user_id = 234
     movie_id = 345
 
