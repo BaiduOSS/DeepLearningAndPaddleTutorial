@@ -1,158 +1,304 @@
-# -*- coding:utf-8 -*-
+#!/usr/bin/env python
+# -*- coding:gbk -*-
+################################################################################
+#
+# Copyright (c) 2017 Baidu.com, Inc. All Rights Reserved
+#
+################################################################################
+"""
+Authors: Jiahui Liu(2505774110@qq.com)
+Date:    2017/11/17 17:27:06
+
+Ê¹ÓÃpython¼°numpy¿âÀ´ÊµÏÖÇ³²ãÉñ¾­ÍøÂçÊ¶±ğ»¨ĞÍÍ¼°¸£¬¹Ø¼ü²½ÖèÈçÏÂ£º
+1.ÔØÈëÊı¾İºÍÔ¤´¦Àí£ºload_planar_dataset
+2.³õÊ¼»¯Ä£ĞÍ²ÎÊı£¨Parameters£©
+3.Ñ­»·£º
+    a)	¼ÆËã³É±¾£¨Cost£©
+    b)	¼ÆËãÌİ¶È£¨Gradient£©
+    c)	¸üĞÂ²ÎÊı£¨Gradient Descent£©
+4.´î½¨Ë«²ãÉñ¾­ÍøÂç£¬ÀûÓÃÄ£ĞÍ½øĞĞÔ¤²â
+5.·ÖÎöÔ¤²â½á¹û
+6.¶¨Òåmodelº¯ÊıÀ´°´Ë³Ğò½«ÉÏÊö²½ÖèºÏ²¢
+"""
 import numpy as np
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import scipy
-import h5py
-from PIL import Image
-from scipy import ndimage
-from lr_utils import load_dataset
-
-#åˆå§‹åŒ–å‚æ•°
-def inin_para(row,col,m):
-    pa = np.random.randn(row,col)*m
-    return np.mat(pa)
-
-#è®¡ç®—z1ï¼ˆéšè—å±‚åŠ æƒåç§»åçš„ä¸­é—´é‡ï¼‰
-def z1_out(w1, b1, x):
-    z1 = w1 * x + b1
-    return z1
-
-#è®¡ç®—h1ï¼ˆz1æ¿€æ´»åçš„å€¼ï¼‰
-def h1_out(z1):
-    z = np.tanh(z1)
-    return z
+import sklearn
+import sklearn.datasets
+import sklearn.linear_model
+from planar_utils import plot_decision_boundary, sigmoid, load_planar_dataset, load_extra_datasets
 
 
-#è®¡ç®—z2ï¼ˆè¾“å‡ºå±‚çš„ä¸­é—´é‡ï¼‰
-def z2_out(w2,b2,h1):
-    z2 = w2 * h1 + b2
-    return z2
+#¶¨Òå¸÷²ã¹æÄ£º¯Êı
+def layer_sizes(X, Y):
+    """
+    ²ÎÊıº¬Òå:
+    X -- ÊäÈëµÄÊı¾İ
+    Y -- Êä³öÖµ
 
-#è®¡ç®—è¾“å‡ºy
-def y_out(z2):
-    z = 1 / (1 + np.exp(-z2))
-    return z
+    ·µ»ØÖµ:
+    n_x -- ÊäÈë²ã½ÚµãÊı
+    n_h -- Òş²Ø²ã½ÚµãÊı
+    n_y -- Êä³ö²ã½ÚµãÊı
+    """
+    n_x = X.shape[0] #ÊäÈë²ã´óĞ¡£¨½ÚµãÊı£©
+    n_h = 4
+    n_y = Y.shape[0] #Êä³ö²ã´óĞ¡£¨½ÚµãÊı£©
+    return (n_x, n_h, n_y)
 
-#æ•´åˆä¸Šè¿°å‡½æ•°ï¼Œç›´æ¥è¾“å‡ºy
-def calculate(x, w1, w2, b1, b2):
-    z1 = z1_out(w1, b1, x)
-    h1 = h1_out(z1)
-    z2 = z2_out(w2,b2,h1)
-    y_ou = y_out(z2)
-    return y_ou
+#¶¨Òå¸÷²ã¹æÄ£º¯Êı
+def layer_sizes(X, Y):
+    """
+    ²ÎÊıº¬Òå:
+    X -- ÊäÈëµÄÊı¾İ
+    Y -- Êä³öÖµ
 
-#BP
-#è®¡ç®—dy
-def dy_out(y_ou, y):
-    dy_ou = y_ou - y
-    return dy_ou
+    ·µ»ØÖµ:
+    n_x -- ÊäÈë²ã½ÚµãÊı
+    n_h -- Òş²Ø²ã½ÚµãÊı
+    n_y -- Êä³ö²ã½ÚµãÊı
+    """
 
-#è®¡ç®—dz2
-def dz2_out(dy_out, y_ou):
-    dz = 1 - y_ou
-    dz = np.multiply(y_ou, dz)
-    dz = np.multiply(dy_out,dz)
-    return dz
+    n_x = X.shape[0] #ÊäÈë²ã´óĞ¡£¨½ÚµãÊı£©
+    n_h = 4
+    n_y = Y.shape[0] #Êä³ö²ã´óĞ¡£¨½ÚµãÊı£©
+    return (n_x, n_h, n_y)
 
-#è®¡ç®—dw2
-def dw2_out(dz22, h1, n):
-    dw22 = dz22 * (h1.T) / n
-    return dw22
+# ¶¨Òåº¯Êı£º³õÊ¼»¯²ÎÊı
 
-#è®¡ç®—db2
-def db2_out(dz22, n):
-    db22 = np.sum(dz22, axis=1)/n
-    return db22
+def initialize_parameters(n_x, n_h, n_y):
+    """
+    ²ÎÊı:
+    n_x -- ÊäÈë²ã´óĞ¡
+    n_h -- Òş²Ø²ã´óĞ¡
+    n_y -- Êä³ö²ã´óĞ¡
 
-#è®¡ç®—dh1
-def dh1_out(dz2, w2):
-    dh11 = w2.T * dz2
-    return dh11
+    ·µ»ØÖµ:
+    params -- Ò»¸ö°üº¬ËùÓĞ²ÎÊıµÄpython×Öµä:
+                    W1 -- £¨Òş²Ø²ã£©È¨ÖØ£¬Î¬¶ÈÊÇ (n_h, n_x)
+                    b1 -- £¨Òş²Ø²ã£©Æ«ÒÆÁ¿£¬Î¬¶ÈÊÇ (n_h, 1)
+                    W2 -- £¨Êä³ö²ã£©È¨ÖØ£¬Î¬¶ÈÊÇ (n_y, n_h)
+                    b2 -- £¨Êä³ö²ã£©Æ«ÒÆÁ¿£¬Î¬¶ÈÊÇ (n_y, 1)
+    """
 
-#è®¡ç®—dz1
-def dz1_out(dh11, h1):
-    hh = np.multiply(h1,h1)
-    hh = 1 - hh
-    dz1 = np.multiply(dh11, hh)
-    return dz1
+    np.random.seed(2) # ÉèÖÃËæ»úÖÖ×Ó
 
-#è®¡ç®—dw1
-def dw1_out(dz11, x, n):
-    dw11 = (dz11 * x.T) / n
-    return dw11
+   #Ëæ»ú³õÊ¼»¯²ÎÊı
+    W1 = np.random.randn(n_h, n_x) * 0.01
+    b1 = np.zeros((n_h, 1))
+    W2 = np.random.randn(n_y, n_h) * 0.01
+    b2 = np.zeros((n_y, 1))
 
-#è®¡ç®—db1
-def db1_out(dz11, n):
-    db11 = np.sum(dz11, axis=1) / n
-    return db11
 
-#æ›´æ–°å‚æ•°
-def update(p, dp, u):
-    return p - (u * dp)
+    assert (W1.shape == (n_h, n_x))
+    assert (b1.shape == (n_h, 1))
+    assert (W2.shape == (n_y, n_h))
+    assert (b2.shape == (n_y, 1))
 
-#è®¡ç®—æ­£ç¡®ç‡
-def accuracy(y,yout):
-    a = 1 - np.mean(np.abs(1*(yout>0.5)-y))
-    return a
+    parameters = {"W1": W1,
+                  "b1": b1,
+                  "W2": W2,
+                  "b2": b2}
+    return parameters
 
-#è½½å…¥æ•°æ®
-# ä¸‹è½½æ•°æ®é›†(cat/non-cat)
-train_set_x_orig, train_set_y, test_set_x_orig, test_set_y, classes = load_dataset()
-m_train = train_set_x_orig.shape[0]
-m_test = test_set_x_orig.shape[0]
-num_px = train_set_x_orig.shape[1]
+# ¶¨Òåº¯Êı£ºÇ°Ïò´«²¥
+def forward_propagation(X, parameters):
+    """
+    ²ÎÊı:
+    X -- ÊäÈëÖµ
+    parameters -- Ò»¸öpython×Öµä£¬°üº¬¼ÆËãËùĞèÈ«²¿²ÎÊı£¨ÊÇinitialize_parametersº¯ÊıµÄÊä³ö£©
+    ·µ»ØÖµ:
+    A2 -- Ä£ĞÍÊä³öÖµ
+    cache -- Ò»¸ö×Öµä£¬°üº¬ "Z1", "A1", "Z2" and "A2"
+    """
 
-train_set_x_flatten = train_set_x_orig.reshape(m_train,-1).T
-test_set_x_flatten = test_set_x_orig.reshape(m_test,-1).T
-
-train_set_x = train_set_x_flatten/255
-test_set_x = test_set_x_flatten/255
-
-x = np.mat(train_set_x)
-y = np.mat(train_set_y)
-
-#è®¾ç½®ç›¸å…³é‡
-j = 4 #æ¯ä¸ªéšè—å±‚èŠ‚ç‚¹è‹
-u = 0.06 #å­¦ä¹ ç‡
-n = 209 #æ•°æ®ä¸ªæ•°
-
-#åˆå§‹åŒ–å‚æ•°
-w1 = inin_para(j,x.shape[0],0.01)
-w2 = inin_para(y.shape[0],j,0.01)
-b1 = inin_para(j,1,0.01)
-b2 = inin_para(y.shape[0],1,0.01)
+    W1 = parameters["W1"]
+    b1 = parameters["b1"]
+    W2 = parameters["W2"]
+    b2 = parameters["b2"]
 
 
 
-#è®­ç»ƒ
-for i in range(5000):
+    Z1 = np.dot(W1, X) + b1
+    A1 = np.tanh(Z1)
+    Z2 = np.dot(W2, A1) + b2
+    A2 = 1/(1+np.exp(-Z2))
 
-    yout = calculate(x, w1, w2, b1, b2) #è®¡ç®—y
-    dyout = dy_out(yout, y) #è®¡ç®—dy
-    dz2 = dz2_out(dyout, yout) #è®¡ç®—dz2
 
-    z1 = z1_out(w1, b1, x)
-    h1 = h1_out(z1)
-    dw2 = dw2_out(dz2, h1, n) #è®¡ç®—dw2
-    w2 = update(w2, dw2, u) #æ›´æ–°w2
+    assert(A2.shape == (1, X.shape[1]))
 
-    db2 = db2_out(dz2, n)
-    b2 = update(b2, db2, u) #æ›´æ–°b2
+    cache = {"Z1": Z1,
+             "A1": A1,
+             "Z2": Z2,
+             "A2": A2}
 
-    dh1 = dh1_out(dz2, w2)
-    dz1 = dz1_out(dh1, h1)
+    return A2, cache
 
-    dw1 = dw1_out(dz1, x, n)
-    w1 = update(w1, dw1, u) #æ›´æ–°w1
+# ¶¨Òåº¯Êı£º³É±¾º¯Êı
 
-    db1 = db1_out(dz1, n)
-    b1 = update(b1, db1, u) #æ›´æ–°b1
+def compute_cost(A2, Y, parameters):
+    """
+   ¸ù¾İµÚÈıÕÂ¸ø³öµÄ¹«Ê½¼ÆËã³É±¾
 
-print('Train_accuracy:',accuracy(y,yout))
+    ²ÎÊı:
+A2 -- Ä£ĞÍÊä³öÖµ
+Y -- ÕæÊµÖµ
+    parameters -- Ò»¸öpython×Öµä°üº¬²ÎÊı W1, b1, W2ºÍb2
 
-#test
-yout = calculate(test_set_x,w1,w2,b1,b2)
-print('Test_accuracy:',accuracy(test_set_y,yout))
+    ·µ»ØÖµ:
+    cost -- ³É±¾º¯Êı
+    """
 
+    m = Y.shape[1] #Ñù±¾¸öÊı
+
+    #¼ÆËã³É±¾
+    logprobs = np.multiply(np.log(A2), Y) + np.multiply(np.log(1 - A2), 1 - Y)
+    cost =  -1. / m * np.sum(logprobs)
+
+    cost = np.squeeze(cost)     # È·±£Î¬¶ÈµÄÕıÈ·ĞÔ
+    assert(isinstance(cost, float))
+
+    return cost
+# ¶¨Òåº¯Êı£ººóÏò´«²¥
+
+def backward_propagation(parameters, cache, X, Y):
+    """
+    ²ÎÊı:
+    parameters -- Ò»¸öpython×Öµä£¬°üº¬ËùÓĞ²ÎÊı
+    cache -- Ò»¸öpython×Öµä°üº¬"Z1", "A1", "Z2"ºÍ"A2".
+    X -- ÊäÈëÖµ
+    Y -- ÕæÊµÖµ
+
+    ·µ»ØÖµ:
+    grads -- Ò»¸öpyth×Öµä°üº¬ËùÓĞ²ÎÊıµÄÌİ¶È
+    """
+    m = X.shape[1]
+
+    #Ê×ÏÈ´Ó"parameters"»ñÈ¡W1,W2
+    W1 = parameters["W1"]
+    W2 = parameters["W2"]
+
+    # ´Ó"cache"ÖĞ»ñÈ¡A1,A2
+    A1 = cache["A1"]
+    A2 = cache["A2"]
+
+    #ºóÏò´«²¥: ¼ÆËãdW1, db1, dW2, db2.
+    dZ2 = A2 - Y
+    dW2 = 1. / m * np.dot(dZ2, A1.T)
+    db2 = 1. / m * np.sum(dZ2, axis = 1, keepdims = True)
+    dZ1 = np.dot(W2.T, dZ2) * (1 - np.power(A1, 2))
+    dW1 = 1. / m * np.dot(dZ1, X.T)
+    db1 = 1. / m * np.sum(dZ1, axis = 1, keepdims = True)
+
+    grads = {"dW1": dW1,
+             "db1": db1,
+             "dW2": dW2,
+             "db2": db2}
+
+    return grads
+
+def update_parameters(parameters, grads, learning_rate = 1.2):
+    """
+    Ê¹ÓÃÌİ¶È¸üĞÂ²ÎÊı
+
+    ²ÎÊı:
+    parameters -- °üº¬ËùÓĞ²ÎÊıµÄpython×Öµä
+    grads -- °üº¬ËùÓĞ²ÎÊıÌİ¶ÈµÄpython×Öµä
+
+    ·µ»ØÖµ:
+    parameters -- °üº¬¸üĞÂºó²ÎÊıµÄpython
+    """
+    #´Ó"parameters"ÖĞ¶ÁÈ¡È«²¿²ÎÊı
+    W1 = parameters["W1"]
+    b1 = parameters["b1"]
+    W2 = parameters["W2"]
+    b2 = parameters["b2"]
+
+    # ´Ó"grads"ÖĞ¶ÁÈ¡È«²¿Ìİ¶È
+    dW1 = grads["dW1"]
+    db1 = grads["db1"]
+    dW2 = grads["dW2"]
+    db2 = grads["db2"]
+
+    #¸üĞÂ²ÎÊı
+    W1 = W1 - learning_rate * dW1
+    b1 = b1 - learning_rate * db1
+    W2 = W2 - learning_rate * dW2
+    b2 = b2 - learning_rate * db2
+
+    parameters = {"W1": W1,
+                  "b1": b1,
+                  "W2": W2,
+                  "b2": b2}
+
+    return parameters
+
+
+#¶¨Òåº¯Êı£ºÉñ¾­ÍøÂçÄ£ĞÍ
+def nn_model(X, Y, n_h, num_iterations = 10000, print_cost=False):
+    """
+    ²ÎÊı:
+    X -- ÊäÈëÖµ
+    Y -- ÕæÊµÖµ
+    n_h -- Òş²Ø²ã´óĞ¡/½ÚµãÊı
+    num_iterations -- ÑµÁ·´ÎÊı
+    print_cost -- ÉèÖÃÎªTrue£¬ÔòÃ¿1000´ÎÑµÁ·´òÓ¡Ò»´Î³É±¾º¯ÊıÖµ
+
+    ·µ»ØÖµ:
+parameters -- ÑµÁ·½áÊø£¬¸üĞÂºóµÄ²ÎÊıÖµ
+"""
+
+    np.random.seed(3)
+    n_x = layer_sizes(X, Y)[0]
+    n_y = layer_sizes(X, Y)[2]
+
+    #¸ù¾İn_x, n_h, n_y³õÊ¼»¯²ÎÊı£¬²¢È¡³öW1,b1,W2,b2
+    parameters = initialize_parameters(n_x, n_h, n_y)
+    W1 = parameters["W1"]
+    b1 = parameters["b1"]
+    W2 = parameters["W2"]
+    b2 = parameters["b2"]
+
+
+    #Ñ­»·
+    for i in range(0, num_iterations):
+
+        #Ç°Ïò´«²¥£¬ ÊäÈë: "X, parameters". Êä³ö: "A2, cache".
+        A2, cache = forward_propagation(X, parameters)
+
+        #³É±¾¼ÆËã. ÊäÈë: "A2, Y, parameters". Êä³ö: "cost".
+        cost = compute_cost(A2, Y, parameters)
+
+        #ºóÏò´«²¥£¬ ÊäÈë: "parameters, cache, X, Y". Êä³ö: "grads".
+        grads = backward_propagation(parameters, cache, X, Y)
+
+        #²ÎÊı¸üĞÂ. ÊäÈë: "parameters, grads". Êä³ö: "parameters".
+        parameters = update_parameters(parameters, grads)
+
+        #Ã¿1000´ÎÑµÁ·´òÓ¡Ò»´Î³É±¾º¯ÊıÖµ
+        if print_cost and i % 1000 == 0:
+            print ("Cost after iteration %i: %f" %(i, cost))
+
+    return parameters
+
+#¶¨Òåº¯Êı£ºÔ¤²â
+def predict(parameters, X):
+    """
+    Ê¹ÓÃÑµÁ·ËùµÃ²ÎÊı£¬¶ÔÃ¿¸öÑµÁ·Ñù±¾½øĞĞÔ¤²â
+
+    ²ÎÊı:
+    parameters -- ±£°²ËùÓĞ²ÎÊıµÄpython×Öµä
+    X -- ÊäÈëÖµ
+
+    ·µ»ØÖµ£º
+    predictions -- Ä£ĞÍÔ¤²âÖµÏòÁ¿(ºìÉ«: 0 / À¶É«: 1)
+    """
+
+    #Ê¹ÓÃÑµÁ·ËùµÃ²ÎÊı½øĞĞÇ°Ïò´«²¥¼ÆËã£¬²¢½«Ä£ĞÍÊä³öÖµ×ª»¯ÎªÔ¤²âÖµ£¨´óÓÚ0.5ÊÓ×÷1£¬¼´True£©
+    A2, cache = forward_propagation(X, parameters)
+    predictions = A2 > 0.5
+
+    return predictions
+
+X, Y = load_planar_dataset()#¼ÓÔØÊı¾İ
+parameters = nn_model(X, Y, n_h = 4, num_iterations = 10000, print_cost=True)#ÑµÁ·Ä£ĞÍ
+predictions = predict(parameters, X)#Ô¤²â
+print ('Accuracy: %d' % float((np.dot(Y,predictions.T) + np.dot(1-Y,1-predictions.T))/float(Y.size)*100) + '%')#Êä³ö×¼È·ÂÊ
