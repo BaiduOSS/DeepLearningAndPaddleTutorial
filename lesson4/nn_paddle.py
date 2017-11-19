@@ -29,7 +29,7 @@ import sklearn.linear_model
 from planar_utils import plot_decision_boundary, sigmoid, load_planar_dataset, load_extra_datasets
 
 
-# 载入数据(cat/non-cat)
+# 载入数据
 def load_data():
     """
     载入数据，数据项包括：
@@ -142,9 +142,13 @@ def main():
     # type=paddle.data_type.dense_vector(DATADIM)：数据类型为DATADIM维稠密向量
     image = paddle.layer.data(
         name='image', type=paddle.data_type.dense_vector(DATADIM))
+
+    #隐藏层，paddle.layer.fc表示全连接层，input=image: 该层输入数据为image
+    # size=4：神经元个数，act=paddle.activation.Tanh()：激活函数为Tanh()
     h1 = paddle.layer.fc(
         input=image, size=4, act=paddle.activation.Tanh())
-    # 输出层，paddle.layer.fc表示全连接层，input=image: 该层输入数据为image
+
+    # 输出层，paddle.layer.fc表示全连接层，input=h1: 该层输入数据为h1
     # size=1：神经元个数，act=paddle.activation.Sigmoid()：激活函数为Sigmoid()
     y_predict = paddle.layer.fc(
         input=h1, size=1, act=paddle.activation.Sigmoid())
