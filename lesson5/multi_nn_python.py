@@ -39,14 +39,15 @@ train_x_flatten = train_x_orig.reshape(train_x_orig.shape[0], -1).T   # The "-1"
 test_x_flatten = test_x.reshape(test_x.shape[0], -1).T
 
 #归一化
-train_x = train_x_flatten/255.
-test_x = test_x_flatten/255.
+train_x = train_x_flatten / 255.
+test_x = test_x_flatten / 255.
 
 #定义各层节点数
 layers_dims = [12288, 20, 7, 5, 1]
 
 #计算
-parameters = dnn_app_utils_v2.L_layer_model(train_x, train_y, layers_dims, num_iterations = 2500, print_cost = True)
+parameters = dnn_app_utils_v2.L_layer_model(train_x, train_y, layers_dims,
+                                            num_iterations = 2500, print_cost = True)
 
 #准确率输出
 pred_train = dnn_app_utils_v2.predict(train_x, train_y, parameters)
