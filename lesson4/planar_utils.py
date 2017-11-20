@@ -1,10 +1,11 @@
+# -*- coding:utf-8 -*-
 import matplotlib.pyplot as plt
 import numpy as np
 import sklearn
 import sklearn.datasets
 import sklearn.linear_model
 
-#绘制分类结果边界
+#缁樺埗鍒嗙被缁撴灉杈圭晫
 def plot_decision_boundary(model, X, y):
     # Set min and max values and give it some padding
     x_min, x_max = X[0, : ].min() - 1, X[0, : ].max() + 1
@@ -32,12 +33,12 @@ def sigmoid(x):
     Return:
     s -- sigmoid(x)
     """
-    s = 1/(1+np.exp(-x)) #Sigmoid计算
+    s = 1/(1+np.exp(-x)) #Sigmoid璁＄畻
     return s
 
-#加载数据
+#鍔犺浇鏁版嵁
 def load_planar_dataset():
-    np.random.seed(1) #设置随机种子
+    np.random.seed(1) #璁剧疆闅忔満绉嶅瓙
     m = 400 # number of examples
     N = int(m/2) # number of points per class
     D = 2 # dimensionality
@@ -57,7 +58,7 @@ def load_planar_dataset():
 
     return X, Y
 
-#加载其他数据
+#鍔犺浇鍏朵粬鏁版嵁
 def load_extra_datasets():  
     N = 200
     noisy_circles = sklearn.datasets.make_circles(n_samples=N, factor=.5, noise=.3)
