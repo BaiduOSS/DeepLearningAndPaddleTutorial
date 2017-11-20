@@ -7,7 +7,7 @@
 ################################################################################
 """
 Authors: fuqiang(fqjeremybuaa@163.com)
-Date:    2017/11/19 
+Date:    2017/11/20 
 
 
 使用paddle框架实现个性化电影推荐系统的结果预测，关键步骤如下：
@@ -138,7 +138,6 @@ def get_mov_combined_features():
         
     return mov_combined_features
 
-
 def main():
     """
     读取模型参数并预测结果
@@ -156,14 +155,13 @@ def main():
     inference = paddle.layer.cos_sim(
         a=usr_combined_features, b=mov_combined_features, size=1, scale=5)
 
-    # 读取模型参数
-    if not os.path.exists('params.tar'):
+    if not os.path.exists('params_pass_9.tar'):
         print("Params file doesn't exists.")
         return
-    with open('params.tar', 'r') as f:
+    with open('params_pass_9.tar', 'r') as f:
         PARAMETERS = paddle.parameters.Parameters.from_tar(f)
 	
-    # 数据层和数组索引映射，用于trainer训练时读取数据
+	# 数据层和数组索引映射，用于trainer训练时读取数据
     feeding = {
         'user_id': 0,
         'gender_id': 1,
@@ -175,7 +173,7 @@ def main():
         'score': 7
     }
 		
-    # 定义用户编号值和电影编号值
+	# 定义用户编号值和电影编号值
     user_id = 234
     movie_id = 345
 
@@ -197,7 +195,7 @@ def main():
         input=[feature],
         feeding=infer_dict)
     score = (prediction[0][0] + 5.0) / 2
-    print "[Predict] User %d Rating Movie %d With Score %.2f" % (user_id, movie_id, score)
+    print "[Predict] User %d Rating Movie %d With Score %.2f"%(user_id, movie_id, score)
 
 
 if __name__ == '__main__':
