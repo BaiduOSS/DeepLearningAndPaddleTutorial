@@ -161,7 +161,7 @@ def main():
     parameters = paddle.parameters.create(cost)
 
     # 创建optimizer，并初始化momentum和learning_rate
-    optimizer = paddle.optimizer.Momentum(momentum=0, learning_rate=0.0075)
+    optimizer = paddle.optimizer.Momentum(momentum=0, learning_rate=0.00002)
 
     # 数据层和数组索引映射，用于trainer训练时喂数据
     feeding = {
@@ -181,7 +181,7 @@ def main():
         Return:
         """
         if isinstance(event, paddle.event.EndIteration):
-            if event.pass_id % 1000 == 0:
+            if event.pass_id % 100 == 0:
                 print("Pass %d, Batch %d, Cost %f" % (event.pass_id, event.batch_id, event.cost))
                 costs.append(event.cost)
                 # with open('params_pass_%d.tar' % event.pass_id, 'w') as f:
@@ -202,7 +202,7 @@ def main():
     """
     trainer.train(
         reader=paddle.batch(
-            paddle.reader.shuffle(train(), buf_size=5000),
+            paddle.reader.shuffle(train(), buf_size=50000),
             batch_size=256),
         feeding=feeding,
         event_handler=event_handler,
