@@ -467,7 +467,6 @@ def predict(X, y, parameters):
     # 前向传播计算
     probas, caches = L_model_forward(X, parameters)
 
-
     # 将预测值转换为0/1
     for i in range(0, probas.shape[1]):
         if probas[0, i] > 0.5:
@@ -475,9 +474,9 @@ def predict(X, y, parameters):
         else:
             p[0, i] = 0
 
-    #打印结果
-    #print ("predictions: " + str(p))
-    #print ("true labels: " + str(y))
+    # 打印结果
+    # print ("predictions: " + str(p))
+    # print ("true labels: " + str(y))
     print("Accuracy: " + str(np.sum((p == y) / m)))
 
     return p
@@ -538,32 +537,22 @@ def L_layer_model(X, Y, layers_dims, learning_rate=0.0075, num_iterations=3000, 
     costs = []                         # keep track of cost
 
     # 初始化参数
-    ### START CODE HERE ###
     parameters = initialize_parameters_deep(layers_dims)
-    ### END CODE HERE ###
 
     # 训练
     for i in range(0, num_iterations):
 
         # 前向传播计算
-
         AL, caches = L_model_forward(X, parameters)
-        ### END CODE HERE ###
 
         # 计算成本
-
         cost = compute_cost(AL, Y)
-        ### END CODE HERE ###
 
         # 后向传播
-        ### START CODE HERE ### ( 1 line of code)
         grads = L_model_backward(AL, Y, caches)
-        ### END CODE HERE ###
 
         # 更新参数
-        ### START CODE HERE ### ( 1 line of code)
         parameters = update_parameters(parameters, grads, learning_rate)
-        ### END CODE HERE ###
 
         # 每100次训练打印cost
         if print_cost and i % 100 == 0:
