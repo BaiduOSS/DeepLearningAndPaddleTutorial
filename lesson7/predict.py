@@ -10,23 +10,17 @@ Authors: fuqiang(fqjeremybuaa@163.com)
 Date:    2017/11/19 
 
 
-使用paddle框架实现个性化电影推荐系统的模型训练和参数输出，关键步骤如下：
-1.初始化
-2.构造用户融合特征模型
-3.构造电影融合特征模型
-4.定义特征相似性度量inference和成本函数cost
-5.定义模型训练器trainer
-6.定义事件迭代训练模型
-7.保存模型参数
+使用paddle框架实现个性化电影推荐系统的结果预测，关键步骤如下：
+1.读取模型参数
+2.预测结果
 """
-
 
 import paddle.v2 as paddle
 import cPickle
 import copy
 import os
 
-with_gpu = os.getenv('WITH_GPU', '0') != '0'
+PARAMETERS = None
 
 # 构造用户融合特征模型
 def get_usr_combined_features():
@@ -144,16 +138,15 @@ def get_mov_combined_features():
         
     return mov_combined_features
 
-
 def main():
     """
-    定义神经网络结构，训练网络    
+    读取模型参数并预测结果
     Args:
     Return:
-    """ 
-    # 初始化，设置为不使用GPU
-    paddle.init(use_gpu=with_gpu)
-    
+    """
+    global PARAMETERS
+    paddle.init(use_gpu=False)
+
     # 构造用户融合特征，电影融合特征
     usr_combined_features = get_usr_combined_features()
     mov_combined_features = get_mov_combined_features()
@@ -161,27 +154,14 @@ def main():
     # 计算用户融合特征和电影融合特征的余弦相似度
     inference = paddle.layer.cos_sim(
         a=usr_combined_features, b=mov_combined_features, size=1, scale=5)
-        
-    # 定义成本函数为均方误差函数
-    cost = paddle.layer.square_error_cost(
-        input=inference,
-        label=paddle.layer.data(
-            name='score', type=paddle.data_type.dense_vector(1)))
 
-    # 利用cost创建parameters
-    parameters = paddle.parameters.create(cost)
-
-    """
-    定义模型训练器，配置三个参数
-    cost:成本函数
-    parameters:参数
-    update_equation:更新公式（模型采用Adam方法优化更新，并初始化学习率）
-    """
-    trainer = paddle.trainer.SGD(
-        cost=cost,
-        parameters=parameters,
-        update_equation=paddle.optimizer.Adam(learning_rate=1e-4))
-        
+    # 读取模型参数
+    if not os.path.exists('params.tar'):
+        print("Params file doesn't exists.")
+        return
+    with open('params.tar', 'r') as f:
+        PARAMETERS = paddle.parameters.Parameters.from_tar(f)
+	
     # 数据层和数组索引映射，用于trainer训练时读取数据
     feeding = {
         'user_id': 0,
@@ -193,45 +173,7 @@ def main():
         'movie_title': 6,
         'score': 7
     }
-
-    # 事件处理模块
-    def event_handler(event):
-        """
-        事件处理器，可以根据训练过程的信息作相应操作
-        Args:
-            event -- 事件对象，包含event.pass_id, event.batch_id, event.cost等信息
-        Return:
-        """
-        if isinstance(event, paddle.event.EndIteration):
-            # 每100个batch输出一条记录，分别是当前的迭代次数编号，batch编号和对应损失值
-            if event.batch_id % 100 == 0:
-                print "Pass %d Batch %d Cost %.2f" % (
-                    event.pass_id, event.batch_id, event.cost)
-        if isinstance(event, paddle.event.EndPass):
-            # 保存参数至文件
-            #with open('params_pass_%d.tar' % event.pass_id, 'w') as f:
-            with open('params.tar', 'w') as f:
-                trainer.save_parameter_to_tar(f)
-    """
-    模型训练
-    paddle.batch(reader(), batch_size=256)：表示从打乱的数据中再取出batch_size=256大小的数据进行一次迭代训练
-    paddle.reader.shuffle(train(), buf_size=8192)：表示trainer从train()这个reader中读取了buf_size=8192
-    大小的数据并打乱顺序
-    event_handler：事件管理机制，可以自定义event_handler，根据事件信息作相应的操作
-    feeding：用到了之前定义的feeding索引，将数据层信息输入trainer
-    num_passes：定义训练的迭代次数
-    """
-    trainer.train(
-        reader=paddle.batch(
-            paddle.reader.shuffle(
-                paddle.dataset.movielens.train(), buf_size=8192),
-            batch_size=256),
-        event_handler=event_handler,
-        feeding=feeding,
-        num_passes=1)
-        
-
-        
+		
     # 定义用户编号值和电影编号值
     user_id = 234
     movie_id = 345
@@ -250,7 +192,7 @@ def main():
     # 预测指定用户对指定电影的喜好得分值
     prediction = paddle.infer(
         output_layer=inference,
-        parameters=parameters,
+        parameters=PARAMETERS,
         input=[feature],
         feeding=infer_dict)
     score = (prediction[0][0] + 5.0) / 2
