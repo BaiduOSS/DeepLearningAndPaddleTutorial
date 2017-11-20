@@ -24,7 +24,10 @@ import numpy as np
 import sklearn
 import sklearn.datasets
 import sklearn.linear_model
-from planar_utils import plot_decision_boundary, sigmoid, load_planar_dataset, load_extra_datasets
+from planar_utils import plot_decision_boundary
+from planar_utils import sigmoid
+from planar_utils import load_planar_dataset
+from planar_utils import load_extra_datasets
 
 
 #定义各层规模函数
@@ -115,13 +118,10 @@ def forward_propagation(X, parameters):
     W2 = parameters["W2"]
     b2 = parameters["b2"]
 
-
-
     Z1 = np.dot(W1, X) + b1
     A1 = np.tanh(Z1)
     Z2 = np.dot(W2, A1) + b2
-    A2 = 1/(1+np.exp(-Z2))
-
+    A2 = 1 / (1 + np.exp(-Z2))
 
     assert(A2.shape == (1, X.shape[1]))
 
@@ -180,7 +180,7 @@ def backward_propagation(parameters, cache, X, Y):
     A1 = cache["A1"]
     A2 = cache["A2"]
 
-    #后向传播: 计算dW1, db1, dW2, db2.
+    # 后向传播: 计算dW1, db1, dW2, db2.
     dZ2 = A2 - Y
     dW2 = 1. / m * np.dot(dZ2, A1.T)
     db2 = 1. / m * np.sum(dZ2, axis = 1, keepdims = True)
@@ -195,7 +195,8 @@ def backward_propagation(parameters, cache, X, Y):
 
     return grads
 
-def update_parameters(parameters, grads, learning_rate = 1.2):
+
+def update_parameters(parameters, grads, learning_rate=1.2):
     """
     使用梯度更新参数
 
@@ -233,7 +234,7 @@ def update_parameters(parameters, grads, learning_rate = 1.2):
 
 
 #定义函数：神经网络模型
-def nn_model(X, Y, n_h, num_iterations = 10000, print_cost=False):
+def nn_model(X, Y, n_h, num_iterations=10000, print_cost=False):
     """
     参数:
     X -- 输入值
@@ -275,7 +276,7 @@ parameters -- 训练结束，更新后的参数值
 
         #每1000次训练打印一次成本函数值
         if print_cost and i % 1000 == 0:
-            print ("Cost after iteration %i: %f" %(i, cost))
+            print ("Cost after iteration %i: %f" % (i, cost))
 
     return parameters
 
@@ -298,7 +299,13 @@ def predict(parameters, X):
 
     return predictions
 
-X, Y = load_planar_dataset()#加载数据
-parameters = nn_model(X, Y, n_h = 4, num_iterations = 10000, print_cost=True)#训练模型
-predictions = predict(parameters, X)#预测
-print ('Accuracy: %d' % float((np.dot(Y,predictions.T) + np.dot(1-Y,1-predictions.T))/float(Y.size)*100) + '%')#输出准确率
+# 加载数据
+X, Y = load_planar_dataset()
+# 训练模型
+parameters = nn_model(X, Y, n_h=4, num_iterations=10000, print_cost=True)
+# 预测
+predictions = predict(parameters, X)
+# 输出准确率
+print ('Accuracy: %d' % float((np.dot(Y, predictions.T) +
+                               np.dot(1 - Y, 1 - predictions.T)) / float(Y.size) * 100) + '%')
+

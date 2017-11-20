@@ -26,8 +26,10 @@ import paddle.v2 as paddle
 import sklearn
 import sklearn.datasets
 import sklearn.linear_model
-from planar_utils import plot_decision_boundary, sigmoid, load_planar_dataset, load_extra_datasets
-
+from planar_utils import plot_decision_boundary
+from planar_utils import sigmoid
+from planar_utils import load_planar_dataset
+from planar_utils import load_extra_datasets
 
 # 载入数据
 def load_data():
@@ -47,7 +49,6 @@ def load_data():
     DATADIM = 2
 
     TRAINING_SET = np.hstack((train_set_x.T, train_set_y.T))
-
 
 
 # 训练数据集
@@ -98,7 +99,6 @@ def get_train_data():
     }
 
     return result
-
 
 
 # 训练集准确度
