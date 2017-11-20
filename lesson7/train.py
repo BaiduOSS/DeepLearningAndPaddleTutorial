@@ -16,17 +16,24 @@ Date:    2017/11/19
 3.构造电影融合特征模型
 4.定义特征相似性度量inference和成本函数cost
 5.定义模型训练器trainer
-6.定义事件迭代训练模型
+6.定义事件迭代训练模型(包括绘图模块)
 7.保存模型参数
 """
 
 
+import matplotlib
+matplotlib.use('Agg')
+import numpy as np
 import paddle.v2 as paddle
 import cPickle
 import copy
 import os
+from paddle.v2.plot import Ploter
+
 
 with_gpu = os.getenv('WITH_GPU', '0') != '0'
+
+step = 0
 
 # 构造用户融合特征模型
 def get_usr_combined_features():
@@ -194,6 +201,51 @@ def main():
         'score': 7
     }
 
+    """
+    绘图相关设置:
+        通过Ploter(train_title, test_title)函数初始化绘图函数，
+            train_title和test_title表明要绘制的曲线的题注
+        
+    """
+    # 绘制cost曲线所做的初始化设置
+    train_title_cost = "Train cost"
+    test_title_cost = "Test cost"
+    cost_ploter = Ploter(train_title_cost, test_title_cost)
+	
+	
+    def event_handler_plot(event):
+        """
+        事件处理器，可以根据训练过程的信息做相应操作：包括绘图和输出训练结果信息
+        Args:
+            event -- 事件对象，包含event.pass_id, event.batch_id, event.cost等信息
+        Return:
+        """
+        global step
+        if isinstance(event, paddle.event.EndIteration):
+            # 每训练100次（即100个batch），添加一个绘图点
+            if step % 100 == 0:
+                cost_ploter.append(train_title_cost, step, event.cost)
+                # 绘制cost图像，保存图像为‘train_test_cost.png’
+                cost_ploter.plot('./train_test_cost')
+            step += 1
+            # 每训练100个batch，输出一次训练结果信息
+            if event.batch_id % 100 == 0:
+                print "Pass %d Batch %d Cost %.2f" % (
+                    event.pass_id, event.batch_id, event.cost)
+        if isinstance(event, paddle.event.EndPass):
+            # 保存参数至文件
+            with open('params_pass_%d.tar' % event.pass_id , 'w') as f:
+                trainer.save_parameter_to_tar(f)
+
+            # 利用测试数据进行测试
+            result = trainer.test(reader=paddle.batch(
+                paddle.dataset.movielens.test(), batch_size=128))
+            print "Test with Pass %d, Cost %f" % (
+                event.pass_id, result.cost)
+            # 添加测试数据的cost和error_rate绘图数据
+            cost_ploter.append(test_title_cost, step, result.cost)
+    
+	
     # 事件处理模块
     def event_handler(event):
         """
@@ -209,53 +261,32 @@ def main():
                     event.pass_id, event.batch_id, event.cost)
         if isinstance(event, paddle.event.EndPass):
             # 保存参数至文件
-            #with open('params_pass_%d.tar' % event.pass_id, 'w') as f:
-            with open('params.tar', 'w') as f:
+            with open('params_pass_%d.tar' % event.pass_id, 'w') as f:
                 trainer.save_parameter_to_tar(f)
+    
     """
     模型训练
-    paddle.batch(reader(), batch_size=256)：表示从打乱的数据中再取出batch_size=256大小的数据进行一次迭代训练
-    paddle.reader.shuffle(train(), buf_size=8192)：表示trainer从train()这个reader中读取了buf_size=8192
-    大小的数据并打乱顺序
+    paddle.batch(reader(), batch_size=256)：
+        表示从打乱的数据中再取出batch_size=256大小的数据进行一次迭代训练
+    paddle.reader.shuffle(train(), buf_size=8192)：
+        表示trainer从train()这个reader中读取了buf_size=8192大小的数据并打乱顺序
     event_handler：事件管理机制，可以自定义event_handler，根据事件信息作相应的操作
-    feeding：用到了之前定义的feeding索引，将数据层信息输入trainer
-    num_passes：定义训练的迭代次数
+        下方代码中选择的是event_handler_plot函数
+    feeding：
+        用到了之前定义的feeding索引，将数据层信息输入trainer
+    num_passes：
+        定义训练的迭代次数
     """
     trainer.train(
         reader=paddle.batch(
             paddle.reader.shuffle(
                 paddle.dataset.movielens.train(), buf_size=8192),
             batch_size=256),
-        event_handler=event_handler,
+        event_handler=event_handler_plot,
         feeding=feeding,
-        num_passes=1)
-        
+        num_passes=10)
 
-        
-    # 定义用户编号值和电影编号值
-    user_id = 234
-    movie_id = 345
-
-    # 根据已定义的用户、电影编号值从movielens数据集中读取数据信息
-    user = paddle.dataset.movielens.user_info()[user_id]
-    movie = paddle.dataset.movielens.movie_info()[movie_id]
-
-    # 存储用户特征和电影特征
-    feature = user.value() + movie.value()
-
-    # 复制feeding值，并删除序列中的得分项
-    infer_dict = copy.copy(feeding)
-    del infer_dict['score']
-
-    # 预测指定用户对指定电影的喜好得分值
-    prediction = paddle.infer(
-        output_layer=inference,
-        parameters=parameters,
-        input=[feature],
-        feeding=infer_dict)
-    score = (prediction[0][0] + 5.0) / 2
-    print "[Predict] User %d Rating Movie %d With Score %.2f" % (user_id, movie_id, score)
-
+    
 
 if __name__ == '__main__':
     main()
