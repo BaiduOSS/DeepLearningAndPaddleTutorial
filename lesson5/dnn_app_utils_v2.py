@@ -31,7 +31,8 @@ from PIL import Image
 from scipy import ndimage
 from lr_utils import load_dataset
 
-#定义Sigmoid激活函数
+
+# 定义Sigmoid激活函数
 def sigmoid(Z):
     """
     使用Sigmoid函数激活
@@ -44,12 +45,13 @@ def sigmoid(Z):
     cache -- 返回Z，用于后向传播
     """
 
-    A = 1/(1+np.exp(-Z))
+    A = 1 / (1 + np.exp(-Z))
     cache = Z
 
     return A, cache
 
-#定义Relu激活函数
+
+# 定义Relu激活函数
 def relu(Z):
     """
     使用Relu函数激活
@@ -61,13 +63,14 @@ def relu(Z):
     A -- Relu激活后的值，维度与Z相同
     cache -- 包含A的python字典，用于后向传播计算
     """
-    #Relu激活
-    A = np.maximum(0,Z)
+    # Relu激活
+    A = np.maximum(0, Z)
 
     assert(A.shape == Z.shape)
 
     cache = Z
     return A, cache
+
 
 #Relu后向传播计算
 def relu_backward(dA, cache):
@@ -92,7 +95,8 @@ def relu_backward(dA, cache):
 
     return dZ
 
-#Sigmoid后向传播计算
+
+# Sigmoid后向传播计算
 def sigmoid_backward(dA, cache):
     """
     使用Sigmoid函数激活的反向计算
@@ -107,8 +111,8 @@ def sigmoid_backward(dA, cache):
 
     Z = cache
 
-    s = 1/(1+np.exp(-Z))
-    dZ = dA * s * (1-s)
+    s = 1 / (1 + np.exp(-Z))
+    dZ = dA * s * (1 - s)
 
     assert (dZ.shape == Z.shape)
 
@@ -126,19 +130,21 @@ def load_data():
 
     """
     train_dataset = h5py.File('datasets/train_catvnoncat.h5', "r")
-    train_set_x_orig = np.array(train_dataset["train_set_x"][:]) # 训练特征
-    train_set_y_orig = np.array(train_dataset["train_set_y"][:]) # 训练标签
+    train_set_x_orig = np.array(train_dataset["train_set_x"][:])  # 训练特征
+    train_set_y_orig = np.array(train_dataset["train_set_y"][:])  # 训练标签
 
     test_dataset = h5py.File('datasets/test_catvnoncat.h5', "r")
-    test_set_x_orig = np.array(test_dataset["test_set_x"][:]) # 测试特征
-    test_set_y_orig = np.array(test_dataset["test_set_y"][:]) # 测试标签
+    test_set_x_orig = np.array(test_dataset["test_set_x"][:])  # 测试特征
+    test_set_y_orig = np.array(test_dataset["test_set_y"][:])  # 测试标签
 
     classes = np.array(test_dataset["list_classes"][:]) # class列表
 
     train_set_y_orig = train_set_y_orig.reshape((1, train_set_y_orig.shape[0]))
     test_set_y_orig = test_set_y_orig.reshape((1, test_set_y_orig.shape[0]))
 
-    return train_set_x_orig, train_set_y_orig, test_set_x_orig, test_set_y_orig, classes
+    dataset = [train_set_x_orig, train_set_y_orig, test_set_x_orig, test_set_y_orig, classes]
+    return dataset
+
 
 #初始化参数
 def initialize_parameters(n_x, n_h, n_y):
@@ -175,6 +181,7 @@ def initialize_parameters(n_x, n_h, n_y):
 
     return parameters
 
+
 #深层网络的参数初始化
 def initialize_parameters_deep(layer_dims):
     """
@@ -192,14 +199,16 @@ def initialize_parameters_deep(layer_dims):
     L = len(layer_dims)            # 网络层数
 
     for l in range(1, L):
-        parameters['W' + str(l)] = np.random.randn(layer_dims[l], layer_dims[l-1]) / np.sqrt(layer_dims[l-1]) #*0.01
+        parameters['W' + str(l)] = np.random.randn(layer_dims[l],
+                                                   layer_dims[l - 1]) / np.sqrt(layer_dims[l - 1])
         parameters['b' + str(l)] = np.zeros((layer_dims[l], 1))
 
-        assert(parameters['W' + str(l)].shape == (layer_dims[l], layer_dims[l-1]))
+        assert(parameters['W' + str(l)].shape == (layer_dims[l], layer_dims[l - 1]))
         assert(parameters['b' + str(l)].shape == (layer_dims[l], 1))
 
     print(parameters)
     return parameters
+
 
 #前向传播的线性计算
 def linear_forward(A, W, b):
@@ -222,6 +231,7 @@ def linear_forward(A, W, b):
     cache = (A, W, b)
 
     return Z, cache
+
 
 #线性计算与激活
 def linear_activation_forward(A_prev, W, b, activation):
@@ -254,6 +264,7 @@ def linear_activation_forward(A_prev, W, b, activation):
 
     return A, cache
 
+
 #L层模型前向传播
 def L_model_forward(X, parameters):
     """
@@ -274,16 +285,19 @@ def L_model_forward(X, parameters):
     # L层网络的前向传播计算
     for l in range(1, L):
         A_prev = A
-        A, cache = linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)], activation = "relu")
+        A, cache = linear_activation_forward(A_prev, parameters['W' + str(l)],
+                                             parameters['b' + str(l)], activation="relu")
         caches.append(cache)
 
     # 在输出层完成线性计算和激活
-    AL, cache = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], activation = "sigmoid")
+    AL, cache = linear_activation_forward(A, parameters['W' + str(L)],
+                                          parameters['b' + str(L)], activation="sigmoid")
     caches.append(cache)
 
-    assert(AL.shape == (1,X.shape[1]))
+    assert(AL.shape == (1, X.shape[1]))
 
     return AL, caches
+
 
 #计算成本函数
 def compute_cost(AL, Y):
@@ -301,12 +315,13 @@ def compute_cost(AL, Y):
     m = Y.shape[1]
 
     # 根据AL和Y计算成本值
-    cost = (1./m) * (-np.dot(Y,np.log(AL).T) - np.dot(1-Y, np.log(1-AL).T))
+    cost = (1. / m) * (-np.dot(Y, np.log(AL).T) - np.dot(1 - Y, np.log(1 - AL).T))
 
     cost = np.squeeze(cost)      # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
     assert(cost.shape == ())
 
     return cost
+
 
 #线性计算的后向传播
 def linear_backward(dZ, cache):
@@ -325,15 +340,16 @@ def linear_backward(dZ, cache):
     A_prev, W, b = cache
     m = A_prev.shape[1]
 
-    dW = 1./m * np.dot(dZ,A_prev.T)
-    db = 1./m * np.sum(dZ, axis = 1, keepdims = True)
-    dA_prev = np.dot(W.T,dZ)
+    dW = 1. / m * np.dot(dZ, A_prev.T)
+    db = 1. / m * np.sum(dZ, axis=1, keepdims=True)
+    dA_prev = np.dot(W.T, dZ)
 
     assert (dA_prev.shape == A_prev.shape)
     assert (dW.shape == W.shape)
     assert (db.shape == b.shape)
 
     return dA_prev, dW, db
+
 
 #线性计算和激活的后向传播计算
 def linear_activation_backward(dA, cache, activation):
@@ -362,6 +378,7 @@ def linear_activation_backward(dA, cache, activation):
 
     return dA_prev, dW, db
 
+
 #L层神经网络模型后向传播
 def L_model_backward(AL, Y, caches):
     """
@@ -387,18 +404,21 @@ def L_model_backward(AL, Y, caches):
     dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
 
     # L层神经网络梯度. Inputs: "AL, Y, caches". Outputs: "grads["dAL"], grads["dWL"], grads["dbL"]
-    current_cache = caches[L-1]
-    grads["dA" + str(L)], grads["dW" + str(L)], grads["db" + str(L)] = linear_activation_backward(dAL, current_cache, activation = "sigmoid")
+    current_cache = caches[L - 1]
+    grads["dA" + str(L)], grads["dW" + str(L)], grads["db" + str(L)] = \
+        linear_activation_backward(dAL, current_cache, activation="sigmoid")
 
-    for l in reversed(range(L-1)):
+    for l in reversed(range(L - 1)):
         # 第L层: (RELU -> LINEAR) 梯度
         current_cache = caches[l]
-        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(grads["dA" + str(l + 2)], current_cache, activation = "relu")
+        dA_prev_temp, dW_temp, db_temp = \
+            linear_activation_backward(grads["dA" + str(l + 2)], current_cache, activation="relu")
         grads["dA" + str(l + 1)] = dA_prev_temp
         grads["dW" + str(l + 1)] = dW_temp
         grads["db" + str(l + 1)] = db_temp
 
     return grads
+
 
 #参数更新
 def update_parameters(parameters, grads, learning_rate):
@@ -419,10 +439,13 @@ def update_parameters(parameters, grads, learning_rate):
 
     # 使用循环更新每个参数
     for l in range(L):
-        parameters["W" + str(l+1)] = parameters["W" + str(l+1)] - learning_rate * grads["dW" + str(l+1)]
-        parameters["b" + str(l+1)] = parameters["b" + str(l+1)] - learning_rate * grads["db" + str(l+1)]
+        parameters["W" + str(l + 1)] = \
+            parameters["W" + str(l + 1)] - learning_rate * grads["dW" + str(l + 1)]
+        parameters["b" + str(l + 1)] = \
+            parameters["b" + str(l + 1)] - learning_rate * grads["db" + str(l + 1)]
 
     return parameters
+
 
 #预测
 def predict(X, y, parameters):
@@ -439,7 +462,7 @@ def predict(X, y, parameters):
 
     m = X.shape[1]
     n = len(parameters) // 2 # number of layers in the neural network
-    p = np.zeros((1,m))
+    p = np.zeros((1, m))
 
     # 前向传播计算
     probas, caches = L_model_forward(X, parameters)
@@ -447,17 +470,18 @@ def predict(X, y, parameters):
 
     # 将预测值转换为0/1
     for i in range(0, probas.shape[1]):
-        if probas[0,i] > 0.5:
-            p[0,i] = 1
+        if probas[0, i] > 0.5:
+            p[0, i] = 1
         else:
-            p[0,i] = 0
+            p[0, i] = 0
 
     #打印结果
     #print ("predictions: " + str(p))
     #print ("true labels: " + str(y))
-    print("Accuracy: "  + str(np.sum((p == y)/m)))
+    print("Accuracy: " + str(np.sum((p == y) / m)))
 
     return p
+
 
 #打印未识别的图片
 def print_mislabeled_images(classes, X, y, p):
@@ -475,9 +499,10 @@ def print_mislabeled_images(classes, X, y, p):
         index = mislabeled_indices[1][i]
 
         plt.subplot(2, num_images, i + 1)
-        plt.imshow(X[:,index].reshape(64,64,3), interpolation='nearest')
+        plt.imshow(X[:, index].reshape(64, 64, 3), interpolation='nearest')
         plt.axis('off')
-        plt.title("Prediction: " + classes[int(p[0,index])].decode("utf-8") + " \n Class: " + classes[y[0,index]].decode("utf-8"))
+        plt.title("Prediction: " + classes[int(p[0, index])]
+                  .decode("utf-8") + " \n Class: " + classes[y[0, index]].decode("utf-8"))
 
 
 train_set_x_orig, train_set_y, test_set_x_orig, test_set_y, classes = load_data()
@@ -485,15 +510,15 @@ m_train = train_set_x_orig.shape[0]
 m_test = test_set_x_orig.shape[0]
 num_px = train_set_x_orig.shape[1]
 
-train_set_x_flatten = train_set_x_orig.reshape(m_train,-1).T
-test_set_x_flatten = test_set_x_orig.reshape(m_test,-1).T
+train_set_x_flatten = train_set_x_orig.reshape(m_train, -1).T
+test_set_x_flatten = test_set_x_orig.reshape(m_test, -1).T
 
-train_set_x = train_set_x_flatten/255
-test_set_x = test_set_x_flatten/255
+train_set_x = train_set_x_flatten / 255.
+test_set_x = test_set_x_flatten / 255.
 
 
-#L层神经网络模型
-def L_layer_model(X, Y, layers_dims, learning_rate = 0.0075, num_iterations = 3000, print_cost=False):#lr was 0.009
+# L层神经网络模型
+def L_layer_model(X, Y, layers_dims, learning_rate=0.0075, num_iterations=3000, print_cost=False):
     """
     完成L层神经网络模型（包含前向以及后向传播）
 
@@ -542,7 +567,7 @@ def L_layer_model(X, Y, layers_dims, learning_rate = 0.0075, num_iterations = 30
 
         # 每100次训练打印cost
         if print_cost and i % 100 == 0:
-            print ("Cost after iteration %i: %f" %(i, cost))
+            print ("Cost after iteration %i: %f" % (i, cost))
         if print_cost and i % 100 == 0:
             costs.append(cost)
 
@@ -552,6 +577,6 @@ def L_layer_model(X, Y, layers_dims, learning_rate = 0.0075, num_iterations = 30
     plt.xlabel('iterations (per tens)')
     plt.title("Learning rate =" + str(learning_rate))
     plt.show()
-    plt.savefig("costs.jpg")
+    plt.savefig("costs.png")
     return parameters
 
