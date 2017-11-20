@@ -138,6 +138,7 @@ def get_mov_combined_features():
         
     return mov_combined_features
 
+
 def main():
     """
     读取模型参数并预测结果
@@ -196,7 +197,7 @@ def main():
         input=[feature],
         feeding=infer_dict)
     score = (prediction[0][0] + 5.0) / 2
-    print "[Predict] User %d Rating Movie %d With Score %.2f"%(user_id, movie_id, score)
+    print "[Predict] User %d Rating Movie %d With Score %.2f" % (user_id, movie_id, score)
 
 
 if __name__ == '__main__':

@@ -65,7 +65,7 @@ def recordio(paths, buf_size=100):
 
 # 构造用户融合特征模型
 def get_usr_combined_features():
-"""
+    """
     构造用户融合特征模型，融合特征包括：
 		user_id：用户编号
 		gender_id：性别类别编号
@@ -76,7 +76,7 @@ def get_usr_combined_features():
     Args:
     Return:
 		usr_combined_features -- 用户融合特征模型
-"""
+    """
 	# 读取用户编号信息（user_id）
     uid = paddle.layer.data(
         name='user_id',
@@ -121,7 +121,7 @@ def get_usr_combined_features():
 
 # 构造电影融合特征模型
 def get_mov_combined_features():
-"""
+    """
     构造电影融合特征模型，融合特征包括：
 		movie_id：电影编号
 		category_id：电影类别编号
@@ -131,7 +131,7 @@ def get_mov_combined_features():
     Args:
     Return:
 		mov_combined_features -- 电影融合特征模型
-"""
+    """
 
     movie_title_dict = paddle.dataset.movielens.get_movie_title_dict()
 	
@@ -178,11 +178,11 @@ def get_mov_combined_features():
 
 
 def main():
-"""
+    """
     定义神经网络结构，训练网络    
     Args:
     Return:
-""" 
+    """
 	# 初始化
     paddle.init()
 	
@@ -202,13 +202,13 @@ def main():
 
 	# 利用cost创建parameters
     parameters = paddle.parameters.create(cost)
+    """
+    	定义模型训练器，配置三个参数
+    	cost:成本函数
+    	parameters:参数
+    	update_equation:更新公式（模型采用Adam方法优化更新，并初始化学习率）
+    	"""
 
-	"""
-	定义模型训练器，配置三个参数
-	cost:成本函数
-	parameters:参数
-	update_equation:更新公式（模型采用Adam方法优化更新，并初始化学习率）
-	"""
     trainer = paddle.trainer.SGD(
         cost=cost,
         parameters=parameters,
@@ -228,28 +228,29 @@ def main():
 
 	# 事件处理模块
     def event_handler(event):
-	"""
+        """
         事件处理器，可以根据训练过程的信息作相应操作
         Args:
             event -- 事件对象，包含event.pass_id, event.batch_id, event.cost等信息
         Return:
-    """
+        """
         if isinstance(event, paddle.event.EndIteration):
 			# 每100个batch输出一条记录，分别是当前的迭代次数编号，batch编号和对应损失值
             if event.batch_id % 100 == 0:
                 print "Pass %d Batch %d Cost %.2f" % (
                     event.pass_id, event.batch_id, event.cost)
 
-    """
-    模型训练
-    paddle.batch(reader(), batch_size=256)：表示从打乱的数据中再取出batch_size=256大小的数据进行一次迭代训练
-	paddle.reader.shuffle(train(), buf_size=8192)：表示trainer从recordio(TRAIN_FILES_PATH)这个reader中读取了buf_size=8192
-    大小的数据并打乱顺序
-    event_handler：事件管理机制，可以自定义event_handler，根据事件信息作相应的操作
-	feeding：用到了之前定义的feeding索引，将数据层信息输入trainer
-    num_passes：定义训练的迭代次数
-    """
-	trainer.train(
+        """
+        模型训练
+        paddle.batch(reader(), batch_size=256)：表示从打乱的数据中再取出batch_size=256大小的数据进行一次迭代训练
+        paddle.reader.shuffle(train(), buf_size=8192)：表示trainer从recordio(TRAIN_FILES_PATH)这个reader中读取了buf_size=8192
+        大小的数据并打乱顺序
+        event_handler：事件管理机制，可以自定义event_handler，根据事件信息作相应的操作
+        feeding：用到了之前定义的feeding索引，将数据层信息输入trainer
+        num_passes：定义训练的迭代次数
+        """
+
+    trainer.train(
         reader=paddle.batch(
             paddle.reader.shuffle(recordio(TRAIN_FILES_PATH), buf_size=8192),
             batch_size=256),
@@ -278,8 +279,8 @@ def main():
         parameters=parameters,
         input=[feature],
         feeding=infer_dict)
-	score = (prediction[0][0] + 5.0) / 2
-	print "[Predict] User %d Rating Movie %d With Score %.2f"%(user_id, movie_id, score)
+    score = (prediction[0][0] + 5.0) / 2
+    print "[Predict] User %d Rating Movie %d With Score %.2f" % (user_id, movie_id, score)
 
 
 if __name__ == '__main__':

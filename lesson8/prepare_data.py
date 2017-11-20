@@ -35,23 +35,23 @@ TRAINER_INSTANCES = int(os.getenv("PADDLE_INIT_NUM_GRADIENT_SERVERS"))
 
 
 def main():
-"""
+    """
     根据训练文件路径对movielens数据集进行拆分，并输出操作日志    
     Args:
     Return:
-""" 
+    """
     # 判断训练是否在PaddlePaddle Cloud上执行
-	if TRAINER_ID == -1 or TRAINER_INSTANCES == -1:
+    if TRAINER_ID == -1 or TRAINER_INSTANCES == -1:
         print "no cloud environ found, must run on cloud"
         exit(1)
 
-    print("\nBegin to convert data into "+ dataset.common.DATA_HOME)
+    print("\nBegin to convert data into " + dataset.common.DATA_HOME)
 	
 	# 拆分数据
     dataset.common.convert(TRAIN_FILES_PATH,
                            dataset.movielens.train(), 1000, "train")
     print("\nConvert process is finished")
-    print("\nPlease run 'paddlecloud file ls "+ dataset.common.DATA_HOME+
+    print("\nPlease run 'paddlecloud file ls " + dataset.common.DATA_HOME+
           "/movielens' to check if datas exist there")
 
 
