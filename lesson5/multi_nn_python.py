@@ -50,5 +50,7 @@ parameters = dnn_app_utils_v2.L_layer_model(train_x, train_y, layers_dims,
                                             num_iterations = 2500, print_cost = True)
 
 #准确率输出
+print('Train accuracy:')
 pred_train = dnn_app_utils_v2.predict(train_x, train_y, parameters)
+print('Test accuracy:')
 pred_test = dnn_app_utils_v2.predict(test_x, test_y, parameters)
