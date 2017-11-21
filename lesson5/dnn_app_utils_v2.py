@@ -206,7 +206,6 @@ def initialize_parameters_deep(layer_dims):
         assert(parameters['W' + str(l)].shape == (layer_dims[l], layer_dims[l - 1]))
         assert(parameters['b' + str(l)].shape == (layer_dims[l], 1))
 
-    print(parameters)
     return parameters
 
 

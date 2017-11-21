@@ -7,7 +7,7 @@
 ################################################################################
 """
 Authors: fuqiang(fqjeremybuaa@163.com)
-Date:    2017/11/19 22:00:00
+Date:    2017/11/19
 
 
 在paddlePaddle cloud平台上分布式训练推荐模型，关键步骤如下：
@@ -53,6 +53,11 @@ def recordio(paths, buf_size=100):
 
 	# 文件读取模块
     def reader():
+		"""
+		定义一个reader
+		Args:
+		Return:
+		"""
         f = rec.reader(paths)
         while True:
             r = f.read()
