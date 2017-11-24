@@ -20,33 +20,44 @@ Date:    2017/11/12 17:23:06
 5.分析预测结果
 6.定义model函数来按顺序将上述步骤合并
 """
-
-import numpy as np
 import matplotlib
+import numpy as np
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-import h5py
-import scipy
-from scipy import ndimage
-from PIL import Image
+import lr_utils
 
-from lr_utils import load_dataset
 
 # 下载数据集(cat/non-cat)
-train_set_x_orig, train_set_y, test_set_x_orig, test_set_y, classes = load_dataset()
+def load_data():
+    """
+    载入数据，数据项包括：
+        train_set_x_orig：原始训练数据集
+        train_set_y：原始训练数据标签
+        test_set_x_orig：原始测试数据集
+        test_set_y：原始测试数据标签
+        classes(cat/non-cat)：分类list
 
-m_train = train_set_x_orig.shape[0]
-m_test = test_set_x_orig.shape[0]
-num_px = train_set_x_orig.shape[1]
+    Args:
+    Return:
+    """
+    train_set_x_orig, train_set_y, test_set_x_orig, test_set_y, classes = lr_utils.load_dataset()
 
-# Reshape训练数据集和测试数据集
-train_set_x_flatten = train_set_x_orig.reshape(m_train, -1).T
-test_set_x_flatten = test_set_x_orig.reshape(m_test, -1).T
+    m_train = train_set_x_orig.shape[0]
+    m_test = test_set_x_orig.shape[0]
+    num_px = train_set_x_orig.shape[1]
 
-# 数据归一化
-train_set_x = train_set_x_flatten / 255.
-test_set_x = test_set_x_flatten / 255.
+    # Reshape训练数据集和测试数据集
+    train_set_x_flatten = train_set_x_orig.reshape(m_train, -1).T
+    test_set_x_flatten = test_set_x_orig.reshape(m_test, -1).T
+
+    # 数据归一化
+    train_set_x = train_set_x_flatten / 255.
+    test_set_x = test_set_x_flatten / 255.
+
+    data = [train_set_x, train_set_y, test_set_x, test_set_y]
+    return data
 
 
 # sigmoid激活函数
@@ -175,7 +186,7 @@ def optimize(w, b, X, Y, num_iterations, learning_rate, print_cost=False):
     return params, grads, costs
 
 
-# predict
+# 预测
 def predict(w, b, X):
     """
     用学习到的逻辑回归模型来预测图片是否为猫（1 cat or 0 non-cat）
@@ -206,7 +217,7 @@ def predict(w, b, X):
     return Y_prediction
 
 
-# model
+# 综合model
 def model(X_train, Y_train, X_test, Y_test, num_iterations=2000,
           learning_rate=0.05, print_cost=False):
     """
@@ -253,13 +264,35 @@ def model(X_train, Y_train, X_test, Y_test, num_iterations=2000,
     return d
 
 
-d = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations=1000,
-          learning_rate=0.01, print_cost=True)
+def plot_costs(d):
+    """
+    利用costs展示模型的训练曲线
 
-# 利用costs展示模型的学习曲线
-costs = np.squeeze(d['costs'])
-plt.plot(costs)
-plt.ylabel('cost')
-plt.xlabel('iterations (per hundreds)')
-plt.title("Learning rate =" + str(d["learning_rate"]))
-plt.show()
+    Args:
+        costs -- 记录了训练过程的cost变化的list，每一百次迭代记录一次
+    Return:
+    """
+    costs = np.squeeze(d['costs'])
+    plt.plot(costs)
+    plt.ylabel('cost')
+    plt.xlabel('iterations (per hundreds)')
+    plt.title("Learning rate =" + str(d["learning_rate"]))
+    plt.show()
+    plt.savefig('costs.png')
+
+
+def main():
+    """
+    载入数据、训练并展示学习曲线
+    Args:
+    Return:
+    """
+    train_set_x, train_set_y, test_set_x, test_set_y = load_data()
+
+    d = model(train_set_x, train_set_y, test_set_x, test_set_y, num_iterations=1000,
+              learning_rate=0.01, print_cost=True)
+    plot_costs(d)
+
+
+if __name__ == '__main__':
+    main()

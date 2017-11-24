@@ -21,35 +21,30 @@ Date:    2017/11/17 17:27:06
 6.定义model函数来按顺序将上述步骤合并
 """
 
-import numpy as np
 import matplotlib
+
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import scipy
-import h5py
 import dnn_app_utils_v2
-from PIL import Image
-from scipy import ndimage
-from lr_utils import load_dataset
 
-#加载数据
+# 加载数据
 train_x_orig, train_y, test_x, test_y, classes = dnn_app_utils_v2.load_data()
-#数据预处理
-train_x_flatten = train_x_orig.reshape(train_x_orig.shape[0], -1).T   # The "-1" makes reshape flatten the remaining dimensions
-test_x_flatten = test_x.reshape(test_x.shape[0], -1).T
 
-#归一化
+# 数据预处理
+train_x_flatten = train_x_orig.reshape(train_x_orig.shape[0],
+                                       -1).T  # The "-1" makes reshape flatten the remaining dimensions
+test_x_flatten = test_x.reshape(test_x.shape[0], -1).T
+# 归一化
 train_x = train_x_flatten / 255.
 test_x = test_x_flatten / 255.
 
-#定义各层节点数
+# 定义各层节点数
 layers_dims = [12288, 20, 7, 5, 1]
 
-#计算
+# 计算
 parameters = dnn_app_utils_v2.L_layer_model(train_x, train_y, layers_dims,
-                                            num_iterations = 2500, print_cost = True)
+                                            num_iterations=2500, print_cost=True)
 
-#准确率输出
+# 准确率输出
 print('Train accuracy:')
 pred_train = dnn_app_utils_v2.predict(train_x, train_y, parameters)
 print('Test accuracy:')

@@ -239,6 +239,7 @@ def plot_costs(costs):
     plt.show()
     plt.savefig('costs.png')
 
+
 def main():
     """
     定义神经网络结构，训练、预测、检验准确率并打印学习曲线
