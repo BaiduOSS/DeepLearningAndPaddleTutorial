@@ -19,15 +19,16 @@ import os
 
 import paddle.v2.dataset as dataset
 
-# USERNAME是PaddlePaddle Cloud平台登陆的用户名，直接替换相应字段即可
-USERNAME = "paddle@example.com"
+# USERNAME是PaddlePaddle Cloud平台登陆的用户名，直接替换相应字段即可,paddle@example.com
+USERNAME = "wx_crome@163.com"
 
-# 获取PaddlePaddle Cloud当前数据中心的环境变量值
+# 获取PaddlePaddle Cloud当前数据中心的环境变量值,PADDLE_CLOUD_CURRENT_DATACENTER
 DC = os.getenv("PADDLE_CLOUD_CURRENT_DATACENTER")
 
 # 设定在当前数据中心下缓存数据集的路径
 dataset.common.DATA_HOME = "/pfs/%s/home/%s" % (DC, USERNAME)
 TRAIN_FILES_PATH = os.path.join(dataset.common.DATA_HOME, "movielens")
+
 
 # 获取训练器的相关参数
 TRAINER_ID = int(os.getenv("PADDLE_INIT_TRAINER_ID"))

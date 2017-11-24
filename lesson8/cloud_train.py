@@ -26,7 +26,7 @@ import copy
 import paddle.v2 as paddle
 
 # USERNAME是PaddlePaddle Cloud平台登陆的用户名，直接替换相应字段即可
-USERNAME = "paddle@example.com"
+USERNAME = "wx_crome@163.com"
 
 # 获取PaddlePaddle Cloud当前数据中心的环境变量值
 DC = os.getenv("PADDLE_CLOUD_CURRENT_DATACENTER")
@@ -34,6 +34,7 @@ DC = os.getenv("PADDLE_CLOUD_CURRENT_DATACENTER")
 # 设定在当前数据中心下缓存数据集的路径
 DATA_HOME = "/pfs/%s/home/%s" % (DC, USERNAME)
 TRAIN_FILES_PATH = os.path.join(DATA_HOME, "movielens/train-*")
+print(TRAIN_FILES_PATH)
 
 
 # 创建数据reader读取文件
@@ -51,9 +52,9 @@ def recordio(paths, buf_size=100):
     import paddle.v2.reader.decorator as dec
     import cPickle as pickle
 
-	# 文件读取模块
+    # 文件读取模块
     def reader():
-		"""
+        """
 		定义一个reader
 		Args:
 		Return:
@@ -67,6 +68,7 @@ def recordio(paths, buf_size=100):
         f.close()
 
     return dec.buffered(reader, buf_size)
+
 
 # 构造用户融合特征模型
 def get_usr_combined_features():
@@ -82,25 +84,25 @@ def get_usr_combined_features():
     Return:
 		usr_combined_features -- 用户融合特征模型
     """
-	# 读取用户编号信息（user_id）
+    # 读取用户编号信息（user_id）
     uid = paddle.layer.data(
         name='user_id',
         type=paddle.data_type.integer_value(
             paddle.dataset.movielens.max_user_id() + 1))
-    
-	# 将用户编号变换为对应词向量
+
+    # 将用户编号变换为对应词向量
     usr_emb = paddle.layer.embedding(input=uid, size=32)
-	
-	# 将用户编号对应词向量输入到全连接层
+
+    # 将用户编号对应词向量输入到全连接层
     usr_fc = paddle.layer.fc(input=usr_emb, size=32)
 
-	# 读取用户性别类别编号信息（gender_id）并做处理（同上）
+    # 读取用户性别类别编号信息（gender_id）并做处理（同上）
     usr_gender_id = paddle.layer.data(
         name='gender_id', type=paddle.data_type.integer_value(2))
     usr_gender_emb = paddle.layer.embedding(input=usr_gender_id, size=16)
     usr_gender_fc = paddle.layer.fc(input=usr_gender_emb, size=16)
 
-	# 读取用户年龄类别编号信息（age_id）并做处理（同上）
+    # 读取用户年龄类别编号信息（age_id）并做处理（同上）
     usr_age_id = paddle.layer.data(
         name='age_id',
         type=paddle.data_type.integer_value(
@@ -108,7 +110,7 @@ def get_usr_combined_features():
     usr_age_emb = paddle.layer.embedding(input=usr_age_id, size=16)
     usr_age_fc = paddle.layer.fc(input=usr_age_emb, size=16)
 
-	# 读取用户职业类别编号信息（job_id）并做处理（同上）
+    # 读取用户职业类别编号信息（job_id）并做处理（同上）
     usr_job_id = paddle.layer.data(
         name='job_id',
         type=paddle.data_type.integer_value(
@@ -116,7 +118,7 @@ def get_usr_combined_features():
     usr_job_emb = paddle.layer.embedding(input=usr_job_id, size=16)
     usr_job_fc = paddle.layer.fc(input=usr_job_emb, size=16)
 
-	# 所有的用户特征再输入到一个全连接层中，完成特征融合
+    # 所有的用户特征再输入到一个全连接层中，完成特征融合
     usr_combined_features = paddle.layer.fc(
         input=[usr_fc, usr_gender_fc, usr_age_fc, usr_job_fc],
         size=200,
@@ -139,46 +141,46 @@ def get_mov_combined_features():
     """
 
     movie_title_dict = paddle.dataset.movielens.get_movie_title_dict()
-	
+
     # 读取电影编号信息（movie_id）
     mov_id = paddle.layer.data(
         name='movie_id',
         type=paddle.data_type.integer_value(
             paddle.dataset.movielens.max_movie_id() + 1))
-			
-	# 将电影编号变换为对应词向量
+
+    # 将电影编号变换为对应词向量
     mov_emb = paddle.layer.embedding(input=mov_id, size=32)
-	
-	# 将电影编号对应词向量输入到全连接层
+
+    # 将电影编号对应词向量输入到全连接层
     mov_fc = paddle.layer.fc(input=mov_emb, size=32)
-	
-	# 读取电影类别编号信息（category_id）
+
+    # 读取电影类别编号信息（category_id）
     mov_categories = paddle.layer.data(
         name='category_id',
         type=paddle.data_type.sparse_binary_vector(
             len(paddle.dataset.movielens.movie_categories())))
-			
-	# 将电影编号信息输入到全连接层
+
+    # 将电影编号信息输入到全连接层
     mov_categories_hidden = paddle.layer.fc(input=mov_categories, size=32)
 
     # 读取电影名信息（movie_title）
     mov_title_id = paddle.layer.data(
         name='movie_title',
         type=paddle.data_type.integer_value_sequence(len(movie_title_dict)))
-		
-	# 将电影名变换为对应词向量
+
+    # 将电影名变换为对应词向量
     mov_title_emb = paddle.layer.embedding(input=mov_title_id, size=32)
-	
-	# 将电影名对应词向量输入到卷积网络生成电影名时序特征
+
+    # 将电影名对应词向量输入到卷积网络生成电影名时序特征
     mov_title_conv = paddle.networks.sequence_conv_pool(
         input=mov_title_emb, hidden_size=32, context_len=3)
 
-	# 所有的电影特征再输入到一个全连接层中，完成特征融合
+    # 所有的电影特征再输入到一个全连接层中，完成特征融合
     mov_combined_features = paddle.layer.fc(
         input=[mov_fc, mov_categories_hidden, mov_title_conv],
         size=200,
         act=paddle.activation.Tanh())
-		
+
     return mov_combined_features
 
 
@@ -188,24 +190,24 @@ def main():
     Args:
     Return:
     """
-	# 初始化
+    # 初始化
     paddle.init()
-	
-	# 构造用户融合特征，电影融合特征
+
+    # 构造用户融合特征，电影融合特征
     usr_combined_features = get_usr_combined_features()
     mov_combined_features = get_mov_combined_features()
-	
-	# 计算用户融合特征和电影融合特征的余弦相似度
+
+    # 计算用户融合特征和电影融合特征的余弦相似度
     inference = paddle.layer.cos_sim(
         a=usr_combined_features, b=mov_combined_features, size=1, scale=5)
-		
-	# 定义成本函数为均方误差函数
-    cost = paddle.layer.square_cost(
+
+    # 定义成本函数为均方误差函数
+    cost = paddle.layer.mse_cost(
         input=inference,
         label=paddle.layer.data(
             name='score', type=paddle.data_type.dense_vector(1)))
 
-	# 利用cost创建parameters
+    # 利用cost创建parameters
     parameters = paddle.parameters.create(cost)
     """
     	定义模型训练器，配置三个参数
@@ -218,8 +220,8 @@ def main():
         cost=cost,
         parameters=parameters,
         update_equation=paddle.optimizer.Adam(learning_rate=1e-4))
-		
-	# 数据层和数组索引映射，用于trainer训练时读取数据
+
+    # 数据层和数组索引映射，用于trainer训练时读取数据
     feeding = {
         'user_id': 0,
         'gender_id': 1,
@@ -231,7 +233,7 @@ def main():
         'score': 7
     }
 
-	# 事件处理模块
+    # 事件处理模块
     def event_handler(event):
         """
         事件处理器，可以根据训练过程的信息作相应操作
@@ -240,7 +242,7 @@ def main():
         Return:
         """
         if isinstance(event, paddle.event.EndIteration):
-			# 每100个batch输出一条记录，分别是当前的迭代次数编号，batch编号和对应损失值
+            # 每100个batch输出一条记录，分别是当前的迭代次数编号，batch编号和对应损失值
             if event.batch_id % 100 == 0:
                 print "Pass %d Batch %d Cost %.2f" % (
                     event.pass_id, event.batch_id, event.cost)
@@ -263,22 +265,22 @@ def main():
         feeding=feeding,
         num_passes=1)
 
-	# 定义用户编号值和电影编号值
+    # 定义用户编号值和电影编号值
     user_id = 234
     movie_id = 345
 
-	# 根据已定义的用户、电影编号值从movielens数据集中读取数据信息
+    # 根据已定义的用户、电影编号值从movielens数据集中读取数据信息
     user = paddle.dataset.movielens.user_info()[user_id]
     movie = paddle.dataset.movielens.movie_info()[movie_id]
 
-	# 存储用户特征和电影特征
+    # 存储用户特征和电影特征
     feature = user.value() + movie.value()
 
-	# 复制feeding值，并删除序列中的得分项
+    # 复制feeding值，并删除序列中的得分项
     infer_dict = copy.copy(feeding)
     del infer_dict['score']
 
-	# 预测指定用户对指定电影的喜好得分值
+    # 预测指定用户对指定电影的喜好得分值
     prediction = paddle.infer(
         output_layer=inference,
         parameters=parameters,
