@@ -290,5 +290,6 @@ def main():
     predictions = predict(parameters, test_x)
     print('Accuracy: %d' % float((np.dot(test_y, predictions.T) +
                                   np.dot(1 - test_y, 1 - predictions.T)) / float(test_y.size) * 100) + '%')
+
 if __name__=='__main__':
     main()
