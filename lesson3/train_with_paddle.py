@@ -89,7 +89,7 @@ def read_data(data_set):
     return reader
 
 
-# 训练数据集
+# 获取训练数据集
 def train():
     """
     定义一个reader来获取训练数据集及其标签
@@ -103,7 +103,7 @@ def train():
     return read_data(TRAINING_SET)
 
 
-# 测试数据集
+# 获取测试数据集
 def test():
     """
     定义一个reader来获取测试数据集及其标签
@@ -335,7 +335,7 @@ def main():
     # 记录成本cost
     costs = []
 
-    # 事件处理
+    # 处理事件
     def event_handler(event):
         """
         事件处理器，可以根据训练过程的信息作相应操作

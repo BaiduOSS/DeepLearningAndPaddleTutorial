@@ -54,10 +54,10 @@ def load_data():
     # 定义纬度
     DATADIM = num_px * num_px * 3
 
-    # 数据展开,注意此处为了方便处理，没有加上.T的转置操作
+    # 展开数据
     test_set_x_flatten = test_set_x_orig.reshape(m_test, -1)
 
-    # 归一化
+    # 归一化数据
     test_set_x = test_set_x_flatten / 255.
 
     TEST_SET = np.hstack((test_set_x, test_set_y.T))

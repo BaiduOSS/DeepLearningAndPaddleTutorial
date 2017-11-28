@@ -52,7 +52,7 @@ def load_data():
     train_set_x_flatten = train_set_x_orig.reshape(m_train, -1).T
     test_set_x_flatten = test_set_x_orig.reshape(m_test, -1).T
 
-    # 数据归一化
+    # 归一化数据
     train_set_x = train_set_x_flatten / 255.
     test_set_x = test_set_x_flatten / 255.
 
@@ -264,6 +264,7 @@ def model(X_train, Y_train, X_test, Y_test, num_iterations=2000,
     return d
 
 
+# 绘制训练曲线
 def plot_costs(d):
     """
     利用costs展示模型的训练曲线
