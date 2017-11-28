@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 import matplotlib.pyplot as plt
 import numpy as np
+import random
 import sklearn
 import sklearn.datasets
 import sklearn.linear_model
@@ -55,11 +56,17 @@ def load_planar_dataset():
         r = a * np.sin(4 * t) + np.random.randn(N) * 0.2 # radius
         X[ix] = np.c_[r * np.sin(t), r * np.cos(t)]
         Y[ix] = j
-        
+
+    #测试集，取全部数据
     X = X.T
     Y = Y.T
 
-    return X, Y
+    #训练集
+    train_num = random.sample(range(400),320)#共400组数据，训练集取其中80%，即320组
+    train_x = X[: , train_num]
+    train_y = Y[: , train_num]
+
+    return train_x, train_y, X, Y
 
 
 #加载其他数据
