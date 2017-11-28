@@ -21,8 +21,9 @@ Date:    2017/11/17 17:27:06
 6.定义model函数来按顺序将上述步骤合并
 """
 
-import numpy as np
 import matplotlib
+import numpy as np
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import scipy

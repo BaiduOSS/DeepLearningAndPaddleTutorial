@@ -26,6 +26,35 @@ import matplotlib
 matplotlib.use('Agg')
 import dnn_app_utils_v2
 
+<<<<<<< HEAD
+
+def main():
+    # 数据加载
+    train_x_orig, train_y, test_x, test_y, classes = dnn_app_utils_v2.load_data()
+
+    # 数据预处理
+    train_x_flatten = train_x_orig.reshape(train_x_orig.shape[0], -1).T
+    test_x_flatten = test_x.reshape(test_x.shape[0], -1).T
+    # 归一化
+    train_x = train_x_flatten / 255.
+    test_x = test_x_flatten / 255.
+
+    # 网络结构定义
+    layers_dims = [12288, 20, 7, 5, 1]
+
+    # 参数计算
+    parameters = dnn_app_utils_v2.L_layer_model(train_x, train_y, layers_dims,
+                                                num_iterations=2500, print_cost=True)
+
+    # 准确率输出
+    print('Train accuracy:')
+    pred_train = dnn_app_utils_v2.predict(train_x, train_y, parameters)
+    print('Test accuracy:')
+    pred_test = dnn_app_utils_v2.predict(test_x, test_y, parameters)
+
+if __name__=='__main__':
+    main()
+=======
 # 加载数据
 train_x_orig, train_y, test_x, test_y, classes = dnn_app_utils_v2.load_data()
 
@@ -49,3 +78,4 @@ print('Train accuracy:')
 pred_train = dnn_app_utils_v2.predict(train_x, train_y, parameters)
 print('Test accuracy:')
 pred_test = dnn_app_utils_v2.predict(test_x, test_y, parameters)
+>>>>>>> b262b7a6f63d41388117d255021b75df9b99b9f2
