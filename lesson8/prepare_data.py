@@ -7,8 +7,7 @@
 ################################################################################
 """
 Authors: fuqiang(fqjeremybuaa@163.com)
-Date:    2017/11/19 22:00:00
-
+Date:    2017/11/29 
 
 在paddlePaddle cloud平台上完成训练数据的预处理，关键步骤如下：
 1.获取文件路径和训练器参数
@@ -41,6 +40,7 @@ def main():
     Args:
     Return:
     """
+	
     # 判断训练是否在PaddlePaddle Cloud上执行
     if TRAINER_ID == -1 or TRAINER_INSTANCES == -1:
         print "no cloud environ found, must run on cloud"

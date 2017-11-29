@@ -12,7 +12,9 @@
   * [image](image)：用于存放测试图片的文件夹
     * image/infer_3.png：测试图片——用训练得到的模型预测其类别。该图片的真实标签为‘3’
 
-  * [train.py](train.py)：解决数字识别问题的PaddlePaddle代码实现
+  * [train_with_paddle.py](train_with_paddle.py)：解决数字识别问题的PaddlePaddle代码实现
+  
+  * [predict_with_paddle.py](predict_with_paddle.py)：根据训练好的模型预测手写数字体类别的PaddlePaddle代码实现
 
   * [train_test_cost.png](train_test_cost.png)：训练过程中成本变化曲线图
 

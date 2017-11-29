@@ -5,10 +5,10 @@
 
 >**注意**: 实验假设读者已经对Numpy以及PaddlePaddle知识有基本的了解，并且掌握了深度学习的基本概念、对PaddlePaddle Cloud有基本的了解。
 
-数据集：实验采用MovieLens-20M数据集
+数据集：实验采用MovieLens-1M数据集
 
 文件清单：
 
   * [prepare_data.py](prepare_data.py)：在PaddlePaddle Cloud平台上完成训练数据的预处理
 
-  * [cloud_train.py](cloud_train.py)：在PaddlePaddle Cloud平台上分布式训练推荐模型
+  * [train_with_cloud.py](train_with_cloud.py)：在PaddlePaddle Cloud平台上分布式训练推荐模型

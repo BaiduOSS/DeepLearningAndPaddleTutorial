@@ -6,27 +6,32 @@
 #
 ################################################################################
 """
-Authors: Jiahui Liu(wx_crome@163.com)
-Date:    2017/11/27 16:26:06
+Authors: Jiahui Liu(2505774110@qq.com)
+Date:    2017/11/17 17:27:06
 
-使用paddle框架实现浅层神经网络解决“花”型图案分类问题，关键步骤如下：
+使用paddle框架实现深层神经网络识别猫案例，关键步骤如下：
 1.载入数据和预处理：load_data()
 2.初始化
 3.配置网络结构
 4.定义成本函数cost
 5.定义优化器optimizer
-6.定义reader()分别用于读取训练数据和测试数据
+6.定义两个reader()分别用于读取训练数据和测试数据
 7.预测并测试准确率train_accuracy和test_accuracy
 """
 
-
-import matplotlib
+import sys
 import numpy as np
+
 import paddle.v2 as paddle
+import h5py
+import scipy
+import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from scipy import ndimage
+from PIL import Image
 
-import planar_utils
+from lr_utils import load_dataset
 
 TRAINING_SET = None
 TEST_SET = None
@@ -48,13 +53,24 @@ def load_data():
     """
     global TRAINING_SET, TEST_SET, DATADIM
 
-    train_set_x, train_set_y, test_set_x, test_set_y = planar_utils.load_planar_dataset()
+    train_set_x_orig, train_set_y, test_set_x_orig, test_set_y, classes = load_dataset()
+    m_train = train_set_x_orig.shape[0]
+    m_test = test_set_x_orig.shape[0]
+    num_px = train_set_x_orig.shape[1]
 
     # 定义纬度
-    DATADIM = 2
+    DATADIM = num_px * num_px * 3
 
-    TRAINING_SET = np.hstack((train_set_x.T, train_set_y.T))
-    TEST_SET = np.hstack((test_set_x.T, test_set_y.T))
+    # 数据展开,注意此处为了方便处理，没有加上.T的转置操作
+    train_set_x_flatten = train_set_x_orig.reshape(m_train, -1)
+    test_set_x_flatten = test_set_x_orig.reshape(m_test, -1)
+
+    # 归一化
+    train_set_x = train_set_x_flatten / 255.
+    test_set_x = test_set_x_flatten / 255.
+
+    TRAINING_SET = np.hstack((train_set_x, train_set_y.T))
+    TEST_SET = np.hstack((test_set_x, test_set_y.T))
 
 
 # 训练数据集
@@ -204,7 +220,7 @@ def test_accuracy(probs_test, test_data):
 
     return test_accuracy
 
-# 搭建神经网络结构
+
 def netconfig():
     """
         搭建浅层神经网络结构
@@ -220,19 +236,27 @@ def netconfig():
     # type=paddle.data_type.dense_vector(DATADIM)：数据类型为DATADIM维稠密向量
     image = paddle.layer.data(
         name='image', type=paddle.data_type.dense_vector(DATADIM))
+
+    # 隐藏层，paddle.layer.fc表示全连接层，共三层，节点数分别为20，7，5
+    # 激活函数为Relu()
     h1 = paddle.layer.fc(
-        input=image, size=4, act=paddle.activation.Tanh())
+        input=image, size=20, act=paddle.activation.Relu())
+    h2 = paddle.layer.fc(
+        input=h1, size=7, act=paddle.activation.Relu())
+    h3 = paddle.layer.fc(
+        input=h2, size=5, act=paddle.activation.Relu())
+
     # 输出层，paddle.layer.fc表示全连接层，input=image: 该层输入数据为image
     # size=1：神经元个数，act=paddle.activation.Sigmoid()：激活函数为Sigmoid()
     y_predict = paddle.layer.fc(
-        input=h1, size=1, act=paddle.activation.Sigmoid())
+        input=h3, size=1, act=paddle.activation.Sigmoid())
 
     # 数据层，paddle.layer.data表示数据层，name=’label’：名称为label
     # type=paddle.data_type.dense_vector(1)：数据类型为1维稠密向量
     y_label = paddle.layer.data(
         name='label', type=paddle.data_type.dense_vector(1))
-
     return image, y_predict, y_label
+
 
 # 展示模型训练曲线
 def plot_costs(costs):
@@ -247,7 +271,7 @@ def plot_costs(costs):
     plt.plot(costs)
     plt.ylabel('cost')
     plt.xlabel('iterations (per hundreds)')
-    plt.title("Learning rate = 0.0075")
+    plt.title("Learning rate = 0.000075")
     plt.show()
     plt.savefig('costs.png')
 
@@ -265,7 +289,7 @@ def main():
     # 载入数据
     load_data()
 
-    #配置网络结构
+    #构建神经网络结构
     image, y_predict, y_label = netconfig()
 
     # 定义成本函数为交叉熵损失函数multi_binary_label_cross_entropy_cost
@@ -275,7 +299,7 @@ def main():
     parameters = paddle.parameters.create(cost)
 
     # 创建optimizer，并初始化momentum和learning_rate
-    optimizer = paddle.optimizer.Momentum(momentum=0, learning_rate=0.0075)
+    optimizer = paddle.optimizer.Momentum(momentum=0, learning_rate=0.000075)
 
     # 数据层和数组索引映射，用于trainer训练时喂数据
     feeding = {
@@ -320,7 +344,7 @@ def main():
             batch_size=256),
         feeding=feeding,
         event_handler=event_handler,
-        num_passes=2000)
+        num_passes=3000)
 
     # 获取测试数据和训练数据，用来验证模型准确度
     train_data = get_train_data()
@@ -338,7 +362,6 @@ def main():
     print("train_accuracy: {} %".format(train_accuracy(probs_train, train_data)))
     print("test_accuracy: {} %".format(test_accuracy(probs_test, test_data)))
 
-    #绘制成本函数折线图
     plot_costs(costs)
 
 

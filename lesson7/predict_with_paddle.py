@@ -7,18 +7,21 @@
 ################################################################################
 """
 Authors: fuqiang(fqjeremybuaa@163.com)
-Date:    2017/11/20 
+Date:    2017/11/29 
 
-
-使用paddle框架实现个性化电影推荐系统的结果预测，关键步骤如下：
-1.读取模型参数
-2.预测结果
+使用paddle框架实现个性化电影推荐系统的结果预测，
+无需重新训练模型，只需加载模型文件。关键步骤如下：
+1.载入数据
+2.初始化
+3.配置网络结构
+4.从parameters文件直接获取模型参数
+5.根据模型参数和测试数据来预测结果
 """
 
 import paddle.v2 as paddle
-import cPickle
 import copy
 import os
+import numpy as np
 
 PARAMETERS = None
 
@@ -138,30 +141,26 @@ def get_mov_combined_features():
         
     return mov_combined_features
 
-def main():
+	
+# 配置网络结构
+def netconfig():
     """
-    读取模型参数并预测结果
+    配置网络结构
     Args:
     Return:
+        inference -- 相似度
+        feeding -- 数据映射，python字典
     """
-    global PARAMETERS
-    paddle.init(use_gpu=False)
-
-    # 构造用户融合特征，电影融合特征
+	
+	# 构造用户融合特征，电影融合特征
     usr_combined_features = get_usr_combined_features()
     mov_combined_features = get_mov_combined_features()
-    
+	
     # 计算用户融合特征和电影融合特征的余弦相似度
     inference = paddle.layer.cos_sim(
         a=usr_combined_features, b=mov_combined_features, size=1, scale=5)
-
-    if not os.path.exists('params_pass_9.tar'):
-        print("Params file doesn't exists.")
-        return
-    with open('params_pass_9.tar', 'r') as f:
-        PARAMETERS = paddle.parameters.Parameters.from_tar(f)
-	
-	# 数据层和数组索引映射，用于trainer训练时读取数据
+        
+    # 数据层和数组索引映射，用于trainer训练时读取数据
     feeding = {
         'user_id': 0,
         'gender_id': 1,
@@ -172,8 +171,34 @@ def main():
         'movie_title': 6,
         'score': 7
     }
+
+    data = [inference, feeding]
+
+    return data	
+
+
+def main():
+    """
+    读取模型参数并预测结果
+    Args:
+    Return:
+    """
+    global PARAMETERS
+    paddle.init(use_gpu=False)
+
+    # 配置网络结构
+    inference, feeding = netconfig()
+    
+    # 判断参数文件是否存在
+    if not os.path.exists('params_pass_9.tar'):
+        print("Params file doesn't exists.")
+        return
+    
+    # 从文件中读取参数
+    with open('params_pass_9.tar', 'r') as f:
+        PARAMETERS = paddle.parameters.Parameters.from_tar(f)
 		
-	# 定义用户编号值和电影编号值
+    # 定义用户编号值和电影编号值
     user_id = 234
     movie_id = 345
 

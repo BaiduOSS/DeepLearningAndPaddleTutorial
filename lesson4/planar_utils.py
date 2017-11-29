@@ -1,4 +1,19 @@
 # -*- coding:utf-8 -*-
+#!/usr/bin/env python
+#  -*- coding:utf-8 -*-
+################################################################################
+#
+# Copyright (c) 2017 Baidu.com, Inc. All Rights Reserved
+#
+################################################################################
+
+"""
+Authors: Jiahui Liu(897744517@qq.com)
+Date:    2017/11/19 17:23:06
+
+用于载入数据
+load_planar_dataset()函数返回训练集和测试集
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 import random
@@ -8,6 +23,12 @@ import sklearn.linear_model
 
 #绘制分类结果边界
 def plot_decision_boundary(model, X, y):
+    """
+    绘制分类边界
+    model: 模型
+    X: 输入值
+    y: 真实值
+    """
     # Set min and max values and give it some padding
     x_min, x_max = X[0, : ].min() - 1, X[0, : ].max() + 1
     y_min, y_max = X[1, : ].min() - 1, X[1, : ].max() + 1
@@ -23,7 +44,7 @@ def plot_decision_boundary(model, X, y):
     plt.xlabel('x1')
     plt.scatter(X[0, : ], X[1, : ], c=y, cmap=plt.cm.Spectral)
     
-
+#定义Sigmoid函数
 def sigmoid(x):
     """
     Compute the sigmoid of x
@@ -39,9 +60,16 @@ def sigmoid(x):
     return s
 
 
-
 #加载数据
 def load_planar_dataset():
+    """
+    加载数据
+    返回值：
+        train_x:训练集的输入
+        train_y:训练集的真实值
+        X:测试集的输入
+        Y:测试集的真实值
+    """
     np.random.seed(1) #设置随机种子
     m = 400 # number of examples
     N = int(m / 2) # number of points per class
@@ -66,11 +94,17 @@ def load_planar_dataset():
     train_x = X[: , train_num]
     train_y = Y[: , train_num]
 
-    return train_x, train_y, X, Y
+    dataset = [train_x, train_y, X, Y]
+    return dataset
 
 
 #加载其他数据
 def load_extra_datasets():
+    """
+    加载其它数据
+    return:
+        result:包含5种不同类型数据的集合
+    """
     N = 200
     noisy_circles = sklearn.datasets.make_circles(n_samples=N, factor=.5, noise=.3)
     noisy_moons = sklearn.datasets.make_moons(n_samples=N, noise=.2)
