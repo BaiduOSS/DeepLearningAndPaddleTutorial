@@ -28,6 +28,7 @@ CODEMASTER_TRAIN_DATA = None
 X_RAW = None
 CODEMASTER_TEST_DATA = None
 
+
 # 载入数据
 def load_data(filename, feature_num=2, ratio=0.8):
     """
@@ -51,7 +52,7 @@ def load_data(filename, feature_num=2, ratio=0.8):
     #data.shape[0]表示data中一共多少列
     maximums, minimums, avgs = data.max(axis=0), data.min(axis=0), data.sum(
         axis=0) / data.shape[0]
-    
+
     #归一化，data[:, i] 表示第i列的元素
     for i in xrange(feature_num - 1):
         data[:, i] = (data[:, i] - avgs[i]) / (maximums[i] - minimums[i])
@@ -60,56 +61,57 @@ def load_data(filename, feature_num=2, ratio=0.8):
     CODEMASTER_TRAIN_DATA = data[:offset].copy()
     CODEMASTER_TEST_DATA = data[offset:].copy()
 
-#获取训练数据集
+
+# 读取训练数据或测试数据，服务于train()和test()
+def read_data(data_set):
+    """
+        一个reader
+        Args:
+            data_set -- 要获取的数据集
+        Return:
+            reader -- 用于获取训练数据集及其标签的生成器generator
+    """
+    def reader():
+        """
+        一个reader
+        Args:
+        Return:
+            data[:-1], data[-1:] -- 使用yield返回生成器(generator)，
+                    data[:-1]表示前n-1个元素，也就是训练数据，data[-1:]表示最后一个元素，也就是对应的标签
+        """
+        for data in data_set:
+            yield data[:-1], data[-1:]
+    return reader
+
+
+# 获取训练数据集
 def train():
     """
-    定义一个reader来获取训练数据集及其标签：x，y
+    定义一个reader来获取训练数据集及其标签
 
     Args:
     Return:
-        reader -- 用于获取训练数据集及其标签的reader
+        read_data -- 用于获取训练数据集及其标签的reader
     """
     global CODEMASTER_TRAIN_DATA
-    load_data("data.txt")
+    load_data('data.txt')
 
-    #yield作用同return，但是返回的是生成器(generator)，生成器只能调用一次，实时计算
-    def reader():
-        """
-            一个reader
-            Args:
-            Return:
-                data[:-1], data[-1:] -- 使用yield返回生成器(generator)，
-                        data[:-1]表示前n-1个元素，也就是训练数据，data[-1:]表示最后一个元素，也就是对应的标签
-            """
-        for d in CODEMASTER_TRAIN_DATA:
-            yield d[:-1], d[-1:]
+    return read_data(CODEMASTER_TRAIN_DATA)
 
-    return reader
 
 # 获取测试数据集
 def test():
     """
-    定义一个reader来获取测试数据集及其标签：x，y
+    定义一个reader来获取测试数据集及其标签
 
     Args:
     Return:
-        reader -- 用于获取测试数据集及其标签的reader
+        read_data -- 用于获取测试数据集及其标签的reader
     """
     global CODEMASTER_TEST_DATA
-    load_data("data.txt")
+    load_data('data.txt')
 
-    def reader():
-        """
-            一个reader
-            Args:
-            Return:
-                data[:-1], data[-1:] -- 使用yield返回生成器(generator)，
-                        data[:-1]表示前n-1个元素，也就是测试数据，data[-1:]表示最后一个元素，也就是对应的标签
-            """
-        for d in CODEMASTER_TEST_DATA:
-            yield d[:-1], d[-1:]
-
-    return reader
+    return read_data(CODEMASTER_TEST_DATA)
 
 
 # 展示模型训练曲线
@@ -129,6 +131,7 @@ def plot_costs(costs):
     plt.show()
     plt.savefig('costs.png')
 
+
 #配置网络结构
 def netconfig():
     """
@@ -146,34 +149,58 @@ def netconfig():
     # 输入层，paddle.layer.data表示数据层,name=’x’：名称为x,
     # type=paddle.data_type.dense_vector(1)：数据类型为1维稠密向量
     x = paddle.layer.data(name='x', type=paddle.data_type.dense_vector(1))
-    
 
     # 输出层，paddle.layer.fc表示全连接层，input=x: 该层输入数据为x
     # size=1：神经元个数，act=paddle.activation.Linear()：激活函数为Linear()
-    y_predict = paddle.layer.fc(input=x, size=1, act=paddle.activation.Linear())   
+    y_predict = paddle.layer.fc(input=x, size=1, act=paddle.activation.Linear())
 
     # 标签数据，paddle.layer.data表示数据层，name=’y’：名称为y
     # type=paddle.data_type.dense_vector(1)：数据类型为1维稠密向量
     y = paddle.layer.data(name='y', type=paddle.data_type.dense_vector(1))
 
     # 定义成本函数为均方差损失函数square_error_cost
-    cost = paddle.layer.square_error_cost(input=y_predict, label=y)
+    cost = paddle.layer.mse_cost(input=y_predict, label=y)
 
     # 利用cost创建parameters
     parameters = paddle.parameters.create(cost)
 
     # 创建optimizer，并初始化momentum
     optimizer = paddle.optimizer.Momentum(momentum=0)
-      
 
     # 数据层和数组索引映射，用于trainer训练时喂数据
     feeding = {'x': 0, 'y': 1}
-    
-    
+
     data = [x, y_predict, y, cost, parameters, optimizer, feeding]
-    
-    return data 
-    
+
+    return data
+
+
+# 输出参数结果
+def print_parameters(parameters):
+    """
+        打印训练结果的参数以及测试结果
+        Args:
+            parameters -- 训练结果的参数
+        Return:
+        """
+    print("Result Parameters as below:")
+    a = parameters.get('___fc_layer_0__.w0')[0]
+    b = parameters.get('___fc_layer_0__.wbias')[0]
+    print(a, b)
+
+    x0 = X_RAW[0]
+    y0 = a * CODEMASTER_TRAIN_DATA[0][0] + b
+
+    x1 = X_RAW[1]
+    y1 = a * CODEMASTER_TRAIN_DATA[1][0] + b
+
+    a = (y0 - y1) / (x0 - x1)
+    b = (y1 - a * x1)
+
+    print 'a = ', a
+    print 'b = ', b
+
+
 def main():
     """
     初始化，定义神经网络结构，训练
@@ -182,18 +209,18 @@ def main():
     """
     # 初始化，设置是否使用gpu，trainer数量
     paddle.init(use_gpu=False, trainer_count=1)
-    
 
-    
+
+
     # 配置网络结构
     x, y_predict, y, cost, parameters, optimizer, feeding = netconfig()
-    
+
     # 记录成本cost
     costs = []
-    
+
     # 构造trainer,配置三个参数cost、parameters、update_equation，它们分别表示成本函数、参数和更新公式。
     trainer = paddle.trainer.SGD(
-        cost=cost, parameters=parameters, update_equation=optimizer)  
+        cost=cost, parameters=parameters, update_equation=optimizer)
 
     # 处理事件
     def event_handler(event):
@@ -233,27 +260,12 @@ def main():
         event_handler=event_handler,
         num_passes=300)
 
-    # 输出参数结果
-    print("Result Parameters as below:")
-    a = parameters.get('___fc_layer_0__.w0')[0]
-    b = parameters.get('___fc_layer_0__.wbias')[0]
-    print(a, b)
+    # 打印参数结果
+    print_parameters(parameters)
 
-    x0 = X_RAW[0]
-    y0 = a * CODEMASTER_TRAIN_DATA[0][0] + b
-
-    x1 = X_RAW[1]
-    y1 = a * CODEMASTER_TRAIN_DATA[1][0] + b
-
-    a = (y0 - y1) / (x0 - x1)
-    b = (y1 - a * x1)
-
-    print 'a = ', a
-    print 'b = ', b
-    
     #展示学习曲线
     plot_costs(costs)
-    
+
 if __name__ == '__main__':
     main()
 

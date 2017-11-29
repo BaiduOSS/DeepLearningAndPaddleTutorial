@@ -146,6 +146,7 @@ def get_mov_combined_features():
         
     return mov_combined_features
 
+
 # 配置网络结构
 def netconfig():
     """
