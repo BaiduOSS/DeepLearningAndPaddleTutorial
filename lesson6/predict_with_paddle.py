@@ -7,7 +7,7 @@
 ################################################################################
 """
 Authors: xiake(kedou1993@163.com)
-Date:    2017/11/19
+Date:    2017/11/29
 
 使用PaddlePaddle框架实现数字识别案例的预测任务，关键步骤如下：
 1.定义分类器网络结构
@@ -91,6 +91,54 @@ def convolutional_neural_network(img):
     return predict
 
 
+def netconfig():
+    """
+    配置网络结构
+    Args:
+    Return:
+        images -- 输入层
+        predict -- 输出层
+    """
+    
+    """
+    输入层:
+        paddle.layer.data表示数据层,
+        name=’pixel’：名称为pixel,对应输入图片特征
+        type=paddle.data_type.dense_vector(784)：数据类型为784维(输入图片的尺寸为28*28)稠密向量
+    """
+    images = paddle.layer.data(
+        name='pixel', type=paddle.data_type.dense_vector(784))
+             
+    """ 
+    选择分类器：
+        在此之前已经定义了3种不同的分类器，在下面的代码中,
+        我们可以通过保留某种方法的调用语句、注释掉其余两种，以选择特定的分类器
+    """
+    # predict = softmax_regression(images)
+    # predict = multilayer_perceptron(images)
+    predict = convolutional_neural_network(images)
+    
+    config_data = [images, predict]
+    
+    return config_data
+
+
+def load_image(file):
+    """
+    定义读取输入图片的函数：
+        读取指定路径下的图片，将其处理成分类网络输入数据对应形式的数据，如数据维度等
+    Args:
+        file -- 输入图片的文件路径
+    Return:
+        im -- 分类网络输入数据对应形式的数据
+    """
+    im = Image.open(file).convert('L')
+    im = im.resize((28, 28), Image.ANTIALIAS)
+    im = np.array(im).astype(np.float32).flatten()
+    im = im / 255.0
+    return im
+
+
 def main():
     """
     定义网络结构、读取模型参数并预测结果
@@ -100,46 +148,15 @@ def main():
     paddle.init(use_gpu=with_gpu)
     
     # 定义神经网络结构
-    """
-    输入层:
-        paddle.layer.data表示数据层,
-        name=’pixel’：名称为pixel,对应输入图片特征
-        type=paddle.data_type.dense_vector(784)：数据类型为784维(输入图片的尺寸为28*28)稠密向量
-    """
-    images = paddle.layer.data(
-        name='pixel', type=paddle.data_type.dense_vector(784))
+    images, predict = netconfig()
     
-    """ 
-    选择分类器：
-        在此之前已经定义了3种不同的分类器，在下面的代码中,
-        我们可以通过保留某种方法的调用语句、注释掉其余两种，以选择特定的分类器,
-        需要注意的是读取的模型参数应与选择的分类模型一致
-    """
-    # predict = softmax_regression(images)
-    # predict = multilayer_perceptron(images)
-    predict = convolutional_neural_network(images)
-    
+    # 读取模型参数 
     if not os.path.exists('params_pass_9.tar'):
         print("Params file doesn't exists.")
         return
     with open('params_pass_9.tar', 'r') as f:
         parameters = paddle.parameters.Parameters.from_tar(f)
-
-    def load_image(file):
-        """
-        定义读取输入图片的函数：
-            读取指定路径下的图片，将其处理成分类网络输入数据对应形式的数据，如数据维度等
-        Args:
-            file -- 输入图片的文件路径
-        Return:
-            im -- 分类网络输入数据对应形式的数据
-        """
-        im = Image.open(file).convert('L')
-        im = im.resize((28, 28), Image.ANTIALIAS)
-        im = np.array(im).astype(np.float32).flatten()
-        im = im / 255.0
-        return im
-    
+ 
     # 读取并预处理要预测的图片
     test_data = []
     cur_dir = os.path.dirname(os.path.realpath(__file__))

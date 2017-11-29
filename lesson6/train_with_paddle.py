@@ -7,7 +7,7 @@
 ################################################################################
 """
 Authors: xiake(kedou1993@163.com)
-Date:    2017/11/18
+Date:    2017/11/29
 
 使用paddle框架实现逻辑数字识别案例，关键步骤如下：
 1.定义分类器网络结构
@@ -101,17 +101,19 @@ def convolutional_neural_network(img):
     return predict
 
 
-def main():
+def netconfig():
     """
-    主函数：
-        定义神经网络结构，训练模型并打印学习曲线、预测测试数据类别
+    配置网络结构
     Args:
     Return:
+        images -- 输入层
+        label -- 标签数据
+        predict -- 输出层
+        cost -- 损失函数
+        parameters -- 模型参数
+        optimizer -- 优化器
     """
-    # 初始化，设置是否使用gpu，trainer数量
-    paddle.init(use_gpu=with_gpu, trainer_count=1)
     
-    # 定义神经网络结构
     """
     输入层:
         paddle.layer.data表示数据层,
@@ -154,6 +156,63 @@ def main():
     
     # 创建Adam优化器，并设置参数beta1、beta2、epsilon
     # optimizer = paddle.optimizer.Adam(beta1=0.9, beta2=0.99, epsilon=1e-06)
+    
+    config_data = [images, label, predict, cost, parameters, optimizer]
+    
+    return config_data
+
+    
+def load_image(file):
+    """
+    定义读取输入图片的函数：
+        读取指定路径下的图片，将其处理成分类网络输入数据对应形式的数据，如数据维度等
+    Args:
+        file -- 输入图片的文件路径
+    Return:
+        im -- 分类网络输入数据对应形式的数据
+    """
+    im = Image.open(file).convert('L')
+    im = im.resize((28, 28), Image.ANTIALIAS)
+    im = np.array(im).astype(np.float32).flatten()
+    im = im / 255.0
+    return im
+
+
+def infer(predict, parameters, file):
+    """
+    定义判断输入图片类别的函数：
+        读取并处理指定路径下的图片，然后调用训练得到的模型进行类别预测
+    Args:
+        predict -- 输出层
+        parameters -- 模型参数
+        file -- 输入图片的文件路径
+    Return:
+    """
+    # 读取并预处理要预测的图片
+    test_data = []
+    cur_dir = os.path.dirname(os.path.realpath(__file__))
+    test_data.append((load_image(cur_dir + file), ))
+    
+    # 利用训练好的分类模型，对输入的图片类别进行预测
+    probs = paddle.infer(
+        output_layer=predict, parameters=parameters, input=test_data)
+    lab = np.argsort(-probs)
+    print "Label of image/infer_3.png is: %d" % lab[0][0]
+
+
+    
+def main():
+    """
+    主函数：
+        定义神经网络结构，训练模型并打印学习曲线、预测测试数据类别
+    Args:
+    Return:
+    """
+    # 初始化，设置是否使用gpu，trainer数量
+    paddle.init(use_gpu=with_gpu, trainer_count=1)
+    
+    # 定义神经网络结构
+    images, label, predict, cost, parameters, optimizer = netconfig()
 
     # 构造trainer,配置三个参数cost、parameters、update_equation，它们分别表示成本函数、参数和更新公式
     trainer = paddle.trainer.SGD(
@@ -268,32 +327,8 @@ def main():
     print 'Best pass is %s, testing Avgcost is %s' % (best[0], best[1])
     print 'The classification accuracy is %.2f%%' % (100 - float(best[2]) * 100)
     
-    # 预测相关代码
-    def load_image(file):
-        """
-        定义读取输入图片的函数：
-            读取指定路径下的图片，将其处理成分类网络输入数据对应形式的数据，如数据维度等
-        Args:
-            file -- 输入图片的文件路径
-        Return:
-            im -- 分类网络输入数据对应形式的数据
-        """
-        im = Image.open(file).convert('L')
-        im = im.resize((28, 28), Image.ANTIALIAS)
-        im = np.array(im).astype(np.float32).flatten()
-        im = im / 255.0
-        return im
-    
-    # 读取并预处理要预测的图片
-    test_data = []
-    cur_dir = os.path.dirname(os.path.realpath(__file__))
-    test_data.append((load_image(cur_dir + '/image/infer_3.png'), ))
-    
-    # 利用训练好的分类模型，对输入的图片类别进行预测
-    probs = paddle.infer(
-        output_layer=predict, parameters=parameters, input=test_data)
-    lab = np.argsort(-probs)
-    print "Label of image/infer_3.png is: %d" % lab[0][0]
+    # 预测输入图片的类型
+    infer(predict, parameters, '/image/infer_3.png')
 
 
 
