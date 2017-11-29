@@ -28,9 +28,6 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import scipy
 import h5py
-from PIL import Image
-from scipy import ndimage
-from lr_utils import load_dataset
 
 
 # 定义Sigmoid激活函数
@@ -50,6 +47,28 @@ def sigmoid(Z):
     cache = Z
 
     return A, cache
+
+# Sigmoid后向传播计算
+def sigmoid_backward(dA, cache):
+    """
+    使用Sigmoid函数激活的反向计算
+
+    Arguments:
+    dA -- 激活后的数值的梯度
+    cache -- 包含Z值
+
+    Returns:
+    dZ -- Z的梯度
+    """
+
+    Z = cache
+
+    s = 1 / (1 + np.exp(-Z))
+    dZ = dA * s * (1 - s)
+
+    assert (dZ.shape == Z.shape)
+
+    return dZ
 
 
 # 定义Relu激活函数
@@ -71,7 +90,6 @@ def relu(Z):
 
     cache = Z
     return A, cache
-
 
 #Relu后向传播计算
 def relu_backward(dA, cache):
@@ -97,36 +115,12 @@ def relu_backward(dA, cache):
     return dZ
 
 
-# Sigmoid后向传播计算
-def sigmoid_backward(dA, cache):
-    """
-    使用Sigmoid函数激活的反向计算
-
-    Arguments:
-    dA -- 激活后的数值的梯度
-    cache -- 包含Z值
-
-    Returns:
-    dZ -- Z的梯度
-    """
-
-    Z = cache
-
-    s = 1 / (1 + np.exp(-Z))
-    dZ = dA * s * (1 - s)
-
-    assert (dZ.shape == Z.shape)
-
-    return dZ
-
 #加载数据
 def load_data():
     """
     加载数据
 
     Arguments:
-
-
     Returns:
 
     """
@@ -181,7 +175,6 @@ def initialize_parameters(n_x, n_h, n_y):
                   "b2": b2}
 
     return parameters
-
 
 #深层网络的参数初始化
 def initialize_parameters_deep(layer_dims):
