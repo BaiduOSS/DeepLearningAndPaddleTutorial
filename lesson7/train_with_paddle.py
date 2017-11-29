@@ -22,9 +22,10 @@ Date:    2017/11/29
 import matplotlib
 
 matplotlib.use('Agg')
+import numpy as np
 import paddle.v2 as paddle
 import os
-from paddle.v2.plot import Ploter
+import matplotlib.pyplot as plt
 
 with_gpu = os.getenv('WITH_GPU', '0') != '0'
 
@@ -191,6 +192,34 @@ def netconfig():
 
     return data
 
+	
+# 展示模型训练测试曲线
+def plot_costs(train_costs, train_step, test_costs, test_step):
+    """
+    利用costs展示模型的训练测试曲线
+    Args:
+        train_costs -- 记录了训练过程的cost变化的list，每100次迭代记录一次
+        train_step -- 记录了训练过程迭代次数的list
+        test_costs -- 记录了测试过程的cost变化的list，每3500次迭代记录一次
+        test_step -- 记录了测试过程迭代次数的list
+    Return:
+    """
+    train_costs = np.squeeze(train_costs)
+    test_costs = np.squeeze(test_costs)
+
+    plt.figure()
+    plt.plot(train_step,train_costs,label="Train Cost")
+    plt.plot(test_step,test_costs,label="Test Cost")
+
+    plt.ylabel('cost')
+    plt.xlabel('iterations (step)')
+    plt.title("train-test-cost")
+
+    plt.legend()
+    plt.show()
+    plt.savefig('train_test_cost.png')
+
+	
 
 def main():
     """
@@ -205,6 +234,12 @@ def main():
     # 配置网络结构
     inference, cost, parameters, feeding = netconfig()
 
+    # 记录cost和step
+    train_costs = []
+    test_costs = []
+    train_step = []
+    test_step = []
+
     """
     定义模型训练器，配置三个参数
     cost:成本函数
@@ -215,37 +250,26 @@ def main():
         cost=cost,
         parameters=parameters,
         update_equation=paddle.optimizer.Adam(learning_rate=1e-4))
-
-    """
-    绘图相关设置:
-        通过Ploter(train_title, test_title)函数初始化绘图函数，
-            train_title和test_title表明要绘制的曲线的题注
         
-    """
-    # 绘制cost曲线所做的初始化设置
-    train_title_cost = "Train cost"
-    test_title_cost = "Test cost"
-    cost_ploter = Ploter(train_title_cost, test_title_cost)
-
-    def event_handler_plot(event):
+	
+    # 事件处理模块
+    def event_handler(event):
         """
-        事件处理器，可以根据训练过程的信息做相应操作：包括绘图和输出训练结果信息
+        事件处理器，可以根据训练过程的信息作相应操作
         Args:
             event -- 事件对象，包含event.pass_id, event.batch_id, event.cost等信息
         Return:
         """
         global step
         if isinstance(event, paddle.event.EndIteration):
-            # 每训练100次（即100个batch），添加一个绘图点
-            if step % 100 == 0:
-                cost_ploter.append(train_title_cost, step, event.cost)
-                # 绘制cost图像，保存图像为‘train_test_cost.png’
-                cost_ploter.plot('./train_test_cost')
-            step += 1
-            # 每训练100个batch，输出一次训练结果信息
+            # 每100个batch输出一条记录，分别是当前的迭代次数编号，batch编号和对应损失值
             if event.batch_id % 100 == 0:
                 print "Pass %d Batch %d Cost %.2f" % (
                     event.pass_id, event.batch_id, event.cost)
+				# 添加训练数据的cost绘图数据
+                train_costs.append(event.cost)
+                train_step.append(step)
+            step += 1
         if isinstance(event, paddle.event.EndPass):
             # 保存参数至文件
             with open('params_pass_%d.tar' % event.pass_id, 'w') as f:
@@ -257,25 +281,9 @@ def main():
             print "Test with Pass %d, Cost %f" % (
                 event.pass_id, result.cost)
             # 添加测试数据的cost绘图数据
-            cost_ploter.append(test_title_cost, step, result.cost)
-
-    # 事件处理模块
-    def event_handler(event):
-        """
-        事件处理器，可以根据训练过程的信息作相应操作
-        Args:
-            event -- 事件对象，包含event.pass_id, event.batch_id, event.cost等信息
-        Return:
-        """
-        if isinstance(event, paddle.event.EndIteration):
-            # 每100个batch输出一条记录，分别是当前的迭代次数编号，batch编号和对应损失值
-            if event.batch_id % 100 == 0:
-                print "Pass %d Batch %d Cost %.2f" % (
-                    event.pass_id, event.batch_id, event.cost)
-        if isinstance(event, paddle.event.EndPass):
-            # 保存参数至文件
-            with open('params_pass_%d.tar' % event.pass_id, 'w') as f:
-                trainer.save_parameter_to_tar(f)
+            test_costs.append(result.cost)
+            test_step.append(step)
+    
 
     """
     模型训练
@@ -295,10 +303,15 @@ def main():
             paddle.reader.shuffle(
                 paddle.dataset.movielens.train(), buf_size=8192),
             batch_size=256),
-        event_handler=event_handler_plot,
+        event_handler=event_handler,
         feeding=feeding,
         num_passes=10)
 
+
+    # 展示学习曲线
+    plot_costs(train_costs, train_step, test_costs, test_step)
+
+    
 
 if __name__ == '__main__':
     main()
