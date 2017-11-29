@@ -1,4 +1,4 @@
-# lesson8: 个性化推荐在PaddlePaddle Cloud上的实现（Recommend System with PaddlePaddle Cloud） 
+# Lesson8: 个性化推荐在PaddlePaddle Cloud上的实现（Recommend System with PaddlePaddle Cloud） 
 本实验内容主要为在PaddlePaddle Cloud平台上实现特征融合推荐模型，进而实现分布式个性化电影推荐系统。
 
 ***
