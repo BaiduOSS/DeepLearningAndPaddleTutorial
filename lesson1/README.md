@@ -1,5 +1,5 @@
-# Lesson 1: Basic Numpy and Matplotlib
----------------------------
+# Lesson1: Basic Numpy and Matplotlib
+***
 本实验代码与教材第一章配套，为介绍Numpy和Maplotlib两个模块的常用函数及基本用法，解决一些实际问题。
 > 注意： 代码中相关知识的详细说明参考教材第一章的相关描述
 
