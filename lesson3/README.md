@@ -1,4 +1,4 @@
-# Lesson3:Logistic Regression
+# Lesson3: Logistic Regression
 
 本实验内容主要为分别利用python和paddlepaddle框架来实现Logistic Regression，用于解决识别猫问题。
 
