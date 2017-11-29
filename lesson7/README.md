@@ -9,8 +9,8 @@
 
 文件清单：
 
-  * [train.py](train.py)：在PaddlePaddle上完成推荐模型的训练
+  * [train_with_paddle.py](train_with_paddle.py)：在PaddlePaddle上完成推荐模型的训练
 
-  * [predict.py](predict.py)：在PaddlePaddle上完成推荐模型的预测
+  * [predict_with_paddle.py](predict_with_paddle.py)：在PaddlePaddle上完成推荐模型的预测
   
   * [train_test_cost.png](train_test_cost.png)：训练过程中成本变化曲线图
