@@ -284,12 +284,14 @@ def main():
     # 预测训练集
     predictions = predict(parameters, train_x)
     # 输出准确率
-    print('Accuracy: %d' % float((np.dot(train_y, predictions.T) +
-                                  np.dot(1 - train_y, 1 - predictions.T)) / float(train_y.size) * 100) + '%')
+    print('Train Accuracy: %d' % float((np.dot(train_y, predictions.T)+
+                                        np.dot(1 - train_y, 1 - predictions.T)) /
+                                       float(train_y.size) * 100) + '%')
     #预测测试集
     predictions = predict(parameters, test_x)
-    print('Accuracy: %d' % float((np.dot(test_y, predictions.T) +
-                                  np.dot(1 - test_y, 1 - predictions.T)) / float(test_y.size) * 100) + '%')
+    print('Test Accuracy: %d' % float((np.dot(test_y, predictions.T) +
+                                       np.dot(1 - test_y, 1 - predictions.T)) /
+                                      float(test_y.size) * 100) + '%')
 
-if __name__=='__main__':
+if __name__ == '__main__':
     main()
