@@ -17,8 +17,8 @@ dnn lesson5:Deep Neural Network(DNN)
 
 * [dnn_app_utils_v2.py](dnn_app_utils_v2.py):工具类，包含DNN的Python版本实现需要的函数
 
-* [train_with_numpy.py](multi_nn_python.py)：DNN的Python版本实现
+* [train_with_numpy.py](train_with_numpy.py)：DNN的Python版本实现
 
-* [train_with_paddle.py](multi_nn_paddle.py)：DNN的Paddlepaddle版本实现
+* [train_with_paddle.py](train_with_paddle.py)：DNN的Paddlepaddle版本实现
 
 * [costs.png](costs.png)：成本变化曲线图
