@@ -19,17 +19,12 @@ Date:    2017/11/17 17:27:06
 7.预测并测试准确率train_accuracy和test_accuracy
 """
 
-import sys
-import numpy as np
-
-import paddle.v2 as paddle
-import h5py
-import scipy
 import matplotlib
+import numpy as np
+import paddle.v2 as paddle
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from scipy import ndimage
-from PIL import Image
 
 from lr_utils import load_dataset
 
@@ -289,7 +284,7 @@ def main():
     # 载入数据
     load_data()
 
-    #构建神经网络结构
+    # 构建神经网络结构
     image, y_predict, y_label = netconfig()
 
     # 定义成本函数为交叉熵损失函数multi_binary_label_cross_entropy_cost

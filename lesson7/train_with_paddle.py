@@ -20,15 +20,16 @@ Date:    2017/11/29
 """
 
 import matplotlib
+
 matplotlib.use('Agg')
 import paddle.v2 as paddle
 import os
 from paddle.v2.plot import Ploter
 
-
 with_gpu = os.getenv('WITH_GPU', '0') != '0'
 
 step = 0
+
 
 # 构造用户融合特征模型
 def get_usr_combined_features():
@@ -49,19 +50,19 @@ def get_usr_combined_features():
         name='user_id',
         type=paddle.data_type.integer_value(
             paddle.dataset.movielens.max_user_id() + 1))
-            
+
     # 将用户编号变换为对应词向量
     usr_emb = paddle.layer.embedding(input=uid, size=32)
-    
+
     # 将用户编号对应词向量输入到全连接层
     usr_fc = paddle.layer.fc(input=usr_emb, size=32)
-    
+
     # 读取用户性别类别编号信息（gender_id）并做处理（同上）
     usr_gender_id = paddle.layer.data(
         name='gender_id', type=paddle.data_type.integer_value(2))
     usr_gender_emb = paddle.layer.embedding(input=usr_gender_id, size=16)
     usr_gender_fc = paddle.layer.fc(input=usr_gender_emb, size=16)
-    
+
     # 读取用户年龄类别编号信息（age_id）并做处理（同上）
     usr_age_id = paddle.layer.data(
         name='age_id',
@@ -69,7 +70,7 @@ def get_usr_combined_features():
             len(paddle.dataset.movielens.age_table)))
     usr_age_emb = paddle.layer.embedding(input=usr_age_id, size=16)
     usr_age_fc = paddle.layer.fc(input=usr_age_emb, size=16)
-    
+
     # 读取用户职业类别编号信息（job_id）并做处理（同上）
     usr_job_id = paddle.layer.data(
         name='job_id',
@@ -77,16 +78,16 @@ def get_usr_combined_features():
             paddle.dataset.movielens.max_job_id() + 1))
     usr_job_emb = paddle.layer.embedding(input=usr_job_id, size=16)
     usr_job_fc = paddle.layer.fc(input=usr_job_emb, size=16)
-    
+
     # 所有的用户特征再输入到一个全连接层中，完成特征融合
     usr_combined_features = paddle.layer.fc(
         input=[usr_fc, usr_gender_fc, usr_age_fc, usr_job_fc],
         size=200,
         act=paddle.activation.Tanh())
-        
+
     return usr_combined_features
 
-    
+
 # 构造电影融合特征模型
 def get_mov_combined_features():
     """
@@ -100,40 +101,38 @@ def get_mov_combined_features():
     Return:
         mov_combined_features -- 电影融合特征模型
     """
-    
+
     movie_title_dict = paddle.dataset.movielens.get_movie_title_dict()
-    
+
     # 读取电影编号信息（movie_id）
     mov_id = paddle.layer.data(
         name='movie_id',
         type=paddle.data_type.integer_value(
             paddle.dataset.movielens.max_movie_id() + 1))
-            
+
     # 将电影编号变换为对应词向量
     mov_emb = paddle.layer.embedding(input=mov_id, size=32)
-    
+
     # 将电影编号对应词向量输入到全连接层
     mov_fc = paddle.layer.fc(input=mov_emb, size=32)
 
-    
     # 读取电影类别编号信息（category_id）
     mov_categories = paddle.layer.data(
         name='category_id',
         type=paddle.data_type.sparse_binary_vector(
             len(paddle.dataset.movielens.movie_categories())))
-            
+
     # 将电影编号信息输入到全连接层
     mov_categories_hidden = paddle.layer.fc(input=mov_categories, size=32)
 
-    
     # 读取电影名信息（movie_title）
     mov_title_id = paddle.layer.data(
         name='movie_title',
         type=paddle.data_type.integer_value_sequence(len(movie_title_dict)))
-        
+
     # 将电影名变换为对应词向量
     mov_title_emb = paddle.layer.embedding(input=mov_title_id, size=32)
-    
+
     # 将电影名对应词向量输入到卷积网络生成电影名时序特征
     mov_title_conv = paddle.networks.sequence_conv_pool(
         input=mov_title_emb, hidden_size=32, context_len=3)
@@ -143,7 +142,7 @@ def get_mov_combined_features():
         input=[mov_fc, mov_categories_hidden, mov_title_conv],
         size=200,
         act=paddle.activation.Tanh())
-        
+
     return mov_combined_features
 
 
@@ -158,15 +157,15 @@ def netconfig():
         parameters -- 模型参数
         feeding -- 数据映射，python字典
     """
-	
-	# 构造用户融合特征，电影融合特征
+
+    # 构造用户融合特征，电影融合特征
     usr_combined_features = get_usr_combined_features()
     mov_combined_features = get_mov_combined_features()
-	
+
     # 计算用户融合特征和电影融合特征的余弦相似度
     inference = paddle.layer.cos_sim(
         a=usr_combined_features, b=mov_combined_features, size=1, scale=5)
-        
+
     # 定义成本函数为均方误差函数
     cost = paddle.layer.square_error_cost(
         input=inference,
@@ -192,18 +191,18 @@ def netconfig():
 
     return data
 
-	
+
 def main():
     """
-    定义神经网络结构，训练网络    
+    定义神经网络结构，训练网络
     Args:
     Return:
-    """ 
-    
-	# 初始化，设置为不使用GPU
+    """
+
+    # 初始化，设置为不使用GPU
     paddle.init(use_gpu=with_gpu)
-    
-	# 配置网络结构
+
+    # 配置网络结构
     inference, cost, parameters, feeding = netconfig()
 
     """
@@ -216,8 +215,6 @@ def main():
         cost=cost,
         parameters=parameters,
         update_equation=paddle.optimizer.Adam(learning_rate=1e-4))
-        
-    
 
     """
     绘图相关设置:
@@ -229,8 +226,7 @@ def main():
     train_title_cost = "Train cost"
     test_title_cost = "Test cost"
     cost_ploter = Ploter(train_title_cost, test_title_cost)
-	
-	
+
     def event_handler_plot(event):
         """
         事件处理器，可以根据训练过程的信息做相应操作：包括绘图和输出训练结果信息
@@ -252,7 +248,7 @@ def main():
                     event.pass_id, event.batch_id, event.cost)
         if isinstance(event, paddle.event.EndPass):
             # 保存参数至文件
-            with open('params_pass_%d.tar' % event.pass_id , 'w') as f:
+            with open('params_pass_%d.tar' % event.pass_id, 'w') as f:
                 trainer.save_parameter_to_tar(f)
 
             # 利用测试数据进行测试
@@ -262,8 +258,7 @@ def main():
                 event.pass_id, result.cost)
             # 添加测试数据的cost绘图数据
             cost_ploter.append(test_title_cost, step, result.cost)
-    
-	
+
     # 事件处理模块
     def event_handler(event):
         """
@@ -281,7 +276,7 @@ def main():
             # 保存参数至文件
             with open('params_pass_%d.tar' % event.pass_id, 'w') as f:
                 trainer.save_parameter_to_tar(f)
-    
+
     """
     模型训练
     paddle.batch(reader(), batch_size=256)：
@@ -304,7 +299,6 @@ def main():
         feeding=feeding,
         num_passes=10)
 
-    
 
 if __name__ == '__main__':
     main()

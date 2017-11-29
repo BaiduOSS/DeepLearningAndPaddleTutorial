@@ -56,6 +56,6 @@ def main():
     print('Test accuracy:')
     pred_test = dnn_app_utils_v2.predict(test_x, test_y, parameters)
 
+
 if __name__ == '__main__':
     main()
-

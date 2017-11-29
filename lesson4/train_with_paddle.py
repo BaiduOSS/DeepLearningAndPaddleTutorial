@@ -19,10 +19,10 @@ Date:    2017/11/27 16:26:06
 7.预测并测试准确率train_accuracy和test_accuracy
 """
 
-
 import matplotlib
 import numpy as np
 import paddle.v2 as paddle
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
@@ -204,6 +204,7 @@ def test_accuracy(probs_test, test_data):
 
     return test_accuracy
 
+
 # 搭建神经网络结构
 def netconfig():
     """
@@ -233,6 +234,7 @@ def netconfig():
         name='label', type=paddle.data_type.dense_vector(1))
 
     return image, y_predict, y_label
+
 
 # 展示模型训练曲线
 def plot_costs(costs):
@@ -265,7 +267,7 @@ def main():
     # 载入数据
     load_data()
 
-    #配置网络结构
+    # 配置网络结构
     image, y_predict, y_label = netconfig()
 
     # 定义成本函数为交叉熵损失函数multi_binary_label_cross_entropy_cost
@@ -338,7 +340,7 @@ def main():
     print("train_accuracy: {} %".format(train_accuracy(probs_train, train_data)))
     print("test_accuracy: {} %".format(test_accuracy(probs_test, test_data)))
 
-    #绘制成本函数折线图
+    # 绘制成本函数折线图
     plot_costs(costs)
 
 
