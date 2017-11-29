@@ -10,6 +10,6 @@
 
 * [planar_utils.py](planar_utils.py)：工具类，包含load_planar_dataset()函数，用于载入数据
 
-* [nn_python.py](nn_python.py)：浅层神经网络的Python版本实现
+* [train_with_numpy.py](train_with_numpy.py)：浅层神经网络的Python版本实现
 
-* [nn_paddle.py](nn_paddle.py)：浅层神经网络的Paddlepaddle版本实现
+* [train_with_paddle.py](train_with_paddle.py)：浅层神经网络的Paddlepaddle版本实现
