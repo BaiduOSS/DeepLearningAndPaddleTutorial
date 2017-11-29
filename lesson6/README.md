@@ -1,7 +1,5 @@
-# lesson6: 数字识别（Recognize Digits） 
+# Lesson6: 数字识别（Recognize Digits） 
 本实验内容主要为利用PaddlePaddle框架来实现神经网络分类器，用于解决手写数字识别问题。
-
-***
 
 >**注意**: 实验假设读者已经对Numpy以及PaddlePaddle知识有基本的了解，并且掌握了深度学习的基本概念、对卷积神经网络有基本的了解。
 
