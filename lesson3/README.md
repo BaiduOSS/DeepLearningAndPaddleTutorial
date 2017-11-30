@@ -1,4 +1,4 @@
-# Lesson3: Logistic Regression
+# Lesson3: 逻辑回归（Logistic Regression）
 
 本实验内容主要为分别利用python和paddlepaddle框架来实现Logistic Regression，用于解决识别猫问题。
 
@@ -13,11 +13,11 @@
 
 * [lr_utils.py](lr_utils.py)：工具类，包含load_data()函数，用于载入数据
 
-* [train.py](train.py)：Logistic Regression的Python版本实现
+* [train_with_numpy.py](train.py)：Logistic Regression的Python版本实现
 
 * [train_with_paddle.py](train_with_paddle.py)：Logistic Regression的Paddlepaddle版本实现
 
-* [predict.py](predict.py)：对训练完成的模型进行预测和检验，使用Paddlepaddle实现
+* [predict_with_paddle.py](predict_with_paddle.py)：对训练完成的模型进行预测和检验，使用Paddlepaddle实现（在教材中将该部分合并至train_with_paddle.py中，但实际上应单独作为文件）
 
 * [costs.png](costs.png)：成本变化曲线图
  
