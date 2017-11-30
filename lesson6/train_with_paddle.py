@@ -329,7 +329,5 @@ def main():
     infer(predict, parameters, '/image/infer_3.png')
 
 
-
-
 if __name__ == '__main__':
     main()

@@ -11,12 +11,17 @@ Date:    2017/11/16
 
 使用paddlepaddle来做线性回归，拟合房屋价格与房屋面积的线性关系，具体步骤如下：
 1.载入数据和预处理：load_data()
-2.定义两个reader()分别用于读取训练数据和测试数据
+2.定义train()和test()用于读取训练数据和测试数据，分别返回一个reader
 3.初始化
-4.配置网络结构
-5.定义成本函数cost
-6.定义优化器optimizer
-7.定义trainer并开始训练，获得训练结果参数a，b
+4.配置网络结构和设置参数：
+    - 定义成本函数cost
+    - 创建parameters
+    - 定义优化器optimizer
+5.定义event_handler
+6.定义trainer
+7.开始训练
+8.打印参数和结果print_parameters()
+9.展示学习曲线plot_costs()
 """
 import numpy as np
 import paddle.v2 as paddle
@@ -40,23 +45,24 @@ def load_data(filename, feature_num=2, ratio=0.8):
         ratio -- 训练集占总数据集比例
     Return:
     """
-    #如果测试数据集和训练数据集都不为空，就不再载入数据load_data
+    # 如果测试数据集和训练数据集都不为空，就不再载入数据load_data
     global CODEMASTER_TRAIN_DATA, CODEMASTER_TEST_DATA, X_RAW
     if CODEMASTER_TRAIN_DATA is not None and CODEMASTER_TEST_DATA is not None:
         return
-    #data = np.loadtxt()表示将数据载入后以矩阵或向量的形式存储在data中
-    #delimiter=',' 表示以','为分隔符
+    # data = np.loadtxt()表示将数据载入后以矩阵或向量的形式存储在data中
+    # delimiter=',' 表示以','为分隔符
     data = np.loadtxt(filename, delimiter=',')
     X_RAW = data.T[0].copy()
-    #axis=0 表示按列计算
-    #data.shape[0]表示data中一共多少列
+    # axis=0 表示按列计算
+    # data.shape[0]表示data中一共多少列
     maximums, minimums, avgs = data.max(axis=0), data.min(axis=0), data.sum(
         axis=0) / data.shape[0]
 
-    #归一化，data[:, i] 表示第i列的元素
+    # 归一化，data[:, i] 表示第i列的元素
     for i in xrange(feature_num - 1):
         data[:, i] = (data[:, i] - avgs[i]) / (maximums[i] - minimums[i])
-    #offset用于划分训练数据集和测试数据集，例如0.8表示训练集占80%
+
+    # offset用于划分训练数据集和测试数据集，例如0.8表示训练集占80%
     offset = int(data.shape[0] * ratio)
     CODEMASTER_TRAIN_DATA = data[:offset].copy()
     CODEMASTER_TEST_DATA = data[offset:].copy()
@@ -114,24 +120,6 @@ def test():
     return read_data(CODEMASTER_TEST_DATA)
 
 
-# 展示模型训练曲线
-def plot_costs(costs):
-    """
-    利用costs展示模型的训练曲线
-
-    Args:
-        costs -- 记录了训练过程的cost变化的list，每一百次迭代记录一次
-    Return:
-    """
-    costs = np.squeeze(costs)
-    plt.plot(costs)
-    plt.ylabel('cost')
-    plt.xlabel('iterations (per hundreds)')
-    plt.title("House Price Distributions of Beijing Beiyuan Area")
-    plt.show()
-    plt.savefig('costs.png')
-
-
 #配置网络结构
 def netconfig():
     """
@@ -159,7 +147,7 @@ def netconfig():
     y = paddle.layer.data(name='y', type=paddle.data_type.dense_vector(1))
 
     # 定义成本函数为均方差损失函数square_error_cost
-    cost = paddle.layer.square_error_cost(input=y_predict, label=y)
+    cost = paddle.layer.mse_cost(input=y_predict, label=y)
 
     # 利用cost创建parameters
     parameters = paddle.parameters.create(cost)
@@ -173,6 +161,24 @@ def netconfig():
     data = [x, y_predict, y, cost, parameters, optimizer, feeding]
 
     return data
+
+
+# 展示模型训练曲线
+def plot_costs(costs):
+    """
+    利用costs展示模型的训练曲线
+
+    Args:
+        costs -- 记录了训练过程的cost变化的list，每一百次迭代记录一次
+    Return:
+    """
+    costs = np.squeeze(costs)
+    plt.plot(costs)
+    plt.ylabel('cost')
+    plt.xlabel('iterations (per hundreds)')
+    plt.title("House Price Distributions of Beijing Beiyuan Area")
+    plt.show()
+    plt.savefig('costs.png')
 
 
 # 输出参数结果
@@ -210,9 +216,7 @@ def main():
     # 初始化，设置是否使用gpu，trainer数量
     paddle.init(use_gpu=False, trainer_count=1)
 
-
-
-    # 配置网络结构
+    # 配置网络结构和设置参数
     x, y_predict, y, cost, parameters, optimizer, feeding = netconfig()
 
     # 记录成本cost
@@ -263,7 +267,7 @@ def main():
     # 打印参数结果
     print_parameters(parameters)
 
-    #展示学习曲线
+    # 展示学习曲线
     plot_costs(costs)
 
 if __name__ == '__main__':

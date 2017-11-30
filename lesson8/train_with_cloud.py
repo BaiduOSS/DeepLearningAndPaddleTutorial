@@ -16,7 +16,7 @@ Date:    2017/11/29
 4.构造电影融合特征模型
 5.定义特征相似性度量inference和成本函数cost
 6.定义模型训练器trainer
-7.定义事件迭代训练模型
+7.开始巡礼那
 8.根据模型参数和测试数据来预测结果
 """
 
@@ -278,10 +278,10 @@ def main():
     inference, cost, parameters, feeding = netconfig()
 
     """
-    	定义模型训练器，配置三个参数
-    	cost:成本函数
-    	parameters:参数
-    	update_equation:更新公式（模型采用Adam方法优化更新，并初始化学习率）
+        定义模型训练器，配置三个参数
+        cost:成本函数
+        parameters:参数
+        update_equation:更新公式（模型采用Adam方法优化更新，并初始化学习率）
     """
     trainer = paddle.trainer.SGD(
         cost=cost,

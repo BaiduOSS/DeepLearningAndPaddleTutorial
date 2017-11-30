@@ -11,12 +11,17 @@ Date:    2017/11/17 17:27:06
 
 使用paddle框架实现深层神经网络识别猫的问题，关键步骤如下：
 1.载入数据和预处理：load_data()
-2.初始化
-3.配置网络结构
-4.定义成本函数cost
-5.定义优化器optimizer
-6.定义两个reader()分别用于读取训练数据和测试数据
-7.预测并测试准确率train_accuracy和test_accuracy
+2.定义train()和test()用于读取训练数据和测试数据，分别返回一个reader
+3.初始化
+4.配置网络结构和设置参数：
+    - 定义成本函数cost
+    - 创建parameters
+    - 定义优化器optimizer
+5.定义event_handler
+6.定义trainer
+7.开始训练
+8.预测infer()并输出准确率train_accuracy和test_accuracy
+9.展示学习曲线plot_costs()
 """
 
 import matplotlib
@@ -66,6 +71,7 @@ def load_data():
 
     TRAINING_SET = np.hstack((train_set_x, train_set_y.T))
     TEST_SET = np.hstack((test_set_x, test_set_y.T))
+
 
 # 读取训练数据或测试数据，服务于train()和test()
 def read_data(data_set):
@@ -117,160 +123,10 @@ def test():
     return read_data(TEST_SET)
 
 
-# 获取data，服务于get_train_data()和get_test_data()
-def get_data(data_creator):
-    """
-    使用参数data_creator来获取测试数据
-
-    Args:
-        data_creator -- 数据来源,可以是train()或者test()
-    Return:
-        result -- 包含测试数据(image)和标签(label)的python字典
-    """
-    data_creator = data_creator
-    data_image = []
-    data_label = []
-
-    for item in data_creator():
-        data_image.append((item[0],))
-        data_label.append(item[1])
-
-    result = {
-        "image": data_image,
-        "label": data_label
-    }
-
-    return result
-
-
-# 获取train_data
-def get_train_data():
-    """
-    使用train()来获取训练数据
-
-    Args:
-    Return:
-        get_data(train()) -- 包含训练数据(image)和标签(label)的python字典
-    """
-    return get_data(train())
-
-
-# 获取test_data
-def get_test_data():
-    """
-    使用test()来获取测试数据
-
-    Args:
-    Return:
-        get_data(test()) -- 包含测试数据(image)和标签(label)的python字典
-    """
-    return get_data(test())
-
-
-# 计算准确度，服务于train_accuracy()和test_accuracy()
-def calc_accuracy(probs, data):
-    """
-    根据数据集来计算准确度accuracy
-
-    Args:
-        probs -- 数据集的预测结果，调用paddle.infer()来获取
-        data -- 数据集
-
-    Return:
-        calc_accuracy -- 训练准确度
-    """
-    right = 0
-    total = len(data['label'])
-    for i in range(len(probs)):
-        if float(probs[i][0]) > 0.5 and data['label'][i] == 1:
-            right += 1
-        elif float(probs[i][0]) < 0.5 and data['label'][i] == 0:
-            right += 1
-    accuracy = (float(right) / float(total)) * 100
-    return accuracy
-
-
-# 训练集准确度
-def train_accuracy(probs_train, train_data):
-    """
-    根据训练数据集来计算训练准确度train_accuracy
-
-    Args:
-        probs_train -- 训练数据集的预测结果，调用paddle.infer()来获取
-        train_data -- 训练数据集
-
-    Return:
-        calc_accuracy -- 训练准确度
-    """
-    return calc_accuracy(probs_train, train_data)
-
-
-# 测试集准确度
-def test_accuracy(probs_test, test_data):
-    """
-    根据测试数据集来计算测试准确度test_accuracy
-
-    Args:
-        probs_test -- 测试数据集的预测结果，调用paddle.infer()来获取
-        test_data -- 测试数据集
-
-    Return:
-        calc_accuracy -- 测试准确度
-    """
-
-    return calc_accuracy(probs_test, test_data)
-
-
-# 预测
-def infer(y_predict, parameters):
-    """
-    预测并输出模型准确率
-
-    Args:
-        y_predict -- 输出层，DATADIM维稠密向量
-        parameters -- 训练完成的模型参数
-
-    Return:
-    """
-    # 获取测试数据和训练数据，用来验证模型准确度
-    train_data = get_train_data()
-    test_data = get_test_data()
-
-    # 根据train_data和test_data预测结果，output_layer表示输出层，parameters表示模型参数，input表示输入的测试数据
-    probs_train = paddle.infer(
-        output_layer=y_predict, parameters=parameters, input=train_data['image']
-    )
-    probs_test = paddle.infer(
-        output_layer=y_predict, parameters=parameters, input=test_data['image']
-    )
-
-    # 计算train_accuracy和test_accuracy
-    print("train_accuracy: {} %".format(train_accuracy(probs_train, train_data)))
-    print("test_accuracy: {} %".format(test_accuracy(probs_test, test_data)))
-
-
-# 展示模型训练曲线
-def plot_costs(costs):
-    """
-    利用costs展示模型的训练曲线
-
-    Args:
-        costs -- 记录了训练过程的cost变化的list，每一百次迭代记录一次
-    Return:
-    """
-    costs = np.squeeze(costs)
-    plt.plot(costs)
-    plt.ylabel('cost')
-    plt.xlabel('iterations (per hundreds)')
-    plt.title("Learning rate = 0.000075")
-    plt.show()
-    plt.savefig('costs.png')
-
-
-# 配置网络结构
+# 配置网络结构和设置参数
 def netconfig():
     """
-    配置网络结构
+    配置网络结构和设置参数
     Args:
     Return:
         image -- 输入层，DATADIM维稠密向量
@@ -330,6 +186,101 @@ def netconfig():
     return data
 
 
+# 获取data
+def get_data(data_creator):
+    """
+    使用参数data_creator来获取测试数据
+
+    Args:
+        data_creator -- 数据来源,可以是train()或者test()
+    Return:
+        result -- 包含测试数据(image)和标签(label)的python字典
+    """
+    data_creator = data_creator
+    data_image = []
+    data_label = []
+
+    for item in data_creator():
+        data_image.append((item[0],))
+        data_label.append(item[1])
+
+    result = {
+        "image": data_image,
+        "label": data_label
+    }
+
+    return result
+
+
+# 计算准确度，服务于train_accuracy()和test_accuracy()
+def calc_accuracy(probs, data):
+    """
+    根据数据集来计算准确度accuracy
+
+    Args:
+        probs -- 数据集的预测结果，调用paddle.infer()来获取
+        data -- 数据集
+
+    Return:
+        calc_accuracy -- 训练准确度
+    """
+    right = 0
+    total = len(data['label'])
+    for i in range(len(probs)):
+        if float(probs[i][0]) > 0.5 and data['label'][i] == 1:
+            right += 1
+        elif float(probs[i][0]) < 0.5 and data['label'][i] == 0:
+            right += 1
+    accuracy = (float(right) / float(total)) * 100
+    return accuracy
+
+
+# 预测
+def infer(y_predict, parameters):
+    """
+    预测并输出模型准确率
+
+    Args:
+        y_predict -- 输出层，DATADIM维稠密向量
+        parameters -- 训练完成的模型参数
+
+    Return:
+    """
+    # 获取测试数据和训练数据，用来验证模型准确度
+    train_data = get_data(train())
+    test_data = get_data(test())
+
+    # 根据train_data和test_data预测结果，output_layer表示输出层，parameters表示模型参数，input表示输入的测试数据
+    probs_train = paddle.infer(
+        output_layer=y_predict, parameters=parameters, input=train_data['image']
+    )
+    probs_test = paddle.infer(
+        output_layer=y_predict, parameters=parameters, input=test_data['image']
+    )
+
+    # 计算train_accuracy和test_accuracy
+    print("train_accuracy: {} %".format(calc_accuracy(probs_train, train_data)))
+    print("test_accuracy: {} %".format(calc_accuracy(probs_test, test_data)))
+
+
+# 展示模型训练曲线
+def plot_costs(costs):
+    """
+    利用costs展示模型的训练曲线
+
+    Args:
+        costs -- 记录了训练过程的cost变化的list，每一百次迭代记录一次
+    Return:
+    """
+    costs = np.squeeze(costs)
+    plt.plot(costs)
+    plt.ylabel('cost')
+    plt.xlabel('iterations (per hundreds)')
+    plt.title("Learning rate = 0.000075")
+    plt.show()
+    plt.savefig('costs.png')
+
+
 def main():
     """
     定义神经网络结构，训练、预测、检验准确率并打印学习曲线
@@ -344,7 +295,7 @@ def main():
     # 载入数据
     load_data()
 
-    # 配置网络结构
+    # 配置网络结构和设置参数
     image, y_predict, y_label, cost, parameters, optimizer, feeding = netconfig()
 
     # 记录成本cost
