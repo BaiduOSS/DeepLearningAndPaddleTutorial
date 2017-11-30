@@ -1,6 +1,4 @@
-dnn lesson5:Deep Neural Network(DNN)
-
-***
+# Lesson5: Deep Neural Network(DNN)
 
 本实验内容主要为分别利用python和paddlepaddle框架来实现Deep Neural Network，用于解决识别猫问题。
 

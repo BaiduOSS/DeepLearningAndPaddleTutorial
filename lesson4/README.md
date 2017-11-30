@@ -1,6 +1,5 @@
-# lesson 4:Neural Network
+# Lesson4: Neural Network
 
-***
 
 本实验内容主要为分别利用python和paddlepaddle框架来实现前层神经网络，用于解决花型图案分类问题。
 

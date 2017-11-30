@@ -1,4 +1,4 @@
-# lesson2：Linear Regression
+# Lesson2：Linear Regression
 
 本次试验利用paddlepaddle框架来实现机器学习中最简单的Linear Regression,解决预测房价问题。帮助读者熟悉paddlepaddle的操作。
 
