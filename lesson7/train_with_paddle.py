@@ -192,7 +192,7 @@ def netconfig():
 
     return data
 
-	
+
 # 展示模型训练测试曲线
 def plot_costs(train_costs, train_step, test_costs, test_step):
     """
@@ -208,8 +208,8 @@ def plot_costs(train_costs, train_step, test_costs, test_step):
     test_costs = np.squeeze(test_costs)
 
     plt.figure()
-    plt.plot(train_step,train_costs,label="Train Cost")
-    plt.plot(test_step,test_costs,label="Test Cost")
+    plt.plot(train_step, train_costs, label="Train Cost")
+    plt.plot(test_step, test_costs, label="Test Cost")
 
     plt.ylabel('cost')
     plt.xlabel('iterations (step)')
@@ -219,7 +219,6 @@ def plot_costs(train_costs, train_step, test_costs, test_step):
     plt.show()
     plt.savefig('train_test_cost.png')
 
-	
 
 def main():
     """
@@ -250,8 +249,7 @@ def main():
         cost=cost,
         parameters=parameters,
         update_equation=paddle.optimizer.Adam(learning_rate=1e-4))
-        
-	
+
     # 事件处理模块
     def event_handler(event):
         """
@@ -266,7 +264,7 @@ def main():
             if event.batch_id % 100 == 0:
                 print "Pass %d Batch %d Cost %.2f" % (
                     event.pass_id, event.batch_id, event.cost)
-				# 添加训练数据的cost绘图数据
+                # 添加训练数据的cost绘图数据
                 train_costs.append(event.cost)
                 train_step.append(step)
             step += 1
@@ -283,7 +281,6 @@ def main():
             # 添加测试数据的cost绘图数据
             test_costs.append(result.cost)
             test_step.append(step)
-    
 
     """
     模型训练
@@ -307,11 +304,9 @@ def main():
         feeding=feeding,
         num_passes=10)
 
-
     # 展示学习曲线
     plot_costs(train_costs, train_step, test_costs, test_step)
 
-    
 
 if __name__ == '__main__':
     main()
