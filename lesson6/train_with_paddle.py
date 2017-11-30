@@ -32,6 +32,13 @@ with_gpu = os.getenv('WITH_GPU', '0') != '0'
 
 step = 0
 
+# 绘图相关标注
+train_title_cost = "Train cost"
+test_title_cost = "Test cost"
+
+train_title_error = "Train error rate"
+test_title_error = "Test error rate"
+
 def softmax_regression(img):
     """
     定义softmax分类器：
@@ -161,6 +168,26 @@ def netconfig():
     
     return config_data
 
+
+def plot_init():
+    """
+    绘图初始化函数：
+        初始化绘图相关变量
+    Args:
+    Return:
+        cost_ploter -- 用于绘制cost曲线的变量
+        error_ploter -- 用于绘制error_rate曲线的变量
+    """
+    # 绘制cost曲线所做的初始化设置
+    cost_ploter = Ploter(train_title_cost, test_title_cost)
+    
+    # 绘制error_rate曲线所做的初始化设置
+    error_ploter = Ploter(train_title_error, test_title_error)
+    
+    ploter = [cost_ploter, error_ploter]
+    
+    return ploter
+
     
 def load_image(file):
     """
@@ -199,6 +226,7 @@ def infer(predict, parameters, file):
     lab = np.argsort(-probs)
     print "Label of image/infer_3.png is: %d" % lab[0][0]
 
+
     
 def main():
     """
@@ -217,21 +245,8 @@ def main():
     trainer = paddle.trainer.SGD(
         cost=cost, parameters=parameters, update_equation=optimizer)
     
-    """
-    绘图相关设置:
-        通过Ploter(train_title, test_title)函数初始化绘图函数，
-            train_title和test_title表明要绘制的曲线的题注
-        
-    """
-    # 绘制cost曲线所做的初始化设置
-    train_title_cost = "Train cost"
-    test_title_cost = "Test cost"
-    cost_ploter = Ploter(train_title_cost, test_title_cost)
-    
-    # 绘制error_rate曲线所做的初始化设置
-    train_title_error = "Train error rate"
-    test_title_error = "Test error rate"
-    error_ploter = Ploter(train_title_error, test_title_error)
+    # 初始化绘图变量
+    cost_ploter, error_ploter = plot_init()
     
     # lists用于存储训练的中间结果，包括cost和error_rate信息，初始化为空
     lists = []
@@ -276,32 +291,6 @@ def main():
             # 存储测试数据的cost和error_rate数据
             lists.append((
                 event.pass_id, result.cost, result.metrics['classification_error_evaluator']))
-
-    def event_handler(event):
-        """
-        定义event_handler事件处理函数：
-            事件处理器，可以根据训练过程的信息做相应操作:输出训练结果信息
-        Args:
-            event -- 事件对象，包含event.pass_id, event.batch_id, event.cost等信息
-        Return:
-        """
-        if isinstance(event, paddle.event.EndIteration):
-            # 每训练100个batch，输出一次训练结果信息
-            if event.batch_id % 100 == 0:
-                print "Pass %d, Batch %d, Cost %f, %s" % (
-                    event.pass_id, event.batch_id, event.cost, event.metrics)
-        if isinstance(event, paddle.event.EndPass):
-            # 保存参数
-            with open('params_pass_%d.tar' % event.pass_id, 'w') as f:
-                parameters.to_tar(f)
-            # 利用测试数据进行测试
-            result = trainer.test(reader=paddle.batch(
-                paddle.dataset.mnist.test(), batch_size=128))
-            print "Test with Pass %d, Cost %f, %s\n" % (
-                event.pass_id, result.cost, result.metrics)
-            # 存储测试数据的cost和error_rate数据
-            lists.append((
-                event.pass_id, result.cost, result.metrics['classification_error_evaluator']))
                 
     """
     训练模型：
@@ -327,6 +316,8 @@ def main():
     
     # 预测输入图片的类型
     infer(predict, parameters, '/image/infer_3.png')
+
+
 
 
 if __name__ == '__main__':
