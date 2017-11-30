@@ -11,12 +11,17 @@ Date:    2017/11/29
 
 使用paddle框架实现个性化电影推荐系统的模型训练和参数输出保存，关键步骤如下：
 1.初始化
-2.构造用户融合特征模型
-3.构造电影融合特征模型
-4.定义特征相似性度量inference和成本函数cost
-5.定义模型训练器trainer
-6.定义事件迭代训练模型(包括绘图模块)
-7.保存模型参数
+2.配置网络结构和设置参数：
+    - 构造用户融合特征模型
+	- 构造电影融合特征模型
+	- 定义特征相似性度量inference
+	- 成本函数cost
+	- 创建parameters
+    - 定义feeding
+3.定义event_handler
+4.定义trainer
+5.开始训练
+6.展示cost曲线plot_costs()
 """
 
 import matplotlib

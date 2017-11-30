@@ -11,5 +11,5 @@
 
   * [predict_with_paddle.py](predict_with_paddle.py)：在PaddlePaddle上完成推荐模型的预测
   
-  * [train_test_cost.png](train_test_cost.png)：训练过程中成本变化曲线图
+  * [train_test_cost.png](train_test_cost.png)：训练和测试过程中成本变化曲线图
 
