@@ -199,7 +199,6 @@ def infer(predict, parameters, file):
     lab = np.argsort(-probs)
     print "Label of image/infer_3.png is: %d" % lab[0][0]
 
-
     
 def main():
     """
@@ -277,7 +276,6 @@ def main():
             # 存储测试数据的cost和error_rate数据
             lists.append((
                 event.pass_id, result.cost, result.metrics['classification_error_evaluator']))
-
 
     def event_handler(event):
         """
