@@ -19,6 +19,7 @@ Date:    2017/11/12 17:23:06
 4.利用模型进行预测
 5.分析预测结果
 6.定义model函数来按顺序将上述步骤合并
+7.展示学习曲线plot_costs()
 """
 import matplotlib
 import numpy as np
