@@ -1,13 +1,13 @@
-# Lesson9: CTRÔ¤¹À
+# Lesson9: CTRé¢„ä¼°
 
-±¾ÊµÑé´úÂëÓë½Ì²ÄµÚ¾ÅÕÂÅäÌ×£¬Îª½éÉÜCTRÔ¤¹ÀÔÚPaddlePaddleµÄÊµÏÖ
-> ×¢Òâ£º ´úÂëÖĞÏà¹ØÖªÊ¶µÄÏêÏ¸ËµÃ÷²Î¿¼½Ì²ÄµÚ¾ÅÕÂµÄÏà¹ØÃèÊö
+æœ¬å®éªŒä»£ç ä¸æ•™æç¬¬ä¹ç« é…å¥—ï¼Œä¸ºä»‹ç»CTRé¢„ä¼°åœ¨PaddlePaddleçš„å®ç°
+> æ³¨æ„ï¼š ä»£ç ä¸­ç›¸å…³çŸ¥è¯†çš„è¯¦ç»†è¯´æ˜å‚è€ƒæ•™æç¬¬ä¹ç« çš„ç›¸å…³æè¿°
 
-°üº¬ÄÚÈİ
+åŒ…å«å†…å®¹
 
-* [avazu_data_processer.py](./avazu_data_processer.py)£º ¶ÔAVAZUÊı¾İ¼¯½øĞĞÔ¤´¦Àí
-* [infer.py](./infer.py)£º ÓÃÑµÁ·ºÃµÄCTRÄ£ĞÍ½øĞĞÔ¤²â
-* [network_conf.py](./network_conf.py)£º ½¨Á¢ÍøÂç²ÎÊıµÄÉèÖÃ
-* [reader.py](./reader.py)£º ¶ÁÈ¡Êı¾İ¼¯½Å±¾
-* [train.py](./train.py): ÊµÏÖCTRÄ£ĞÍµÄÑµÁ·
-* [utils](./utils.py)£º ÔÚÄ£ĞÍÑµÁ·ºÍÔ¤²â¹ı³ÌÖĞ´òÓ¡Ïà¹ØĞÅÏ¢
+* [avazu_data_processer.py](./avazu_data_processer.py)ï¼š å¯¹AVAZUæ•°æ®é›†è¿›è¡Œé¢„å¤„ç†
+* [infer.py](./infer.py)ï¼š ç”¨è®­ç»ƒå¥½çš„CTRæ¨¡å‹è¿›è¡Œé¢„æµ‹
+* [network_conf.py](./network_conf.py)ï¼š å»ºç«‹ç½‘ç»œå‚æ•°çš„è®¾ç½®
+* [reader.py](./reader.py)ï¼š è¯»å–æ•°æ®é›†è„šæœ¬
+* [train.py](./train.py): å®ç°CTRæ¨¡å‹çš„è®­ç»ƒ
+* [utils.py](./utils.py)ï¼š åœ¨æ¨¡å‹è®­ç»ƒå’Œé¢„æµ‹è¿‡ç¨‹ä¸­æ‰“å°ç›¸å…³ä¿¡æ¯
