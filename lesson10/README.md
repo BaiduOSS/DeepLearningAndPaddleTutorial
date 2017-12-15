@@ -24,26 +24,26 @@
 ---
 文件清单：
 
-  * [datasets](datasets)：用于存放数据集
+  * [datasets](regularization/datasets)：用于存放数据集
     * datasets/data.mat：数据集
 
-  * [regularization_with_numpy.py](regularization_with_numpy.py)：对比3种模型（基础模型、加入L2正则化的模型、加入dropout的模型）的表现，体现正则化操作的作用
+  * [regularization_with_numpy.py](regularization/regularization_with_numpy.py)：对比3种模型（基础模型、加入L2正则化的模型、加入dropout的模型）的表现，体现正则化操作的作用
 
-  * [reg_utils.py](reg_utils.py)：一些神经网络基本函数，如正向转播、反向传播等
+  * [reg_utils.py](regularization/reg_utils.py)：一些神经网络基本函数，如正向转播、反向传播等
 
-  * [data.png](data.png)：输入数据的散点图
+  * [data.png](regularization/data.png)：输入数据的散点图
 
-  * [cost_with_dropout.png](cost_with_dropout.png)：使用dropout的模型的cost曲线
+  * [cost_with_dropout.png](regularization/cost_with_dropout.png)：使用dropout的模型的cost曲线
 
-  * [cost_with_L2-regularization.png](cost_with_L2-regularization.png)：使用L2正则化操作的模型的cost曲线
+  * [cost_with_L2-regularization.png](regularization/cost_with_L2-regularization.png)：使用L2正则化操作的模型的cost曲线
 
-  * [cost_without_regularization.png](cost_without_regularization.png)：不使用正则化操作的基础模型的cost曲线
+  * [cost_without_regularization.png](regularization/cost_without_regularization.png)：不使用正则化操作的基础模型的cost曲线
 
-  * [decision_boundary_with_dropout.png](decision_boundary_with_dropout.png)：使用dropout的模型的分界线预测结果
+  * [decision_boundary_with_dropout.png](regularization/decision_boundary_with_dropout.png)：使用dropout的模型的分界线预测结果
 
-  * [decision_boundary_with_L2-regularization.png](decision_boundary_with_L2-regularization.png)：使用L2正则化操作的模型的分界线预测结果
+  * [decision_boundary_with_L2-regularization.png](regularization/decision_boundary_with_L2-regularization.png)：使用L2正则化操作的模型的分界线预测结果
 
-  * [decision_boundary_without_regularization.png](decision_boundary_without_regularization.png)：不使用正则化操作的基础模型的分界线预测结果
+  * [decision_boundary_without_regularization.png](regularization/decision_boundary_without_regularization.png)：不使用正则化操作的基础模型的分界线预测结果
 
 
 
