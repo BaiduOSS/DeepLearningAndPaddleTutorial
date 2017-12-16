@@ -22,6 +22,8 @@
 
 第二部分
 ---
+该部分内容位于regularization/路径下
+
 文件清单：
 
   * [datasets](regularization/datasets)：用于存放数据集
