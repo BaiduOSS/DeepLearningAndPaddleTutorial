@@ -156,9 +156,16 @@ def netconfig():
       
     # 创建优化器optimizer，下面列举了2种常用的优化器，不同类型优化器选一即可
     # 创建Momentum优化器，并设置学习率(learning_rate)、动量(momentum)和正则化项(regularization)
+    """
+    与第六章代码不同之处：
+        学习率learning_rate和动量momentum设置的数值不同，
+            一方面，可以通过单纯修改某个参数值而不引入其他改变，对比第六章实验结果来验证该参数的影响;
+            另一方面，可以通过设置learning_rate=0.1 / 128.0，momentum=0.95，以使得模型的基础表现相对第六章中下降，如收敛程度或者速度下降
+                而进一步加入新的模块或者设置后（如加入dropout），模型表现得到提升，从而验证新加入的模块或者设置的有效性;
+    """
     optimizer = paddle.optimizer.Momentum(
-        learning_rate=0.01 / 128.0,
-        momentum=0.9,
+        learning_rate=0.1 / 128.0,
+        momentum=0.95,
         regularization=paddle.optimizer.L2Regularization(rate=0.0005 * 128))
     
     # 创建Adam优化器，并设置参数beta1、beta2、epsilon

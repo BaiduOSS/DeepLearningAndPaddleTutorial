@@ -11,13 +11,18 @@ Date:    2017/11/29
 
 在paddlePaddle cloud平台上分布式训练推荐模型，关键步骤如下：
 1.初始化
-2.从RecordIO文件路径创建数据reader读取文件
-3.构造用户融合特征模型
-4.构造电影融合特征模型
-5.定义特征相似性度量inference和成本函数cost
-6.定义模型训练器trainer
-7.开始巡礼那
-8.根据模型参数和测试数据来预测结果
+2.配置网络结构和设置参数：
+    - 构造用户融合特征模型
+	- 构造电影融合特征模型
+	- 定义特征相似性度量inference
+	- 成本函数cost
+	- 创建parameters
+    - 定义feeding
+3.定义event_handler
+4.定义trainer
+    - 从RecordIO文件路径创建数据reader读取文件:recordio()
+5.开始训练
+6.根据模型参数和测试数据来预测结果:infer()
 """
 
 import copy

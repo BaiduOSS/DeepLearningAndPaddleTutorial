@@ -147,7 +147,7 @@ def netconfig():
     y = paddle.layer.data(name='y', type=paddle.data_type.dense_vector(1))
 
     # 定义成本函数为均方差损失函数square_error_cost
-    cost = paddle.layer.mse_cost(input=y_predict, label=y)
+    cost = paddle.layer.square_error_cost(input=y_predict, label=y)
 
     # 利用cost创建parameters
     parameters = paddle.parameters.create(cost)
