@@ -7,6 +7,7 @@ Created on 2017-11-16
 @copyright: www.baidu.com
 """
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 import numpy as np
 
 def rgb2gray(rgb):
@@ -22,7 +23,7 @@ def rgb2gray(rgb):
 
 # 读取一张小白狗的照片并显示
 plt.figure('A Little White Dog')
-little_dog_img = plt.imread('./image/little_white_dog.jpg')
+little_dog_img = mpimg.imread('./image/little_white_dog.jpg')
 plt.imshow(little_dog_img)
 
 # Z是小白狗的照片，img0就是Z，img1是Z做了个简单的变换
