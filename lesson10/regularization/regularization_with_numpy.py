@@ -33,8 +33,8 @@ def model(X, Y, model_name = "_without_regularization", learning_rate = 0.3, num
     """
         
     grads = {}
-    costs = [] # 用于记录cost值                          
-    m = X.shape[1] # 样本数量
+    costs = []  # 用于记录cost值
+    m = X.shape[1]  # 样本数量
     layers_dims = [X.shape[0], 20, 3, 1]
     
     # 初始化参数
@@ -133,8 +133,8 @@ def main():
     plt.clf()
     plt.title("Model with L2-regularization")   
     axes = plt.gca()
-    axes.set_xlim([-0.75,0.40])
-    axes.set_ylim([-0.75,0.65])
+    axes.set_xlim([-0.75, 0.40])
+    axes.set_ylim([-0.75, 0.65])
     plot_decision_boundary(lambda x: predict_dec(parameters, x.T), train_X, train_Y, "decision_boundary" + model_name + ".png")
     
     # 训练使用dropout的模型
@@ -149,8 +149,8 @@ def main():
     plt.clf()
     plt.title("Model with dropout")   
     axes = plt.gca()
-    axes.set_xlim([-0.75,0.40])
-    axes.set_ylim([-0.75,0.65])
+    axes.set_xlim([-0.75, 0.40])
+    axes.set_ylim([-0.75, 0.65])
     plot_decision_boundary(lambda x: predict_dec(parameters, x.T), train_X, train_Y, "decision_boundary" + model_name + ".png")
     
     

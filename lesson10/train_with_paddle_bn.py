@@ -101,7 +101,7 @@ def convolutional_neural_network(img):
     
     # 第二个卷积-池化层
     conv_pool_2 = paddle.networks.simple_img_conv_pool(
-        input=conv_pool_1,
+        input=norm1,
         filter_size=5,
         num_filters=50,
         num_channel=20,
