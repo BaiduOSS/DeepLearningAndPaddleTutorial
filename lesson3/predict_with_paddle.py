@@ -27,7 +27,7 @@ import os
 import numpy as np
 import paddle.v2 as paddle
 
-from lr_utils import load_dataset
+from utils import load_dataset
 
 TEST_SET = None
 PARAMETERS = None

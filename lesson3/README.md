@@ -11,7 +11,7 @@
 	* train_catvnoncat.h5：训练数据集
 	* test_catvnoncat.h5：测试数据集
 
-* [lr_utils.py](lr_utils.py)：工具类，包含load_data()函数，用于载入数据
+* [lr_utils.py](utils.py)：工具类，包含load_data()函数，用于载入数据
 
 * [train_with_numpy.py](train.py)：Logistic Regression的Python版本实现
 

@@ -31,7 +31,7 @@ import paddle.v2 as paddle
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-import lr_utils
+import utils
 
 TRAINING_SET = None
 TEST_SET = None
@@ -53,7 +53,7 @@ def load_data():
     """
     global TRAINING_SET, TEST_SET, DATADIM
 
-    train_set_x_orig, train_set_y, test_set_x_orig, test_set_y, classes = lr_utils.load_dataset()
+    train_set_x_orig, train_set_y, test_set_x_orig, test_set_y, classes = utils.load_dataset()
     m_train = train_set_x_orig.shape[0]
     m_test = test_set_x_orig.shape[0]
     num_px = train_set_x_orig.shape[1]
@@ -212,6 +212,7 @@ def calc_accuracy(probs, data):
     right = 0
     total = len(data['label'])
     for i in range(len(probs)):
+        print probs[i][0]
         if float(probs[i][0]) > 0.5 and data['label'][i] == 1:
             right += 1
         elif float(probs[i][0]) < 0.5 and data['label'][i] == 0:
@@ -277,6 +278,11 @@ def main():
     # 载入数据
     load_data()
 
+    data = train()
+    for data in data():
+        print data
+        break
+
     # 初始化，设置是否使用gpu，trainer数量
     paddle.init(use_gpu=False, trainer_count=1)
 
@@ -321,7 +327,7 @@ def main():
             batch_size=256),
         feeding=feeding,
         event_handler=event_handler,
-        num_passes=2000)
+        num_passes=200)
 
     # 预测
     infer(y_predict, parameters)
