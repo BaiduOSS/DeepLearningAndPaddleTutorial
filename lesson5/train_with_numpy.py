@@ -25,5 +25,6 @@ def main():
     print('Train Accuracy:', dnn_function.predict_result(parameters, X_train, Y_train), '%')
     print('Test Accuracy:', dnn_function.predict_result(parameters, X_test, Y_test), '%')
 
+
 if __name__ == '__main__':
     main()

@@ -11,17 +11,22 @@ Date:    2017/11/29
 
 在paddlePaddle cloud平台上分布式训练推荐模型，关键步骤如下：
 1.初始化
-2.从RecordIO文件路径创建数据reader读取文件
-3.构造用户融合特征模型
-4.构造电影融合特征模型
-5.定义特征相似性度量inference和成本函数cost
-6.定义模型训练器trainer
-7.定义事件迭代训练模型
-8.根据模型参数和测试数据来预测结果
+2.配置网络结构和设置参数：
+    - 构造用户融合特征模型
+	- 构造电影融合特征模型
+	- 定义特征相似性度量inference
+	- 成本函数cost
+	- 创建parameters
+    - 定义feeding
+3.定义event_handler
+4.定义trainer
+    - 从RecordIO文件路径创建数据reader读取文件:recordio()
+5.开始训练
+6.根据模型参数和测试数据来预测结果:infer()
 """
 
-import os
 import copy
+import os
 
 import paddle.v2 as paddle
 
@@ -41,11 +46,11 @@ print(TRAIN_FILES_PATH)
 def recordio(paths, buf_size=100):
     """
     从给定的被","分开的RecordIO文件路径创建数据reader
-	Args:
-		path -- recordio文件的路径
-		buf_size -- buf大小设为100
+    Args:
+        path -- recordio文件的路径
+        buf_size -- buf大小设为100
     Return:
-		dec.buffered(reader, buf_size) -- recordio文件的数据reader
+        dec.buffered(reader, buf_size) -- recordio文件的数据reader
     """
 
     import recordio as rec
@@ -55,10 +60,10 @@ def recordio(paths, buf_size=100):
     # 文件读取模块
     def reader():
         """
-		定义一个reader
-		Args:
-		Return:
-		"""
+        定义一个reader
+        Args:
+        Return:
+        """
         f = rec.reader(paths)
         while True:
             r = f.read()
@@ -74,15 +79,15 @@ def recordio(paths, buf_size=100):
 def get_usr_combined_features():
     """
     构造用户融合特征模型，融合特征包括：
-		user_id：用户编号
-		gender_id：性别类别编号
-		age_id：年龄分类编号
-		job_id：职业类别编号
-	以上特征信息从数据集中读取后分别变换成对应词向量，再输入到全连接层
-    所有的用户特征再输入到一个全连接层中，将所有特征融合为一个200维的特征    
+        user_id：用户编号
+        gender_id：性别类别编号
+        age_id：年龄分类编号
+        job_id：职业类别编号
+    以上特征信息从数据集中读取后分别变换成对应词向量，再输入到全连接层
+    所有的用户特征再输入到一个全连接层中，将所有特征融合为一个200维的特征
     Args:
     Return:
-		usr_combined_features -- 用户融合特征模型
+        usr_combined_features -- 用户融合特征模型
     """
     # 读取用户编号信息（user_id）
     uid = paddle.layer.data(
@@ -130,14 +135,14 @@ def get_usr_combined_features():
 def get_mov_combined_features():
     """
     构造电影融合特征模型，融合特征包括：
-		movie_id：电影编号
-		category_id：电影类别编号
-		movie_title：电影名
-	以上特征信息经过相应处理后再输入到一个全连接层中，
-	将所有特征融合为一个200维的特征    
+        movie_id：电影编号
+        category_id：电影类别编号
+        movie_title：电影名
+    以上特征信息经过相应处理后再输入到一个全连接层中，
+    将所有特征融合为一个200维的特征
     Args:
     Return:
-		mov_combined_features -- 电影融合特征模型
+        mov_combined_features -- 电影融合特征模型
     """
 
     movie_title_dict = paddle.dataset.movielens.get_movie_title_dict()
@@ -183,7 +188,7 @@ def get_mov_combined_features():
 
     return mov_combined_features
 
-	
+
 # 配置网络结构
 def netconfig():
     """
@@ -195,11 +200,11 @@ def netconfig():
         parameters -- 模型参数
         feeding -- 数据映射，python字典
     """
-	
-	# 构造用户融合特征，电影融合特征
+
+    # 构造用户融合特征，电影融合特征
     usr_combined_features = get_usr_combined_features()
     mov_combined_features = get_mov_combined_features()
-	
+
     # 计算用户融合特征和电影融合特征的余弦相似度
     inference = paddle.layer.cos_sim(
         a=usr_combined_features, b=mov_combined_features, size=1, scale=5)
@@ -237,13 +242,13 @@ def infer(user_id, movie_id, inference, parameters, feeding):
     Args:
         user_id -- 用户编号值
         movie_id -- 电影编号值
-		inference -- 相似度
+        inference -- 相似度
         parameters -- 模型参数
         feeding -- 数据映射，python字典
     Return:
     """
-    
-	# 根据已定义的用户、电影编号值从movielens数据集中读取数据信息
+
+    # 根据已定义的用户、电影编号值从movielens数据集中读取数据信息
     user = paddle.dataset.movielens.user_info()[user_id]
     movie = paddle.dataset.movielens.movie_info()[movie_id]
 
@@ -263,32 +268,30 @@ def infer(user_id, movie_id, inference, parameters, feeding):
     score = (prediction[0][0] + 5.0) / 2
     print "[Predict] User %d Rating Movie %d With Score %.2f" % (user_id, movie_id, score)
 
-	
+
 def main():
     """
     定义神经网络结构，训练网络    
     Args:
     Return:
     """
-    
-	# 初始化
+
+    # 初始化
     paddle.init()
 
     # 配置网络结构
     inference, cost, parameters, feeding = netconfig()
-    
+
     """
-    	定义模型训练器，配置三个参数
-    	cost:成本函数
-    	parameters:参数
-    	update_equation:更新公式（模型采用Adam方法优化更新，并初始化学习率）
+        定义模型训练器，配置三个参数
+        cost:成本函数
+        parameters:参数
+        update_equation:更新公式（模型采用Adam方法优化更新，并初始化学习率）
     """
     trainer = paddle.trainer.SGD(
         cost=cost,
         parameters=parameters,
         update_equation=paddle.optimizer.Adam(learning_rate=1e-4))
-
-    
 
     # 事件处理模块
     def event_handler(event):
@@ -304,7 +307,6 @@ def main():
                 print "Pass %d Batch %d Cost %.2f" % (
                     event.pass_id, event.batch_id, event.cost)
 
-					
     """
         模型训练
         paddle.batch(reader(), batch_size=256)：表示从打乱的数据中再取出batch_size=256大小的数据进行一次迭代训练
@@ -325,9 +327,9 @@ def main():
     # 定义用户编号值和电影编号值
     user_id = 234
     movie_id = 345
-    
-	# 预测指定用户对指定电影的喜好得分值
-	infer(user_id, movie_id, inference, parameters, feeding)
+
+    # 预测指定用户对指定电影的喜好得分值
+    infer(user_id, movie_id, inference, parameters, feeding)
 
 
 if __name__ == '__main__':

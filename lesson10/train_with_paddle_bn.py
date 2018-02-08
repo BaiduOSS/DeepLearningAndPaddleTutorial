@@ -7,7 +7,7 @@
 ################################################################################
 """
 Authors: xiake(kedou1993@163.com)
-Date:    2017/11/18
+Date:    2017/11/29
 
 使用paddle框架实现逻辑数字识别案例，关键步骤如下：
 1.定义分类器网络结构
@@ -31,6 +31,13 @@ from paddle.v2.plot import Ploter
 with_gpu = os.getenv('WITH_GPU', '0') != '0'
 
 step = 0
+
+# 绘图相关标注
+train_title_cost = "Train cost"
+test_title_cost = "Test cost"
+
+train_title_error = "Train error rate"
+test_title_error = "Test error rate"
 
 def softmax_regression(img):
     """
@@ -76,11 +83,11 @@ def convolutional_neural_network(img):
     Return:
         predict -- 分类的结果
     """
-    # 第一个卷积-池化层
     """
     与第六章代码不同之处：
-        在两个卷积-池化层中加入了dropout设置
+        在两个卷积-池化层之后都加入了batch normalization层norm1和norm2
     """
+    # 第一个卷积-池化层
     conv_pool_1 = paddle.networks.simple_img_conv_pool(
         input=img,
         filter_size=5,
@@ -88,37 +95,41 @@ def convolutional_neural_network(img):
         num_channel=1,
         pool_size=2,
         pool_stride=2,
-        act=paddle.activation.Relu(),
-        conv_layer_attr=paddle.attr.ExtraLayerAttribute(drop_rate=0.5))
+        act=paddle.activation.Relu())
 
+    norm1 = paddle.layer.batch_norm(input=conv_pool_1, act=paddle.activation.Relu())
+    
     # 第二个卷积-池化层
     conv_pool_2 = paddle.networks.simple_img_conv_pool(
-        input=conv_pool_1,
+        input=norm1,
         filter_size=5,
         num_filters=50,
         num_channel=20,
         pool_size=2,
         pool_stride=2,
-        act=paddle.activation.Relu(),
-        conv_layer_attr=paddle.attr.ExtraLayerAttribute(drop_rate=0.5))
+        act=paddle.activation.Relu())
+
+    norm2 = paddle.layer.batch_norm(input=conv_pool_2, act=paddle.activation.Relu())
         
     # 全连接层
     predict = paddle.layer.fc(
-        input=conv_pool_2, size=10, act=paddle.activation.Softmax())
+        input=norm2, size=10, act=paddle.activation.Softmax())
     return predict
 
 
-def main():
+def netconfig():
     """
-    主函数：
-        定义神经网络结构，训练模型并打印学习曲线、预测测试数据类别
+    配置网络结构
     Args:
     Return:
+        images -- 输入层
+        label -- 标签数据
+        predict -- 输出层
+        cost -- 损失函数
+        parameters -- 模型参数
+        optimizer -- 优化器
     """
-    # 初始化，设置是否使用gpu，trainer数量
-    paddle.init(use_gpu=with_gpu, trainer_count=1)
     
-    # 定义神经网络结构
     """
     输入层:
         paddle.layer.data表示数据层,
@@ -158,7 +169,7 @@ def main():
     与第六章代码不同之处：
         学习率learning_rate和动量momentum设置的数值不同，
             一方面，可以通过单纯修改某个参数值而不引入其他改变，对比第六章实验结果来验证该参数的影响;
-            另一方面，可以通过设置learning_rate=0.1，momentum=0.95，以使得模型的基础表现相对第六章中下降，如收敛程度或者速度下降
+            另一方面，可以通过设置learning_rate=0.1 / 128.0，momentum=0.95，以使得模型的基础表现相对第六章中下降，如收敛程度或者速度下降
                 而进一步加入新的模块或者设置后（如加入dropout），模型表现得到提升，从而验证新加入的模块或者设置的有效性;
     """
     optimizer = paddle.optimizer.Momentum(
@@ -168,26 +179,90 @@ def main():
     
     # 创建Adam优化器，并设置参数beta1、beta2、epsilon
     # optimizer = paddle.optimizer.Adam(beta1=0.9, beta2=0.99, epsilon=1e-06)
+    
+    config_data = [images, label, predict, cost, parameters, optimizer]
+    
+    return config_data
+
+
+def plot_init():
+    """
+    绘图初始化函数：
+        初始化绘图相关变量
+    Args:
+    Return:
+        cost_ploter -- 用于绘制cost曲线的变量
+        error_ploter -- 用于绘制error_rate曲线的变量
+    """
+    # 绘制cost曲线所做的初始化设置
+    cost_ploter = Ploter(train_title_cost, test_title_cost)
+    
+    # 绘制error_rate曲线所做的初始化设置
+    error_ploter = Ploter(train_title_error, test_title_error)
+    
+    ploter = [cost_ploter, error_ploter]
+    
+    return ploter
+
+    
+def load_image(file):
+    """
+    定义读取输入图片的函数：
+        读取指定路径下的图片，将其处理成分类网络输入数据对应形式的数据，如数据维度等
+    Args:
+        file -- 输入图片的文件路径
+    Return:
+        im -- 分类网络输入数据对应形式的数据
+    """
+    im = Image.open(file).convert('L')
+    im = im.resize((28, 28), Image.ANTIALIAS)
+    im = np.array(im).astype(np.float32).flatten()
+    im = im / 255.0
+    return im
+
+
+def infer(predict, parameters, file):
+    """
+    定义判断输入图片类别的函数：
+        读取并处理指定路径下的图片，然后调用训练得到的模型进行类别预测
+    Args:
+        predict -- 输出层
+        parameters -- 模型参数
+        file -- 输入图片的文件路径
+    Return:
+    """
+    # 读取并预处理要预测的图片
+    test_data = []
+    cur_dir = os.path.dirname(os.path.realpath(__file__))
+    test_data.append((load_image(cur_dir + file), ))
+    
+    # 利用训练好的分类模型，对输入的图片类别进行预测
+    probs = paddle.infer(
+        output_layer=predict, parameters=parameters, input=test_data)
+    lab = np.argsort(-probs)
+    print "Label of image/infer_3.png is: %d" % lab[0][0]
+
+
+    
+def main():
+    """
+    主函数：
+        定义神经网络结构，训练模型并打印学习曲线、预测测试数据类别
+    Args:
+    Return:
+    """
+    # 初始化，设置是否使用gpu，trainer数量
+    paddle.init(use_gpu=with_gpu, trainer_count=1)
+    
+    # 定义神经网络结构
+    images, label, predict, cost, parameters, optimizer = netconfig()
 
     # 构造trainer,配置三个参数cost、parameters、update_equation，它们分别表示成本函数、参数和更新公式
     trainer = paddle.trainer.SGD(
         cost=cost, parameters=parameters, update_equation=optimizer)
     
-    """
-    绘图相关设置:
-        通过Ploter(train_title, test_title)函数初始化绘图函数，
-            train_title和test_title表明要绘制的曲线的题注
-        
-    """
-    # 绘制cost曲线所做的初始化设置
-    train_title_cost = "Train cost"
-    test_title_cost = "Test cost"
-    cost_ploter = Ploter(train_title_cost, test_title_cost)
-    
-    # 绘制error_rate曲线所做的初始化设置
-    train_title_error = "Train error rate"
-    test_title_error = "Test error rate"
-    error_ploter = Ploter(train_title_error, test_title_error)
+    # 初始化绘图变量
+    cost_ploter, error_ploter = plot_init()
     
     # lists用于存储训练的中间结果，包括cost和error_rate信息，初始化为空
     lists = []
@@ -232,33 +307,6 @@ def main():
             # 存储测试数据的cost和error_rate数据
             lists.append((
                 event.pass_id, result.cost, result.metrics['classification_error_evaluator']))
-
-
-    def event_handler(event):
-        """
-        定义event_handler事件处理函数：
-            事件处理器，可以根据训练过程的信息做相应操作:输出训练结果信息
-        Args:
-            event -- 事件对象，包含event.pass_id, event.batch_id, event.cost等信息
-        Return:
-        """
-        if isinstance(event, paddle.event.EndIteration):
-            # 每训练100个batch，输出一次训练结果信息
-            if event.batch_id % 100 == 0:
-                print "Pass %d, Batch %d, Cost %f, %s" % (
-                    event.pass_id, event.batch_id, event.cost, event.metrics)
-        if isinstance(event, paddle.event.EndPass):
-            # 保存参数
-            with open('params_pass_%d.tar' % event.pass_id, 'w') as f:
-                parameters.to_tar(f)
-            # 利用测试数据进行测试
-            result = trainer.test(reader=paddle.batch(
-                paddle.dataset.mnist.test(), batch_size=128))
-            print "Test with Pass %d, Cost %f, %s\n" % (
-                event.pass_id, result.cost, result.metrics)
-            # 存储测试数据的cost和error_rate数据
-            lists.append((
-                event.pass_id, result.cost, result.metrics['classification_error_evaluator']))
                 
     """
     训练模型：
@@ -282,32 +330,8 @@ def main():
     print 'Best pass is %s, testing Avgcost is %s' % (best[0], best[1])
     print 'The classification accuracy is %.2f%%' % (100 - float(best[2]) * 100)
     
-    # 预测相关代码
-    def load_image(file):
-        """
-        定义读取输入图片的函数：
-            读取指定路径下的图片，将其处理成分类网络输入数据对应形式的数据，如数据维度等
-        Args:
-            file -- 输入图片的文件路径
-        Return:
-            im -- 分类网络输入数据对应形式的数据
-        """
-        im = Image.open(file).convert('L')
-        im = im.resize((28, 28), Image.ANTIALIAS)
-        im = np.array(im).astype(np.float32).flatten()
-        im = im / 255.0
-        return im
-    
-    # 读取并预处理要预测的图片
-    test_data = []
-    cur_dir = os.path.dirname(os.path.realpath(__file__))
-    test_data.append((load_image(cur_dir + '/image/infer_3.png'), ))
-    
-    # 利用训练好的分类模型，对输入的图片类别进行预测
-    probs = paddle.infer(
-        output_layer=predict, parameters=parameters, input=test_data)
-    lab = np.argsort(-probs)
-    print "Label of image/infer_3.png is: %d" % lab[0][0]
+    # 预测输入图片的类型
+    infer(predict, parameters, '/image/infer_3.png')
 
 
 
