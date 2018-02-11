@@ -182,7 +182,7 @@ def predict(X, w, b):
     A = sigmoid(np.dot(w.T, X) + b)
 
     for i in range(m):
-        if A[0, i] > 0.5:
+        if A[0, i] >= 0.5:
             predictions.append(1)
         elif A[0, i] < 0.5:
             predictions.append(0)

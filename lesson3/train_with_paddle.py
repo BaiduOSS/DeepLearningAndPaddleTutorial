@@ -212,7 +212,6 @@ def calc_accuracy(probs, data):
     right = 0
     total = len(data['label'])
     for i in range(len(probs)):
-        print probs[i][0]
         if float(probs[i][0]) > 0.5 and data['label'][i] == 1:
             right += 1
         elif float(probs[i][0]) < 0.5 and data['label'][i] == 0:
@@ -278,11 +277,6 @@ def main():
     # 载入数据
     load_data()
 
-    data = train()
-    for data in data():
-        print data
-        break
-
     # 初始化，设置是否使用gpu，trainer数量
     paddle.init(use_gpu=False, trainer_count=1)
 
@@ -327,7 +321,7 @@ def main():
             batch_size=256),
         feeding=feeding,
         event_handler=event_handler,
-        num_passes=200)
+        num_passes=2000)
 
     # 预测
     infer(y_predict, parameters)
