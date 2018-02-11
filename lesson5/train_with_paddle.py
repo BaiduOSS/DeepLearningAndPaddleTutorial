@@ -314,8 +314,8 @@ def main():
             if event.pass_id % 100 == 0:
                 print("Pass %d, Batch %d, Cost %f" % (event.pass_id, event.batch_id, event.cost))
                 costs.append(event.cost)
-                with open('params_pass_%d.tar' % event.pass_id, 'w') as f:
-                    parameters.to_tar(f)
+                # with open('params_pass_%d.tar' % event.pass_id, 'w') as f:
+                #     parameters.to_tar(f)
 
     # 构造trainer,配置三个参数cost、parameters、update_equation，它们分别表示成本函数、参数和更新公式。
     trainer = paddle.trainer.SGD(
