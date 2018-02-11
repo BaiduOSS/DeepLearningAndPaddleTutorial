@@ -8,7 +8,6 @@
 """
 Authors: Jiahui Liu(2505774110@qq.com)
 Date:    2017/11/17 17:27:06
-
 使用paddle框架实现浅层神经网络识别“花，型图案，关键步骤如下：
 1.载入数据和预处理：load_data()
 2.定义train()和test()用于读取训练数据和测试数据，分别返回一个reader
@@ -47,7 +46,6 @@ def load_data():
         test_set_x_orig：原始测试数据集
         test_set_y：原始测试数据标签
         classes(cat/non-cat)：分类list
-
     Args:
     Return:
     """
@@ -88,7 +86,6 @@ def read_data(data_set):
 def train():
     """
     定义一个reader来获取训练数据集及其标签
-
     Args:
     Return:
         read_data -- 用于获取训练数据集及其标签的reader
@@ -102,7 +99,6 @@ def train():
 def test():
     """
     定义一个reader来获取测试数据集及其标签
-
     Args:
     Return:
         read_data -- 用于获取测试数据集及其标签的reader
@@ -169,7 +165,6 @@ def netconfig():
 def get_data(data_creator):
     """
     使用参数data_creator来获取测试数据
-
     Args:
         data_creator -- 数据来源,可以是train()或者test()
     Return:
@@ -195,11 +190,9 @@ def get_data(data_creator):
 def calc_accuracy(probs, data):
     """
     根据数据集来计算准确度accuracy
-
     Args:
         probs -- 数据集的预测结果，调用paddle.infer()来获取
         data -- 数据集
-
     Return:
         calc_accuracy -- 训练准确度
     """
@@ -218,11 +211,9 @@ def calc_accuracy(probs, data):
 def infer(y_predict, parameters):
     """
     预测并输出模型准确率
-
     Args:
         y_predict -- 输出层，DATADIM维稠密向量
         parameters -- 训练完成的模型参数
-
     Return:
     """
     # 获取测试数据和训练数据，用来验证模型准确度
@@ -246,7 +237,6 @@ def infer(y_predict, parameters):
 def plot_costs(costs):
     """
     利用costs展示模型的训练曲线
-
     Args:
         costs -- 记录了训练过程的cost变化的list，每一百次迭代记录一次
     Return:
@@ -284,7 +274,6 @@ def main():
     def event_handler(event):
         """
         事件处理器，可以根据训练过程的信息作相应操作
-
         Args:
             event -- 事件对象，包含event.pass_id, event.batch_id, event.cost等信息
         Return:
