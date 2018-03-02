@@ -22,11 +22,12 @@ Date:    2017/11/29
 import os
 
 import matplotlib
+matplotlib.use('Agg')
+
 import matplotlib.pyplot as plt
 import numpy as np
 import paddle.v2 as paddle
 
-matplotlib.use('Agg')
 
 WITH_GPU = os.getenv('WITH_GPU', '0') != '0'
 
