@@ -8,12 +8,11 @@
 包含内容
 
 * [datasets](datasets)：数据集，包含两个h5py文件
-	* train_catvnoncat.h5：训练数据集
-	* test_catvnoncat.h5：测试数据集
+	* train_images.h5：训练数据集
+	* test_images.h5：测试数据集
 
-* [dnn_utils.py](lr_utils.py)：工具类，包含load_data()函数，用于载入数据
 
-* [dnn_app_utils_v2.py](dnn_app_utils_v2.py):工具类，包含DNN的Python版本实现需要的函数
+* [utils.py](utils.py):工具类，包含DNN的Python版本实现需要的函数
 
 * [train_with_numpy.py](train_with_numpy.py)：DNN的Python版本实现
 

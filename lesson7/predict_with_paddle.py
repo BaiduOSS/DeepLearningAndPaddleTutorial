@@ -1,22 +1,18 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-################################################################################
-#
-# Copyright (c) 2017 Baidu.com, Inc. All Rights Reserved
-#
-################################################################################
+
 """
 Authors: fuqiang(fqjeremybuaa@163.com)
-Date:    2017/11/29 
+Date:    2017/11/29
 
 使用paddle框架实现个性化电影推荐系统的结果预测，
 无需重新训练模型，只需加载模型文件。关键步骤如下：
 1.初始化
 2.配置网络结构
-    - 构造用户融合特征模型
-	- 构造电影融合特征模型
-	- 定义特征相似性度量inference
-    - 定义feeding
+  - 构造用户融合特征模型
+  - 构造电影融合特征模型
+  - 定义特征相似性度量inference
+  - 定义feeding
 3.从parameters文件直接获取模型参数
 4.根据模型参数和测试数据来预测结果
 """
@@ -38,7 +34,7 @@ def get_usr_combined_features():
         age_id：年龄分类编号
         job_id：职业类别编号
     以上特征信息从数据集中读取后分别变换成对应词向量，再输入到全连接层
-    所有的用户特征再输入到一个全连接层中，将所有特征融合为一个200维的特征    
+    所有的用户特征再输入到一个全连接层中，将所有特征融合为一个200维的特征
     Args:
     Return:
         usr_combined_features -- 用户融合特征模型
@@ -94,7 +90,7 @@ def get_mov_combined_features():
         category_id：电影类别编号
         movie_title：电影名
     以上特征信息经过相应处理后再输入到一个全连接层中，
-    将所有特征融合为一个200维的特征    
+    将所有特征融合为一个200维的特征
     Args:
     Return:
         mov_combined_features -- 电影融合特征模型
@@ -193,12 +189,12 @@ def main():
 
     # 判断参数文件是否存在
     if not os.path.exists('params_pass_9.tar'):
-        print("Params file doesn't exists.")
+        print "Params file doesn't exists."
         return
 
     # 从文件中读取参数
-    with open('params_pass_9.tar', 'r') as f:
-        PARAMETERS = paddle.parameters.Parameters.from_tar(f)
+    with open('params_pass_9.tar', 'r') as param_f:
+        PARAMETERS = paddle.parameters.Parameters.from_tar(param_f)
 
     # 定义用户编号值和电影编号值
     user_id = 234
@@ -222,7 +218,8 @@ def main():
         input=[feature],
         feeding=infer_dict)
     score = (prediction[0][0] + 5.0) / 2
-    print "[Predict] User %d Rating Movie %d With Score %.2f" % (user_id, movie_id, score)
+    print "[Predict] User %d Rating Movie %d With Score %.2f" % (
+        user_id, movie_id, score)
 
 
 if __name__ == '__main__':

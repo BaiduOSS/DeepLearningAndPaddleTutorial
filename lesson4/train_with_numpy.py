@@ -1,39 +1,37 @@
 #!/usr/bin/env python
-# -*- coding:gbk -*-
-################################################################################
-#
-# Copyright (c) 2017 Baidu.com, Inc. All Rights Reserved
-#
-################################################################################
+# -*- coding:utf-8 -*-
+
 """
 Authors: Jiahui Liu(2505774110@qq.com)
 Date:    2017/11/17 17:27:06
-Ê¹ÓÃpython¼°numpy¿âÀ´ÊµÏÖÇ³²ãÉñ¾­ÍøÂçÊ¶±ğÂİĞıÍ¼°¸£¬¹Ø¼ü²½ÖèÈçÏÂ£º
-1.ÔØÈëÊı¾İºÍÔ¤´¦Àí£ºload_planar_dataset
-2.³õÊ¼»¯Ä£ĞÍ²ÎÊı£¨Parameters£©
-3.Ñ­»·£º
-    a)	¼ÆËã³É±¾£¨Cost£©
-    b)	¼ÆËãÌİ¶È£¨Gradient£©
-    c)	¸üĞÂ²ÎÊı£¨Gradient Descent£©
-4.´î½¨Ë«²ãÉñ¾­ÍøÂç£¬ÀûÓÃÄ£ĞÍ½øĞĞÔ¤²â
-5.·ÖÎöÔ¤²â½á¹û
-6.¶¨Òåneural_networkº¯ÊıÀ´°´Ë³Ğò½«ÉÏÊö²½ÖèºÏ²¢
+ä½¿ç”¨pythonåŠnumpyåº“æ¥å®ç°æµ…å±‚ç¥ç»ç½‘ç»œè¯†åˆ«èºæ—‹å›¾æ¡ˆï¼Œå…³é”®æ­¥éª¤å¦‚ä¸‹ï¼š
+1.è½½å…¥æ•°æ®å’Œé¢„å¤„ç†ï¼šload_data_sets
+2.åˆå§‹åŒ–æ¨¡å‹å‚æ•°ï¼ˆParametersï¼‰
+3.å¾ªç¯ï¼š
+    a)	è®¡ç®—æˆæœ¬ï¼ˆCostï¼‰
+    b)	è®¡ç®—æ¢¯åº¦ï¼ˆGradientï¼‰
+    c)	æ›´æ–°å‚æ•°ï¼ˆGradient Descentï¼‰
+4.æ­å»ºåŒå±‚ç¥ç»ç½‘ç»œï¼Œåˆ©ç”¨æ¨¡å‹è¿›è¡Œé¢„æµ‹
+5.åˆ†æé¢„æµ‹ç»“æœ
+6.å®šä¹‰neural_networkå‡½æ•°æ¥æŒ‰é¡ºåºå°†ä¸Šè¿°æ­¥éª¤åˆå¹¶
 """
 import numpy as np
-import planar_utils
+
+import utils
+
 
 def initialize_parameters(layer):
     """
-    ²ÎÊı:
-    layer -- ¸÷²ãËù°üº¬µÄ½ÚµãÊı
-
-    ·µ»ØÖµ:
-    parameters -- ´æ´¢È¨ÖµºÍÆ«ÒÆÁ¿
+    åˆå§‹åŒ–å‚æ•°
+    Args:
+        layer: å„å±‚æ‰€åŒ…å«çš„èŠ‚ç‚¹æ•°
+    Return:
+        parameters: å­˜å‚¨æƒå€¼å’Œåç§»é‡
     """
 
-    np.random.seed(2) # ÉèÖÃËæ»úÖÖ×Ó
+    np.random.seed(2)  # è®¾ç½®éšæœºç§å­
     parameters = {}
-    #Ëæ»ú³õÊ¼»¯²ÎÊı£¬Æ«ÒÆÁ¿³õÊ¼»¯Îª0
+    # éšæœºåˆå§‹åŒ–å‚æ•°ï¼Œåç§»é‡åˆå§‹åŒ–ä¸º0
     parameters['w0'] = np.random.randn(layer[1], layer[0]) * 0.01
     parameters['b0'] = np.random.randn(layer[1], 1) * 0
     parameters['w1'] = np.random.randn(layer[2], layer[1]) * 0.01
@@ -41,93 +39,105 @@ def initialize_parameters(layer):
 
     return parameters
 
-def forward_propagate(X, parameters):
+
+def forward_calculate(X, parameters):
     """
-    ²ÎÊı:
-    X -- ÊäÈëÖµ
-    parameters -- °üº¬È¨ÖµºÍÆ«ÒÆÁ¿
-    ·µ»ØÖµ:
-    A -- °üº¬ÊäÈëºÍ¸÷²ãÊä³öÖµ
-    Z -- °üº¬Òş²Ø²ãºÍÊä³ö²ãµÄÖĞ¼äÖµ
+    å‰å‘è®¡ç®—
+    Args:
+        X: è¾“å…¥å€¼
+        parameters: å‚æ•°wï¼Œb
+    Return:
+        A: åŒ…å«è¾“å…¥å’Œå„å±‚è¾“å‡ºå€¼
+        Z: åŒ…å«éšè—å±‚å’Œè¾“å‡ºå±‚çš„ä¸­é—´å€¼
     """
 
     A = []
     Z = []
-    #½«ÊäÈëÖµ´æ½øAÖĞ
+    # å°†è¾“å…¥å€¼å­˜è¿›Aä¸­
     A.append(X)
 
-    #¼ÆËãÒş²Ø²ã
+    # è®¡ç®—éšè—å±‚
     z1 = np.dot(parameters['w0'], A[0]) + parameters['b0']
     Z.append(z1)
     a1 = np.tanh(z1)
     A.append(a1)
 
-    #¼ÆËãÊä³ö²ã
+    # è®¡ç®—è¾“å‡ºå±‚
     z2 = np.dot(parameters['w1'], A[1]) + parameters['b1']
     Z.append(z2)
-    a2 = 1/(1+np.exp(-z2))
+    a2 = 1 / (1 + np.exp(-z2))
     A.append(a2)
 
     return A, Z
 
+
 def calculate_cost(A, Y):
     """
-   ¸ù¾İµÚÈıÕÂ¸ø³öµÄ¹«Ê½¼ÆËã³É±¾
+    è®¡ç®—æˆæœ¬
 
-    ²ÎÊı:
-    A -- ´æ´¢ÊäÈëÖµºÍ¸÷²ãÊä³öÖµ
-    Y -- ÕæÊµÖµ
-
-    ·µ»ØÖµ:
-    cost -- ³É±¾º¯Êı
+    Args:
+        A: å­˜å‚¨è¾“å…¥å€¼å’Œå„å±‚è¾“å‡ºå€¼
+        Y: æ ‡ç­¾
+    Return:
+        cost: æˆæœ¬å‡½æ•°
     """
 
-    m = Y.shape[1] #Ñù±¾¸öÊı
-    Y_out = A[len(A)-1] #È¡Ä£ĞÍÊä³öÖµ
+    m = Y.shape[1]  # æ ·æœ¬ä¸ªæ•°
+    Y_out = A[len(A) - 1]  # å–æ¨¡å‹è¾“å‡ºå€¼
 
-    #¼ÆËã³É±¾
-    cost =  -1. / m * np.sum(np.multiply(np.log(Y_out), Y) + np.multiply(np.log(1 - Y_out), 1 - Y))
-    cost = np.squeeze(cost)     # È·±£Î¬¶ÈµÄÕıÈ·ĞÔ
+    # è®¡ç®—æˆæœ¬
+    cost = -1. / m * np.sum(np.multiply(np.log(Y_out), Y)
+                            + np.multiply(np.log(1 - Y_out), 1 - Y))
+    cost = np.squeeze(cost)  # ç¡®ä¿ç»´åº¦çš„æ­£ç¡®æ€§
     return cost
 
 
 def update_parameters(p, dp, learning_rate):
+    """
+    æ›´æ–°å‚æ•°
+    Args:
+        p: å‚æ•°
+        dp: å‚æ•°çš„æ¢¯åº¦
+        learning_rate:å­¦ä¹ æ­¥é•¿
+    Return:
+        æ›´æ–°åçš„å‚æ•°
+    """
     return p - learning_rate * dp
 
 
-def backward_propagate(A, Z, parameters, Y,learning_rate):
+def backward_calculate(A, Z, parameters, Y, learning_rate):
     """
-    ²ÎÊı:
-    A -- ´æ´¢ÊäÈëÖµºÍ¸÷²ãÊä³öÖµ
-    Z -- ´æ´¢¸÷²ãÖĞ¼äÖµ
-    parameters -- °üº¬È¨ÖµºÍÆ«ÒÆÁ¿
-    Y -- ÕæÊµÖµ
-    learning_rate -- Ñ§Ï°ÂÊ
-    ·µ»ØÖµ:
-    parameters -- ¸üĞÂºóµÄ²ÎÊı
+    åå‘è®¡ç®—
+    Args:
+        A: å­˜å‚¨è¾“å…¥å€¼å’Œå„å±‚è¾“å‡ºå€¼
+        Z: å­˜å‚¨å„å±‚ä¸­é—´å€¼
+        parameters: åŒ…å«æƒå€¼å’Œåç§»é‡
+        Y: çœŸå®å€¼
+        learning_rate: å­¦ä¹ ç‡
+    Return:
+        parameters: æ›´æ–°åçš„å‚æ•°
     """
 
     m = A[0].shape[1]
 
-    #ºóÏò´«²¥
-    #¼ÆËãdz2
+    # åå‘ä¼ æ’­
+    # è®¡ç®—dz2
     dz2 = A[2] - Y
 
-    #¼ÆËãdw2
+    # è®¡ç®—dw2
     dw2 = 1. / m * np.dot(dz2, A[1].T)
 
+    # è®¡ç®—db2
+    db2 = 1. / m * np.sum(dz2, axis=1, keepdims=True)
 
-    #¼ÆËãdb2
-    db2 = 1. / m * np.sum(dz2, axis = 1, keepdims = True)
-
-    #¼ÆËãdz1
+    # è®¡ç®—dz1
     dz1 = np.dot(parameters['w1'].T, dz2) * (1 - np.power(A[1], 2))
 
-    #¼ÆËãdw1
+    # è®¡ç®—dw1
     dw1 = 1. / m * np.dot(dz1, A[0].T)
 
-    #¼ÆËãdb1
-    db1 = 1. / m * np.sum(dz1, axis = 1, keepdims = True)
+    # è®¡ç®—db1
+    db1 = 1. / m * np.sum(dz1, axis=1, keepdims=True)
 
     parameters['w1'] = update_parameters(parameters['w1'], dw2, learning_rate)
     parameters['w0'] = update_parameters(parameters['w0'], dw1, learning_rate)
@@ -135,41 +145,48 @@ def backward_propagate(A, Z, parameters, Y,learning_rate):
     parameters['b0'] = update_parameters(parameters['b0'], db1, learning_rate)
     return parameters
 
-#¶¨Òåº¯Êı£ºÉñ¾­ÍøÂçÄ£ĞÍ
-def neural_network(X, Y, layer, times, learning_rate = 1.2):
-    """
-    ²ÎÊı:
-    X -- ÊäÈëÖµ
-    Y -- ÕæÊµÖµ
-    layer -- ¸÷²ã´óĞ¡
-    learning_rate -- Ñ§Ï°ÂÊ
-    times -- ÑµÁ·´ÎÊı
 
-    ·µ»ØÖµ:
-    parameters -- Ä£ĞÍÑµÁ·ËùµÃ²ÎÊı£¬ÓÃÓÚÔ¤²â
+def neural_network(X, Y, layer, iteration_nums, learning_rate=1.2):
     """
-    #³õÊ¼»¯²ÎÊı
+    å®šä¹‰å‡½æ•°ï¼šç¥ç»ç½‘ç»œæ¨¡å‹
+
+    Args:
+        X: features
+        Y: æ ‡ç­¾label
+        layer: å„å±‚å¤§å°
+        learning_rate: å­¦ä¹ æ­¥é•¿
+        iteration_nums: è¿­ä»£æ¬¡æ•°
+
+    Return:
+        parameters: æ¨¡å‹è®­ç»ƒæ‰€å¾—å‚æ•°ï¼Œç”¨äºé¢„æµ‹
+    """
+    # åˆå§‹åŒ–å‚æ•°
     parameters = initialize_parameters(layer)
 
-    for i in range(0, times):
+    for i in range(0, iteration_nums):
         A = []
         Z = []
-        #Ç°Ïò´«²¥
-        A, Z = forward_propagate(X, parameters)
+        A, Z = forward_calculate(X, parameters)
 
-        #³É±¾¼ÆËã
         Cost = calculate_cost(A, Y)
 
-        #ºóÏò´«²¥(º¬²ÎÊı¸üĞÂ)
-        parameters = backward_propagate(A, Z, parameters, Y, learning_rate)
+        parameters = backward_calculate(A, Z, parameters, Y, learning_rate)
 
-        #Ã¿1000´ÎÑµÁ·´òÓ¡Ò»´Î³É±¾º¯ÊıÖµ
-        if (i % 1000 == 0):
-            print ("Cost after iteration %i: %f" %(i, Cost))
+        # æ¯1000æ¬¡è®­ç»ƒæ‰“å°ä¸€æ¬¡æˆæœ¬å‡½æ•°å€¼
+        if i % 1000 == 0:
+            print "Cost after iteration %i: %f" % (i, Cost)
     return parameters
 
-#×¼È·ÂÊ¼ÆËã
+
 def calc_accuracy(predictions, Y):
+    """
+    è®¡ç®—å‡†ç¡®ç‡
+    Args:
+        predictions:é¢„æµ‹å€¼
+        Y:æ ‡ç­¾
+    Return:
+        accuracy:å‡†ç¡®ç‡
+    """
     Y = np.squeeze(Y)
     right = 0
     for i in range(len(predictions)):
@@ -178,21 +195,20 @@ def calc_accuracy(predictions, Y):
     accuracy = (right / float(len(predictions))) * 100
     return accuracy
 
-# Ê¹ÓÃÄ£ĞÍ½øĞĞÔ¤²â
+
 def predict_result(parameters, X, Y):
     """
-       ÓÃÑ§Ï°µ½µÄÂß¼­»Ø¹éÄ£ĞÍÀ´Ô¤²âµãµÄÀàĞÍ
+    ç”¨æ¨¡å‹æ¥è¿›è¡Œé¢„æµ‹
 
     Args:
-        parameters -- °üº¬È¨ÖµºÍÆ«ÒÆÁ¿
-        X -- Êı¾İ£¬ĞÎ×´Îª(px_num * px_num * 3, number of examples)
-        Y -- ÕæÊµÖµ
-
-    Returns:
-        accuracy -- ×¼È·ÂÊ
+        parameters: åŒ…å«æƒå€¼å’Œåç§»é‡
+        X: æ•°æ®ï¼Œå½¢çŠ¶ä¸º(px_num * px_num * 3, number of examples)
+        Y: æ ‡ç­¾
+    Return:
+        accuracy:é¢„æµ‹å‡†ç¡®ç‡
     """
     data_dim = X.shape[0]
-    # mÎªÊı¾İ¸öÊı
+    # mä¸ºæ•°æ®ä¸ªæ•°
     m = X.shape[1]
 
     A = []
@@ -200,13 +216,13 @@ def predict_result(parameters, X, Y):
     Z = []
     predictions = []
 
-    # Ô¤²â½á¹û,¼´Ç°Ïò´«²¥¹ı³Ì
-    A, Z = forward_propagate(X,parameters)
+    # é¢„æµ‹ç»“æœ,å³å‰å‘è®¡ç®—è¿‡ç¨‹
+    A, Z = forward_calculate(X, parameters)
 
-    #È¡Êä³öÖµY_out£¬¼´AµÄ×îºóÒ»×éÊı
-    Y_out = A[len(A)-1]
+    # å–è¾“å‡ºå€¼Y_outï¼Œå³Açš„æœ€åä¸€ç»„æ•°
+    Y_out = A[len(A) - 1]
 
-    # ½«Á¬ĞøÖµY_out×ª»¯Îª¶ş·ÖÀà½á¹û0»ò1
+    # å°†è¿ç»­å€¼Y_outè½¬åŒ–ä¸ºäºŒåˆ†ç±»ç»“æœ0æˆ–1
     for i in range(m):
         if Y_out[0, i] >= 0.5:
             predictions.append(1)
@@ -214,12 +230,20 @@ def predict_result(parameters, X, Y):
             predictions.append(0)
     return calc_accuracy(predictions, Y)
 
-#ÔØÈëÊı¾İ
-train_x, train_y, test_x, test_y = planar_utils.load_planar_dataset()
 
-layer=[2,4,1]
+def main():
+    """
+    main entry
+    """
+    train_x, train_y, test_x, test_y = utils.load_data_sets()
 
-parameters = neural_network(train_x, train_y, layer, 10000)
+    layer = [2, 4, 1]
 
-print('train:',predict_result(parameters, train_x, train_y))
-print('test:',predict_result(parameters, test_x, test_y))
+    parameters = neural_network(train_x, train_y, layer, 10000)
+
+    print('train:', predict_result(parameters, train_x, train_y))
+    print('test:', predict_result(parameters, test_x, test_y))
+
+
+if __name__ == '__main__':
+    main()

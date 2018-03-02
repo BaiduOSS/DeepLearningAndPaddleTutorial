@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-################################################################################
-#
-# Copyright (c) 2017 Baidu.com, Inc. All Rights Reserved
-#
-################################################################################
+
 """
 Authors: weixing(wx_crome@163.com)
 Date:    2017/01/30 17:23:06
@@ -21,7 +17,6 @@ Date:    2017/01/30 17:23:06
 6.利用模型进行预测
 """
 
-
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -30,17 +25,18 @@ import utils
 
 def load_data():
     """
-        载入数据，数据项包括：
-            X_train：原始训练数据集
-            Y_train：原始训练数据标签
-            X_test：原始测试数据集
-            Y_test：原始测试数据标签
-            classes(cat/non-cat)：分类list
+    载入数据,包括训练和测试数据
 
-        Args:
-        Return:
+    Args:
+    Return:
+        X_train：原始训练数据集
+        Y_train：原始训练数据标签
+        X_test：原始测试数据集
+        Y_test：原始测试数据标签
+        classes(cat/non-cat)：分类list
+        px_num:数据的像素长度
     """
-    X_train, Y_train, X_test, Y_test, classes = utils.load_dataset()
+    X_train, Y_train, X_test, Y_test, classes = utils.load_data_sets()
 
     train_num = X_train.shape[0]
     test_num = X_test.shape[0]
@@ -60,22 +56,20 @@ def load_data():
 
 def sigmoid(x):
     """
-        利用sigmoid计算z的激活值
+    sigmoid 激活函数
     """
     return 1 / (1 + np.exp(-x))
 
 
-def initialize(data_dim):
+def initialize_parameters(data_dim):
     """
+    参数w和b初始化为0
 
-        初始化w为形状(data_dim, 1)的向量并初始化b为0
-
-        Args:
-            data_dim -- w向量的纬度
-
-        Returns:
-            w -- (dim, 1)维向量
-            b -- 标量，代表偏置bias
+    Args:
+        data_dim: w向量的纬度
+    Returns:
+        w: (dim, 1)维向量
+        b: 标量，代表偏置bias
     """
     w = np.zeros((data_dim, 1), dtype=np.float)
     b = 0.1
@@ -83,24 +77,28 @@ def initialize(data_dim):
     return w, b
 
 
-def propagate(X, Y, w, b):
+def forward_and_backward_propagate(X, Y, w, b):
     """
-        计算成本cost和梯度grads
+    计算成本Cost和梯度grads
 
-        Args:
-            w -- 权重， (num_px * num_px * 3, 1)维的numpy数组
-            b -- 偏置bias，标量
-            X -- 数据，形状为(num_px * num_px * 3, number of examples)
-            Y -- 数据的真实标签(包含值 0 if non-cat, 1 if cat) ，形状为 (1, number of examples)
+    Args:
+        w: 权重， (num_px * num_px * 3, 1)维的numpy数组
+        b: 偏置bias
+        X: 数据，shape为(num_px * num_px * 3, number of examples)
+        Y: 数据的标签( 0 if non-cat, 1 if cat) ，shape (1, number of examples)
 
-        Return:
-            cost -- 逻辑回归的损失函数
-            dw -- cost对参数w的梯度，形状与参数w一致
-            db -- cost对参数b的梯度，形状与参数b一致
+    Return:
+        cost: 逻辑回归的损失函数
+        dw: cost对参数w的梯度，形状与参数w一致
+        db: cost对参数b的梯度，形状与参数b一致
     """
     m = X.shape[1]
+
+    # 前向传播，计算成本函数
     A = sigmoid(np.dot(w.T, X) + b)
     cost = np.sum(-(Y * np.log(A) + (1 - Y) * np.log(1 - A))) / m
+
+    # 后向传播，计算梯度
     dw = np.dot(X, (A - Y).T) / m
     db = np.sum(A - Y) / m
 
@@ -114,41 +112,51 @@ def propagate(X, Y, w, b):
     return grads, cost
 
 
-def update(X, Y, w, b, lr):
+def update_parameters(X, Y, w, b, learning_rate):
     """
-        一次梯度下降更新参数
+    更新参数
+    Args:
+        X: 整理后的输入数据
+        Y: 标签
+        w: 参数w
+        b: bias
+        learning_rate: 学习步长
+    Return：
+        w：更新后的参数w
+        b：更新后的bias
+        cost：成本
     """
-    grads, cost = propagate(X, Y, w, b)
+    grads, cost = forward_and_backward_propagate(X, Y, w, b)
 
-    w = w - lr * grads['dw']
-    b = b - lr * grads['db']
+    w = w - learning_rate * grads['dw']
+    b = b - learning_rate * grads['db']
 
     return w, b, cost
 
 
-def optimize(X, Y, w, b, iteration_nums, lr):
+def train(X, Y, w, b, iteration_nums, learning_rate):
     """
-        使用梯度下降算法优化参数w和b
+    训练的主过程，使用梯度下降算法优化参数w和b
 
-        Args:
-            X -- 数据，形状为(num_px * num_px * 3, number of examples)
-            Y -- 数据的真实标签(包含值 0 if non-cat, 1 if cat) ，形状为 (1, number of examples)
-            w -- 权重， (num_px * num_px * 3, 1)维的numpy数组
-            b -- 偏置bias，标量
-            iteratino_nums -- 优化的迭代次数
-            lr -- 梯度下降的学习率，可控制收敛速度和效果
+    Args:
+        X: 数据，shape为(num_px * num_px * 3, number of examples)
+        Y: 数据的标签(0 if non-cat, 1 if cat) ，shape为 (1, number of examples)
+        w: 权重， (num_px * num_px * 3, 1)维的numpy数组
+        b: 偏置bias，标量
+        iteration_nums: 训练的迭代次数
+        learning_rate: 梯度下降的学习率，可控制收敛速度和效果
 
-        Returns:
-            params -- 包含参数w和b的python字典
-            costs -- 保存了优化过程cost的list，可以用于输出cost变化曲线
+    Returns:
+        params: 包含参数w和b的python字典
+        costs: 保存了优化过程cost的list，可以用于输出cost变化曲线
     """
     costs = []
     for i in range(iteration_nums):
-        w, b, cost = update(X, Y, w, b, lr)
+        w, b, cost = update_parameters(X, Y, w, b, learning_rate)
 
         if i % 100 == 0:
             costs.append(cost)
-            print("Iteration %d, cost %f" % (i, cost))
+            print "Iteration %d, cost %f" % (i, cost)
 
     params = {
         "w": w,
@@ -158,17 +166,17 @@ def optimize(X, Y, w, b, iteration_nums, lr):
     return params, costs
 
 
-def predict(X, w, b):
+def predict_image(X, w, b):
     """
-        用学习到的逻辑回归模型来预测图片是否为猫（1 cat or 0 non-cat）
+    用学习到的逻辑回归模型来预测图片是否为猫（1 cat or 0 non-cat）
 
-        Args:
-            X -- 数据，形状为(num_px * num_px * 3, number of examples)
-            w -- 权重， (num_px * num_px * 3, 1)维的numpy数组
-            b -- 偏置bias，标量
+    Args:
+        X: 数据，形状为(num_px * num_px * 3, number of examples)
+        w: 权重， (num_px * num_px * 3, 1)维的numpy数组
+        b: 偏置bias
 
-        Returns:
-            predictions -- 包含了对X数据集的所有预测结果，是一个numpy数组或向量
+    Returns:
+        predictions: 包含了对X数据集的所有预测结果，是一个numpy数组或向量
 
     """
     data_dim = X.shape[0]
@@ -179,8 +187,11 @@ def predict(X, w, b):
 
     w = w.reshape(data_dim, 1)
 
+    # 预测概率结果为A
     A = sigmoid(np.dot(w.T, X) + b)
 
+    # 将连续值A转化为二分类结果0或1
+    # 阈值设定为0.5即预测概率大于0.5则预测结果为1
     for i in range(m):
         if A[0, i] >= 0.5:
             predictions.append(1)
@@ -192,7 +203,7 @@ def predict(X, w, b):
 
 def calc_accuracy(predictions, Y):
     """
-        计算准确度
+    计算train准确度
     """
     Y = np.squeeze(Y)
     right = 0
@@ -203,50 +214,55 @@ def calc_accuracy(predictions, Y):
     return accuracy
 
 
-def plot_costs(costs, lr):
+def plot_costs(costs, learning_rate):
     """
-        利用costs展示模型的学习曲线
+    利用costs展示模型的学习曲线
     """
     plt.plot(costs)
     plt.ylabel('cost')
     plt.xlabel('Iterations (per hundreds)')
-    plt.title("learning rate =" + str(lr))
-    # plt.show()
+    plt.title("learning rate =" + str(learning_rate))
+    plt.show()
     plt.savefig('costs.png')
 
 
 def main():
     """
-        训练过程
+    main entry
     """
     X_train, Y_train, X_test, Y_test, classes, px_num = load_data()
 
     iteration_nums = 2000
 
-    lr = 0.005
+    learning_rate = 0.005
 
     data_dim = X_train.shape[0]
 
-    w, b = initialize(data_dim)
+    w, b = initialize_parameters(data_dim)
 
-    params, costs = optimize(X_train, Y_train, w, b, iteration_nums, lr)
+    params, costs = train(X_train, Y_train, w, b, iteration_nums,
+                          learning_rate)
 
-    predictions_train = predict(X_train, params['w'], params['b'])
-    predictions_test = predict(X_test, params['w'], params['b'])
+    predictions_train = predict_image(X_train, params['w'], params['b'])
+    predictions_test = predict_image(X_test, params['w'], params['b'])
 
-    print("Accuracy on train set: {} %".format(calc_accuracy(predictions_train, Y_train)))
-    print("Accuracy on test set: {} %".format(calc_accuracy(predictions_test, Y_test)))
+    print "Accuracy on train set: {} %".format(calc_accuracy(predictions_train,
+                                                             Y_train))
+    print "Accuracy on test set: {} %".format(calc_accuracy(predictions_test,
+                                                            Y_test))
 
-    plot_costs(costs, lr)
-
-    index = 12
+    index = 15
     cat_img = X_test[:, index].reshape((px_num, px_num, 3))
     plt.imshow(cat_img)
     plt.axis('off')
     plt.show()
-    print ("The label of this picture is " + str(Y_test[0, index]) + ", which means it's a cat picture. "
-                                                                     "and you predict that it's a " + classes[
-               int(predictions_test[index])].decode("utf-8") + " picture. Congrats!")
+    print "The label of this picture is " + str(Y_test[0, index]) \
+          + ", which means it's a cat picture. " \
+          + "\nYou predict that it's a "\
+          + classes[int(predictions_test[index])].decode("utf-8") \
+          + " picture. \nCongrats!"
+
+    plot_costs(costs, learning_rate)
 
 
 if __name__ == "__main__":

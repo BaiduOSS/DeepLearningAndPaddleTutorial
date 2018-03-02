@@ -1,40 +1,36 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-################################################################################
-#
-# Copyright (c) 2017 Baidu.com, Inc. All Rights Reserved
-#
-################################################################################
+
 """
 Authors: fuqiang(fqjeremybuaa@163.com)
-Date:    2017/11/29 
+Date:    2017/11/29
 
 使用paddle框架实现个性化电影推荐系统的模型训练和参数输出保存，关键步骤如下：
 1.初始化
 2.配置网络结构和设置参数：
-    - 构造用户融合特征模型
-	- 构造电影融合特征模型
-	- 定义特征相似性度量inference
-	- 成本函数cost
-	- 创建parameters
-    - 定义feeding
+  - 构造用户融合特征模型
+  - 构造电影融合特征模型
+  - 定义特征相似性度量inference
+  - 成本函数cost
+  - 创建parameters
+  - 定义feeding
 3.定义event_handler
 4.定义trainer
 5.开始训练
 6.展示cost曲线plot_costs()
 """
+import os
 
 import matplotlib
-
-matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 import numpy as np
 import paddle.v2 as paddle
-import os
-import matplotlib.pyplot as plt
 
-with_gpu = os.getenv('WITH_GPU', '0') != '0'
+matplotlib.use('Agg')
 
-step = 0
+WITH_GPU = os.getenv('WITH_GPU', '0') != '0'
+
+STEP = 0
 
 
 # 构造用户融合特征模型
@@ -46,7 +42,7 @@ def get_usr_combined_features():
         age_id：年龄分类编号
         job_id：职业类别编号
     以上特征信息从数据集中读取后分别变换成对应词向量，再输入到全连接层
-    所有的用户特征再输入到一个全连接层中，将所有特征融合为一个200维的特征    
+    所有的用户特征再输入到一个全连接层中，将所有特征融合为一个200维的特征
     Args:
     Return:
         usr_combined_features -- 用户融合特征模型
@@ -102,7 +98,7 @@ def get_mov_combined_features():
         category_id：电影类别编号
         movie_title：电影名
     以上特征信息经过相应处理后再输入到一个全连接层中，
-    将所有特征融合为一个200维的特征    
+    将所有特征融合为一个200维的特征
     Args:
     Return:
         mov_combined_features -- 电影融合特征模型
@@ -153,7 +149,7 @@ def get_mov_combined_features():
 
 
 # 配置网络结构
-def netconfig():
+def network_config():
     """
     配置网络结构
     Args:
@@ -193,9 +189,9 @@ def netconfig():
         'score': 7
     }
 
-    data = [inference, cost, parameters, feeding]
+    result = [cost, parameters, feeding]
 
-    return data
+    return result
 
 
 # 展示模型训练测试曲线
@@ -233,10 +229,10 @@ def main():
     """
 
     # 初始化，设置为不使用GPU
-    paddle.init(use_gpu=with_gpu)
+    paddle.init(use_gpu=WITH_GPU)
 
     # 配置网络结构
-    inference, cost, parameters, feeding = netconfig()
+    cost, parameters, feeding = network_config()
 
     # 记录cost和step
     train_costs = []
@@ -244,12 +240,11 @@ def main():
     train_step = []
     test_step = []
 
-    """
-    定义模型训练器，配置三个参数
-    cost:成本函数
-    parameters:参数
-    update_equation:更新公式（模型采用Adam方法优化更新，并初始化学习率）
-    """
+    # 定义模型训练器，配置三个参数
+    # cost:成本函数
+    # parameters:参数
+    # update_equation:更新公式（模型采用Adam方法优化更新，并初始化学习率）
+
     trainer = paddle.trainer.SGD(
         cost=cost,
         parameters=parameters,
@@ -263,7 +258,7 @@ def main():
             event -- 事件对象，包含event.pass_id, event.batch_id, event.cost等信息
         Return:
         """
-        global step
+        global STEP
         if isinstance(event, paddle.event.EndIteration):
             # 每100个batch输出一条记录，分别是当前的迭代次数编号，batch编号和对应损失值
             if event.batch_id % 100 == 0:
@@ -271,12 +266,12 @@ def main():
                     event.pass_id, event.batch_id, event.cost)
                 # 添加训练数据的cost绘图数据
                 train_costs.append(event.cost)
-                train_step.append(step)
-            step += 1
+                train_step.append(STEP)
+            STEP += 1
         if isinstance(event, paddle.event.EndPass):
             # 保存参数至文件
-            with open('params_pass_%d.tar' % event.pass_id, 'w') as f:
-                trainer.save_parameter_to_tar(f)
+            with open('params_pass_%d.tar' % event.pass_id, 'w') as param_f:
+                trainer.save_parameter_to_tar(param_f)
 
             # 利用测试数据进行测试
             result = trainer.test(reader=paddle.batch(
@@ -285,21 +280,20 @@ def main():
                 event.pass_id, result.cost)
             # 添加测试数据的cost绘图数据
             test_costs.append(result.cost)
-            test_step.append(step)
+            test_step.append(STEP)
 
-    """
-    模型训练
-    paddle.batch(reader(), batch_size=256)：
-        表示从打乱的数据中再取出batch_size=256大小的数据进行一次迭代训练
-    paddle.reader.shuffle(train(), buf_size=8192)：
-        表示trainer从train()这个reader中读取了buf_size=8192大小的数据并打乱顺序
-    event_handler：事件管理机制，可以自定义event_handler，根据事件信息作相应的操作
-        下方代码中选择的是event_handler_plot函数
-    feeding：
-        用到了之前定义的feeding索引，将数据层信息输入trainer
-    num_passes：
-        定义训练的迭代次数
-    """
+    # 模型训练
+    # paddle.batch(reader(), batch_size=256)：
+    # 表示从打乱的数据中再取出batch_size=256大小的数据进行一次迭代训练
+    # paddle.reader.shuffle(train(), buf_size=8192)：
+    # 表示trainer从train()这个reader中读取了buf_size=8192大小的数据并打乱顺序
+    # event_handler：事件管理机制，可以自定义event_handler，根据事件信息作相应的操作
+    # 下方代码中选择的是event_handler_plot函数
+    # feeding：
+    #   用到了之前定义的feeding索引，将数据层信息输入trainer
+    # num_passes：
+    #   定义训练的迭代次数
+
     trainer.train(
         reader=paddle.batch(
             paddle.reader.shuffle(

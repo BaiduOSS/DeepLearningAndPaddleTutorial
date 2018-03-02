@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-################################################################################
-#
-# Copyright (c) 2017 Baidu.com, Inc. All Rights Reserved
-#
-################################################################################
+
 """
 Authors: yin xiaoting(y_tink@163.com)
 Date:    2017/11/16
@@ -17,33 +13,30 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_data(data, a, b):
+def main(param_a, param_b):
     """
-    展示房屋价格与房屋面积的分布以及参数a，b生成的线性回归结果
-
+    展示房屋价格与房屋面积的分布以及参数param_a，param_b生成的线性回归结果
     Args:
-        data -- 房屋价格与房屋面积数据，存储在data.txt中
-        a -- 线性回归拟合结果，斜率a
-        b -- 线性回归拟合结果，截距b
-
+        param_a: 线性回归拟合结果，斜率a
+        param_b: 线性回归拟合结果，截距b
     Return:
     """
-    x = data[:, 0]
-    y = data[:, 1]
-    y_predict = x * a + b
-    plt.scatter(x, y, marker='.', c='r', label='True')
-    plt.title('House Price Distributions of Beijing Beiyuan Area in 2016/12')
+    data = np.loadtxt('data.txt', delimiter=',')
+
+    x_area = data[:, 0]
+    y_price = data[:, 1]
+    y_predict = x_area * param_a + param_b
+    plt.scatter(x_area, y_price, marker='.', c='r', label='True')
+    plt.title('House Price Distributions of XXX City XXX Area')
     plt.xlabel('House Area ')
     plt.ylabel('House Price ')
     plt.xlim(0, 250)
     plt.ylim(0, 2500)
-    predict = plt.plot(x, y_predict, label='Predict')
+    plt.plot(x_area, y_predict, label='Predict')
     plt.legend(loc='upper left')
     plt.savefig('result.png')
     plt.show()
 
 
-
-data = np.loadtxt('data.txt', delimiter=',')
-X_RAW = data.T[0].copy()
-plot_data(data, 7.1, -62.3)
+if __name__ == '__main__':
+    main(7.1, -62.3)
