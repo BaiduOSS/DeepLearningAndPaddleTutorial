@@ -1,10 +1,9 @@
 #!/usr/bin/env python2.7
 # -*- encoding:utf-8 -*-
 """
-CTR预估模型预测脚本
+CTR棰勪及妯″瀷棰勬祴鑴氭湰
 Created on 2017-12-2
-@author: PaddlePaddle CTR Model
-@copyright: www.baidu.com
+
 """
 import gzip
 import argparse
@@ -51,14 +50,14 @@ class CTRInferer(object):
     def __init__(self, param_path):
         logger.info("create CTR model")
         dnn_input_dim, lr_input_dim = reader.load_data_meta(args.data_meta_path)
-        # 建立模型
+        # 寤虹珛妯″瀷
         self.ctr_model = network_conf.CTRmodel(
             dnn_layer_dims,
             dnn_input_dim,
             lr_input_dim,
             model_type=ModelType(args.model_type),
             is_infer=True)
-        # 载入相关参数
+        # 杞藉叆鐩稿叧鍙傛暟
         logger.info("load model parameters from %s" % param_path)
         self.parameters = paddle.parameters.Parameters.from_tar(
             gzip.open(param_path, 'r'))

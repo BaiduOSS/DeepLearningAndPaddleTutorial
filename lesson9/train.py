@@ -1,10 +1,9 @@
 #!/usr/bin/env python2.7
 # -*- encoding:utf-8 -*-
 """
-CTRÄ£ĞÍÑµÁ·½Å±¾
+CTRæ¨¡å‹è®­ç»ƒè„šæœ¬
 Created on 2017-12-2
-@author: PaddlePaddle CTR Model
-@copyright: www.baidu.com
+
 """
 import argparse
 import gzip
@@ -55,7 +54,7 @@ def parse_args():
 dnn_layer_dims = [128, 64, 32, 1]
 
 # ==============================================================================
-#                  ËğÊ§¼ÆËãºÍÑµÁ·½×¶Î
+#                  æŸå¤±è®¡ç®—å’Œè®­ç»ƒé˜¶æ®µ
 # ==============================================================================
 
 
@@ -65,7 +64,7 @@ def train():
     paddle.init(use_gpu=False, trainer_count=1)
     dnn_input_dim, lr_input_dim = reader.load_data_meta(args.data_meta_file)
 
-    # ½¨Á¢CTRÄ£ĞÍ
+    # å»ºç«‹CTRæ¨¡å‹
     model = CTRmodel(
         dnn_layer_dims,
         dnn_input_dim,

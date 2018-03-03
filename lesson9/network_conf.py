@@ -1,10 +1,9 @@
 #!/usr/bin/env python2.7
 # -*- encoding:utf-8 -*-
 """
-ÍøÂç²ÎÊıÉèÖÃ½Å±¾
+ç½‘ç»œå‚æ•°è®¾ç½®è„šæœ¬
 Created on 2017-12-2
-@author: PaddlePaddle CTR Model
-@copyright: www.baidu.com
+
 """
 import paddle.v2 as paddle
 from paddle.v2 import layer
@@ -14,7 +13,7 @@ from utils import logger, ModelType
 
 class CTRmodel(object):
     '''
-    ÀûÓÃ wide && deep learning Ä£ĞÍ½¨Á¢µÄCTRÄ£ĞÍ
+    åˆ©ç”¨ wide && deep learning æ¨¡å‹å»ºç«‹çš„CTRæ¨¡å‹
     '''
 
     def __init__(self,
@@ -25,13 +24,13 @@ class CTRmodel(object):
                  is_infer=False):
         '''
         @dnn_layer_dims: list of integer
-            DNNÃ¿Ò»²ãµÄÎ¬¶È
+            DNNæ¯ä¸€å±‚çš„ç»´åº¦
         @dnn_input_dim: int
-            DNNÊäÈë²ãµÄ´óĞ¡
+            DNNè¾“å…¥å±‚çš„å¤§å°
         @lr_input_dim: int
-            LRÊäÈë²ã´óĞ¡
+            LRè¾“å…¥å±‚å¤§å°
         @is_infer: bool
-            ÊÇ·ñ½¨Á¢Ô¤¹ÀÄ£ĞÍ
+            æ˜¯å¦å»ºç«‹é¢„ä¼°æ¨¡å‹
         '''
         self.dnn_layer_dims = dnn_layer_dims
         self.dnn_input_dim = dnn_input_dim
@@ -44,7 +43,7 @@ class CTRmodel(object):
         self.dnn = self._build_dnn_submodel_(self.dnn_layer_dims)
         self.lr = self._build_lr_submodel_()
 
-        # Ä£ĞÍÔ¤²â
+        # æ¨¡å‹é¢„æµ‹
         if self.model_type.is_classification():
             self.model = self._build_classification_model(self.dnn, self.lr)
         if self.model_type.is_regression():
@@ -65,7 +64,7 @@ class CTRmodel(object):
 
     def _build_dnn_submodel_(self, dnn_layer_dims):
         '''
-        ½¨Á¢DNN×ÓÄ£ĞÍ
+        å»ºç«‹DNNå­æ¨¡å‹
         '''
         dnn_embedding = layer.fc(
             input=self.dnn_merged_input, size=dnn_layer_dims[0])
@@ -81,7 +80,7 @@ class CTRmodel(object):
 
     def _build_lr_submodel_(self):
         '''
-        ½¨Á¢LR×ÓÄ£ĞÍ
+        å»ºç«‹LRå­æ¨¡å‹
         '''
         fc = layer.fc(
             input=self.lr_merged_input, size=1, act=paddle.activation.Relu())
@@ -92,7 +91,7 @@ class CTRmodel(object):
         self.output = layer.fc(
             input=merge_layer,
             size=1,
-            # ÀûÓÃsigmoidº¯ÊıÔ¤¹ÀCTR±ÈÂÊ
+            # åˆ©ç”¨sigmoidå‡½æ•°é¢„ä¼°CTRæ¯”ç‡
             act=paddle.activation.Sigmoid())
 
         if not self.is_infer:

@@ -1,10 +1,5 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-################################################################################
-#
-# Copyright (c) 2017 Baidu.com, Inc. All Rights Reserved
-#
-################################################################################
 """
 Authors: xiake(kedou1993@163.com)
 Date:    2017/11/29
@@ -21,6 +16,7 @@ Date:    2017/11/29
 """
 
 import matplotlib
+
 matplotlib.use('Agg')
 import os
 from PIL import Image
@@ -38,6 +34,7 @@ test_title_cost = "Test cost"
 
 train_title_error = "Train error rate"
 test_title_error = "Test error rate"
+
 
 def softmax_regression(img):
     """
@@ -98,7 +95,7 @@ def convolutional_neural_network(img):
         act=paddle.activation.Relu())
 
     norm1 = paddle.layer.batch_norm(input=conv_pool_1, act=paddle.activation.Relu())
-    
+
     # 第二个卷积-池化层
     conv_pool_2 = paddle.networks.simple_img_conv_pool(
         input=norm1,
@@ -110,7 +107,7 @@ def convolutional_neural_network(img):
         act=paddle.activation.Relu())
 
     norm2 = paddle.layer.batch_norm(input=conv_pool_2, act=paddle.activation.Relu())
-        
+
     # 全连接层
     predict = paddle.layer.fc(
         input=norm2, size=10, act=paddle.activation.Softmax())
@@ -129,7 +126,7 @@ def netconfig():
         parameters -- 模型参数
         optimizer -- 优化器
     """
-    
+
     """
     输入层:
         paddle.layer.data表示数据层,
@@ -138,7 +135,7 @@ def netconfig():
     """
     images = paddle.layer.data(
         name='pixel', type=paddle.data_type.dense_vector(784))
-        
+
     """
     数据层:
         paddle.layer.data表示数据层,
@@ -147,8 +144,8 @@ def netconfig():
     """
     label = paddle.layer.data(
         name='label', type=paddle.data_type.integer_value(10))
-        
-    """ 
+
+    """
     选择分类器：
         在此之前已经定义了3种不同的分类器，在下面的代码中,
         我们可以通过保留某种方法的调用语句、注释掉其余两种，以选择特定的分类器
@@ -162,7 +159,7 @@ def netconfig():
 
     # 利用cost创建参数parameters
     parameters = paddle.parameters.create(cost)
-      
+
     # 创建优化器optimizer，下面列举了2种常用的优化器，不同类型优化器选一即可
     # 创建Momentum优化器，并设置学习率(learning_rate)、动量(momentum)和正则化项(regularization)
     """
@@ -176,12 +173,12 @@ def netconfig():
         learning_rate=0.1 / 128.0,
         momentum=0.95,
         regularization=paddle.optimizer.L2Regularization(rate=0.0005 * 128))
-    
+
     # 创建Adam优化器，并设置参数beta1、beta2、epsilon
     # optimizer = paddle.optimizer.Adam(beta1=0.9, beta2=0.99, epsilon=1e-06)
-    
+
     config_data = [images, label, predict, cost, parameters, optimizer]
-    
+
     return config_data
 
 
@@ -196,15 +193,15 @@ def plot_init():
     """
     # 绘制cost曲线所做的初始化设置
     cost_ploter = Ploter(train_title_cost, test_title_cost)
-    
+
     # 绘制error_rate曲线所做的初始化设置
     error_ploter = Ploter(train_title_error, test_title_error)
-    
+
     ploter = [cost_ploter, error_ploter]
-    
+
     return ploter
 
-    
+
 def load_image(file):
     """
     定义读取输入图片的函数：
@@ -234,8 +231,8 @@ def infer(predict, parameters, file):
     # 读取并预处理要预测的图片
     test_data = []
     cur_dir = os.path.dirname(os.path.realpath(__file__))
-    test_data.append((load_image(cur_dir + file), ))
-    
+    test_data.append((load_image(cur_dir + file),))
+
     # 利用训练好的分类模型，对输入的图片类别进行预测
     probs = paddle.infer(
         output_layer=predict, parameters=parameters, input=test_data)
@@ -243,7 +240,6 @@ def infer(predict, parameters, file):
     print "Label of image/infer_3.png is: %d" % lab[0][0]
 
 
-    
 def main():
     """
     主函数：
@@ -253,17 +249,17 @@ def main():
     """
     # 初始化，设置是否使用gpu，trainer数量
     paddle.init(use_gpu=with_gpu, trainer_count=1)
-    
+
     # 定义神经网络结构
     images, label, predict, cost, parameters, optimizer = netconfig()
 
     # 构造trainer,配置三个参数cost、parameters、update_equation，它们分别表示成本函数、参数和更新公式
     trainer = paddle.trainer.SGD(
         cost=cost, parameters=parameters, update_equation=optimizer)
-    
+
     # 初始化绘图变量
     cost_ploter, error_ploter = plot_init()
-    
+
     # lists用于存储训练的中间结果，包括cost和error_rate信息，初始化为空
     lists = []
 
@@ -307,7 +303,7 @@ def main():
             # 存储测试数据的cost和error_rate数据
             lists.append((
                 event.pass_id, result.cost, result.metrics['classification_error_evaluator']))
-                
+
     """
     训练模型：
         paddle.reader.shuffle(paddle.dataset.mnist.train(), buf_size=8192)：
@@ -329,11 +325,9 @@ def main():
     best = sorted(lists, key=lambda list: float(list[1]))[0]
     print 'Best pass is %s, testing Avgcost is %s' % (best[0], best[1])
     print 'The classification accuracy is %.2f%%' % (100 - float(best[2]) * 100)
-    
+
     # 预测输入图片的类型
     infer(predict, parameters, '/image/infer_3.png')
-
-
 
 
 if __name__ == '__main__':
