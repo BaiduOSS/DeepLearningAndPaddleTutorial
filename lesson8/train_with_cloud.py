@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-################################################################################
-#
-# Copyright (c) 2017 Baidu.com, Inc. All Rights Reserved
-#
-################################################################################
+
 """
 Authors: fuqiang(fqjeremybuaa@163.com)
 Date:    2017/11/29
@@ -12,12 +8,12 @@ Date:    2017/11/29
 在paddlePaddle cloud平台上分布式训练推荐模型，关键步骤如下：
 1.初始化
 2.配置网络结构和设置参数：
-    - 构造用户融合特征模型
-	- 构造电影融合特征模型
-	- 定义特征相似性度量inference
-	- 成本函数cost
-	- 创建parameters
-    - 定义feeding
+  - 构造用户融合特征模型
+  - 构造电影融合特征模型
+  - 定义特征相似性度量inference
+  - 成本函数cost
+  - 创建parameters
+  - 定义feeding
 3.定义event_handler
 4.定义trainer
     - 从RecordIO文件路径创建数据reader读取文件:recordio()
@@ -31,7 +27,7 @@ import os
 import paddle.v2 as paddle
 
 # USERNAME是PaddlePaddle Cloud平台登陆的用户名，直接替换相应字段即可
-USERNAME = "wx_crome@163.com"
+USERNAME = "xxx@example.com"
 
 # 获取PaddlePaddle Cloud当前数据中心的环境变量值
 DC = os.getenv("PADDLE_CLOUD_CURRENT_DATACENTER")
@@ -39,7 +35,7 @@ DC = os.getenv("PADDLE_CLOUD_CURRENT_DATACENTER")
 # 设定在当前数据中心下缓存数据集的路径
 DATA_HOME = "/pfs/%s/home/%s" % (DC, USERNAME)
 TRAIN_FILES_PATH = os.path.join(DATA_HOME, "movielens/train-*")
-print(TRAIN_FILES_PATH)
+print TRAIN_FILES_PATH
 
 
 # 创建数据reader读取文件
@@ -64,13 +60,13 @@ def recordio(paths, buf_size=100):
         Args:
         Return:
         """
-        f = rec.reader(paths)
+        data_file = rec.reader(paths)
         while True:
-            r = f.read()
-            if r is None:
+            data_read = data_file.read()
+            if data_read is None:
                 break
-            yield pickle.loads(r)
-        f.close()
+            yield pickle.loads(data_read)
+        data_file.close()
 
     return dec.buffered(reader, buf_size)
 
@@ -190,7 +186,7 @@ def get_mov_combined_features():
 
 
 # 配置网络结构
-def netconfig():
+def network_config():
     """
     配置网络结构
     Args:
@@ -266,12 +262,13 @@ def infer(user_id, movie_id, inference, parameters, feeding):
         input=[feature],
         feeding=infer_dict)
     score = (prediction[0][0] + 5.0) / 2
-    print "[Predict] User %d Rating Movie %d With Score %.2f" % (user_id, movie_id, score)
+    print "[Predict] User %d Rating Movie %d With Score %.2f" % (
+        user_id, movie_id, score)
 
 
 def main():
     """
-    定义神经网络结构，训练网络    
+    定义神经网络结构，训练网络
     Args:
     Return:
     """
@@ -280,14 +277,13 @@ def main():
     paddle.init()
 
     # 配置网络结构
-    inference, cost, parameters, feeding = netconfig()
+    inference, cost, parameters, feeding = network_config()
 
-    """
-        定义模型训练器，配置三个参数
-        cost:成本函数
-        parameters:参数
-        update_equation:更新公式（模型采用Adam方法优化更新，并初始化学习率）
-    """
+    # 定义模型训练器，配置三个参数
+    # cost:成本函数
+    # parameters:参数
+    # update_equation:更新公式（模型采用Adam方法优化更新，并初始化学习率）
+
     trainer = paddle.trainer.SGD(
         cost=cost,
         parameters=parameters,
@@ -307,15 +303,15 @@ def main():
                 print "Pass %d Batch %d Cost %.2f" % (
                     event.pass_id, event.batch_id, event.cost)
 
-    """
-        模型训练
-        paddle.batch(reader(), batch_size=256)：表示从打乱的数据中再取出batch_size=256大小的数据进行一次迭代训练
-        paddle.reader.shuffle(train(), buf_size=8192)：表示trainer从recordio(TRAIN_FILES_PATH)这个reader中读取了buf_size=8192
-        大小的数据并打乱顺序
-        event_handler：事件管理机制，可以自定义event_handler，根据事件信息作相应的操作
-        feeding：用到了之前定义的feeding索引，将数据层信息输入trainer
-        num_passes：定义训练的迭代次数
-    """
+    # 模型训练
+    # paddle.batch(reader(), batch_size=256)：
+    # 表示从打乱的数据中再取出batch_size=256大小的数据进行一次迭代训练
+    # paddle.reader.shuffle(train(), buf_size=8192)：
+    # 表示trainer从recordio(TRAIN_FILES_PATH)这个reader中读取了buf_size=8192大小的数据并打乱顺序
+    # event_handler：事件管理机制，可以自定义event_handler，根据事件信息作相应的操作
+    # feeding：用到了之前定义的feeding索引，将数据层信息输入trainer
+    # num_passes：定义训练的迭代次数
+
     trainer.train(
         reader=paddle.batch(
             paddle.reader.shuffle(recordio(TRAIN_FILES_PATH), buf_size=8192),

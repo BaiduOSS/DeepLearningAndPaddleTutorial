@@ -8,12 +8,12 @@
 包含内容
 
 * [datasets](datasets)：数据集，包含两个h5py文件
-	* train_catvnoncat.h5：训练数据集
-	* test_catvnoncat.h5：测试数据集
+	* train_images.h5：训练数据集
+	* test_images.h5：测试数据集
 
-* [lr_utils.py](utils.py)：工具类，包含load_data()函数，用于载入数据
+* [utils.py](utils.py)：工具类，包含load_data()函数，用于载入数据
 
-* [train_with_numpy.py](train.py)：Logistic Regression的Python版本实现
+* [train_with_numpy.py](train_with_numpy.py)：Logistic Regression的Python版本实现
 
 * [train_with_paddle.py](train_with_paddle.py)：Logistic Regression的Paddlepaddle版本实现
 

@@ -2,13 +2,13 @@
 
 
 it includes
-* lesson1  python basic
-* lesson2  paddle basic
-* lesson3  logistic classification with numpy and paddle
-* lesson4  shallow network with numpy and paddle
-* lesson5  deep network with numpy and paddle
-* lesson6  mnist with paddle
-* lesson7  recommend system with paddle
-* lesson8  paddlecloud
-* lesson9  ctr
-* lesson10 tuning
+* lesson1  Python basic
+* lesson2  PaddlePaddle basic
+* lesson3  Logistic classification with numpy and paddle
+* lesson4  Shallow network with numpy and paddle
+* lesson5  Deep network with numpy and paddle
+* lesson6  Mnist with paddle
+* lesson7  Recommend system with paddle
+* lesson8  PaddlePaddleCloud
+* lesson9  CTR
+* lesson10 Parameter tuning
