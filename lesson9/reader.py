@@ -1,10 +1,9 @@
 #!/usr/bin/env python2.7
 # -*- encoding:utf-8 -*-
 """
-Êı¾İ¼¯¶ÁÈ¡½Å±¾
+æ•°æ®é›†è¯»å–è„šæœ¬
 Created on 2017-12-2
-@author: PaddlePaddle CTR Model
-@copyright: www.baidu.com
+
 """
 from utils import logger, TaskMode, load_dnn_input_record, load_lr_input_record
 
@@ -14,7 +13,7 @@ feeding_index = {'dnn_input': 0, 'lr_input': 1, 'click': 2}
 class Dataset(object):
     def train(self, path):
         '''
-        ÔØÈëÊı¾İ¼¯
+        è½½å…¥æ•°æ®é›†
         '''
         logger.info("load trainset from %s" % path)
         mode = TaskMode.create_train()
@@ -22,7 +21,7 @@ class Dataset(object):
 
     def test(self, path):
         '''
-        ÔØÈë²âÊÔ¼¯
+        è½½å…¥æµ‹è¯•é›†
         '''
         logger.info("load testset from %s" % path)
         mode = TaskMode.create_test()
@@ -30,7 +29,7 @@ class Dataset(object):
 
     def infer(self, path):
         '''
-        ÔØÈëÔ¤²â¼¯
+        è½½å…¥é¢„æµ‹é›†
         '''
         logger.info("load inferset from %s" % path)
         mode = TaskMode.create_infer()
@@ -38,7 +37,7 @@ class Dataset(object):
 
     def _parse_creator(self, path, mode):
         '''
-        Ï¡Êè»¯Êı¾İ¼¯
+        ç¨€ç–åŒ–æ•°æ®é›†
         '''
 
         def _parse():
@@ -58,7 +57,7 @@ class Dataset(object):
 
 def load_data_meta(path):
     '''
-    ´ÓÖ¸¶¨Â·¾¶ÖĞ¶ÁÈ¡metaÊı¾İ£¬·µ»ØlrÄ£ĞÍÎ¬¶ÈºÍdnnÄ£ĞÍÎ¬¶È
+    ä»æŒ‡å®šè·¯å¾„ä¸­è¯»å–metaæ•°æ®ï¼Œè¿”å›lræ¨¡å‹ç»´åº¦å’Œdnnæ¨¡å‹ç»´åº¦
     '''
     with open(path) as f:
         lines = f.read().split('\n')
