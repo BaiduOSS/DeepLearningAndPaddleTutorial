@@ -1,10 +1,9 @@
 #!/usr/bin/env python2.7
 # -*- encoding:utf-8 -*-
 """
-AvazuÊý¾Ý¼¯Ô¤´¦Àí½Å±¾
+Avazuæ•°æ®é›†é¢„å¤„ç†è„šæœ¬
 Created on 2017-12-2
-@author: PaddlePaddle CTR Model
-@copyright: www.baidu.com
+
 """
 import sys
 import csv
@@ -37,7 +36,7 @@ parser.add_argument(
     help="size of the trainset (default: 100000)")
 args = parser.parse_args()
 '''
-Êý¾Ý¼¯ÄÚÈÝÈçÏÂ:
+æ•°æ®é›†å†…å®¹å¦‚ä¸‹:
     0. id: ad identifier
     1. click: 0/1 for non-click/click
     2. hour: format is YYMMDDHH, so 14091123 means 23:00 on Sept. 11, 2014 UTC.
@@ -55,20 +54,20 @@ args = parser.parse_args()
     14. device_type
     15. device_conn_type
     16. C14-C21 -- anonymized categorical variables
-ÎÒÃÇ½«ÀûÓÃÏÂÁÐÓò×÷Îª·ÖÀàÌØÕ÷:
+æˆ‘ä»¬å°†åˆ©ç”¨ä¸‹åˆ—åŸŸä½œä¸ºåˆ†ç±»ç‰¹å¾:
     - C1
     - banner_pos
     - site_category
     - app_category
     - device_type
     - device_conn_type
-Ò»Ð©ÌØÕ÷½«×÷ÎªIDÌØÕ÷:
+ä¸€äº›ç‰¹å¾å°†ä½œä¸ºIDç‰¹å¾:
     - id
     - site_id
     - app_id
     - device_id
-`hour` ½«±»×÷ÎªÁ¬ÐøÌØÕ÷£¬²¢±»×ª»¯Îª24Î¬¶ÈµÄone-hotÌØÕ÷.
-½Å±¾Êä³öÒÔÏÂÈý¸öÎÄ¼þ:
+`hour` å°†è¢«ä½œä¸ºè¿žç»­ç‰¹å¾ï¼Œå¹¶è¢«è½¬åŒ–ä¸º24ç»´åº¦çš„one-hotç‰¹å¾.
+è„šæœ¬è¾“å‡ºä»¥ä¸‹ä¸‰ä¸ªæ–‡ä»¶:
 1. train.txt
 2. test.txt
 3. infer.txt
@@ -85,7 +84,7 @@ id_features = 'id site_id app_id device_id _device_id_cross_site_id'.split()
 def get_all_field_names(mode=0):
     '''
     @mode: int
-        0 ÎªÑµÁ·Ä£Ê½£¬1Îª²âÊÔÄ£Ê½
+        0 ä¸ºè®­ç»ƒæ¨¡å¼ï¼Œ1ä¸ºæµ‹è¯•æ¨¡å¼
     @return: list of str
     '''
     return categorial_features + ['hour'] + id_features + ['click'] \
@@ -94,7 +93,7 @@ def get_all_field_names(mode=0):
 
 class CategoryFeatureGenerator(object):
     '''
-    Éú³ÉÀà±ðÌØÕ÷
+    ç”Ÿæˆç±»åˆ«ç‰¹å¾
     '''
 
     def __init__(self):
@@ -103,7 +102,7 @@ class CategoryFeatureGenerator(object):
 
     def register(self, key):
         '''
-        ×¢²á¼ÇÂ¼
+        æ³¨å†Œè®°å½•
         '''
         if key not in self.dic:
             self.dic[key] = self.counter
@@ -114,7 +113,7 @@ class CategoryFeatureGenerator(object):
 
     def gen(self, key):
         '''
-        ÎªÃ¿Ò»Ìõ¼ÇÂ¼×ª»¯Îªone-hotÌØÕ÷
+        ä¸ºæ¯ä¸€æ¡è®°å½•è½¬åŒ–ä¸ºone-hotç‰¹å¾
         '''
         if key not in self.dic:
             res = self.dic['unk']
@@ -130,7 +129,7 @@ class IDfeatureGenerator(object):
     def __init__(self, max_dim, cross_fea0=None, cross_fea1=None):
         '''
         @max_dim: int
-            idÔªËØ¿Õ¼äµÄÎ¬¶È
+            idå…ƒç´ ç©ºé—´çš„ç»´åº¦
         '''
         self.max_dim = max_dim
         self.cross_fea0 = cross_fea0
@@ -138,7 +137,7 @@ class IDfeatureGenerator(object):
 
     def gen(self, key):
         '''
-       ÎªÃ¿Ìõ¼ÇÂ¼Éú³Éone-hotÌØÕ÷
+       ä¸ºæ¯æ¡è®°å½•ç”Ÿæˆone-hotç‰¹å¾
         '''
         return [hash(key) % self.max_dim]
 
@@ -165,29 +164,29 @@ class ContinuousFeatureGenerator(object):
         return (val - self.min) / self.len_part
 
 
-# ³õÊ¼»¯ËùÓÐÌØÕ÷Àà
+# åˆå§‹åŒ–æ‰€æœ‰ç‰¹å¾ç±»
 fields = {}
 for key in categorial_features:
     fields[key] = CategoryFeatureGenerator()
 for key in id_features:
-    # Õë¶Ô½»²æÌØÕ÷
+    # é’ˆå¯¹äº¤å‰ç‰¹å¾
     if 'cross' in key:
         feas = key[1:].split('_cross_')
         fields[key] = IDfeatureGenerator(10000000, *feas)
-    # ¶ÔÆÕÍ¨µÄIDÌØÕ÷
+    # å¯¹æ™®é€šçš„IDç‰¹å¾
     else:
         fields[key] = IDfeatureGenerator(10000)
 
-# ×÷ÎªPaddlePaddleµÄfeed_indexÊ¹ÓÃ
+# ä½œä¸ºPaddlePaddleçš„feed_indexä½¿ç”¨
 field_index = dict((key, id)
                    for id, key in enumerate(['dnn_input', 'lr_input', 'click']))
 
 
 def detect_dataset(path, topn, id_fea_space=10000):
     '''
-   Ï¡Êè»¯´óÊý¾Ý¼¯ºÏµÄÇ°nÌõ¼ÇÂ¼
+   ç¨€ç–åŒ–å¤§æ•°æ®é›†åˆçš„å‰næ¡è®°å½•
     '''
-    # Éú³É·ÖÀàÊý¾Ý¶ÔÏó
+    # ç”Ÿæˆåˆ†ç±»æ•°æ®å¯¹è±¡
     logger.warning('detecting dataset')
 
     with open(path, 'rb') as csvfile:
@@ -214,7 +213,7 @@ def detect_dataset(path, topn, id_fea_space=10000):
 
 def load_data_meta(meta_path):
     '''
-    ÔØÈë´óÊý¾Ý¼¯ºÏÐÅÏ¢
+    è½½å…¥å¤§æ•°æ®é›†åˆä¿¡æ¯
     '''
     feature_dims, fields = cPickle.load(open(meta_path, 'rb'))
     return feature_dims, fields
@@ -222,11 +221,11 @@ def load_data_meta(meta_path):
 
 def concat_sparse_vectors(inputs, dims):
     '''
-    Á¬½Ó¶à¸öÏ¡ÊèÌØÕ÷
+    è¿žæŽ¥å¤šä¸ªç¨€ç–ç‰¹å¾
     @inputs: list
-        Ï¡ÊèÏòÁ¿ÁÐ±í
+        ç¨€ç–å‘é‡åˆ—è¡¨
     @dims: list of int
-        Ã¿¸öÏ¡ÊèÏòÁ¿Î¬¶È
+        æ¯ä¸ªç¨€ç–å‘é‡ç»´åº¦
     '''
     res = []
     assert len(inputs) == len(dims)
@@ -240,7 +239,7 @@ def concat_sparse_vectors(inputs, dims):
 
 class AvazuDataset(object):
     '''
-    ÔØÈëAvazuÊý¾Ý¼¯ºÏ×÷ÎªÑµÁ·¼¯
+    è½½å…¥Avazuæ•°æ®é›†åˆä½œä¸ºè®­ç»ƒé›†
     '''
 
     def __init__(self,
@@ -261,7 +260,7 @@ class AvazuDataset(object):
 
     def train(self):
         '''
-        ÔØÈëÑµÁ·¼¯
+        è½½å…¥è®­ç»ƒé›†
         '''
         logger.info("load trainset from %s" % self.train_path)
         self.mode = TaskMode.create_train()
@@ -269,7 +268,7 @@ class AvazuDataset(object):
             reader = csv.DictReader(f)
 
             for row_id, row in enumerate(reader):
-                # Ìø¹ýÇ°nÌõ¼ÇÂ¼
+                # è·³è¿‡å‰næ¡è®°å½•
                 if self.n_records_as_test > 0 and row_id < self.n_records_as_test:
                     continue
 
@@ -279,7 +278,7 @@ class AvazuDataset(object):
 
     def test(self):
         '''
-        ÔØÈë²âÊÔ¼¯
+        è½½å…¥æµ‹è¯•é›†
         '''
         logger.info("load testset from %s" % self.train_path)
         self.mode = TaskMode.create_test()
@@ -297,7 +296,7 @@ class AvazuDataset(object):
 
     def infer(self):
         '''
-        ÔØÈëÔ¤²â¼¯
+        è½½å…¥é¢„æµ‹é›†
         '''
         logger.info("load inferset from %s" % self.train_path)
         self.mode = TaskMode.create_infer()
@@ -311,7 +310,7 @@ class AvazuDataset(object):
 
     def _parse_record(self, row):
         '''
-       Ï¡Êè»¯CSVÎÄ¼þµÄÒ»ÁÐ»ñµÃ¼ÇÂ¼
+       ç¨€ç–åŒ–CSVæ–‡ä»¶çš„ä¸€åˆ—èŽ·å¾—è®°å½•
         '''
         record = []
         for key in categorial_features:
