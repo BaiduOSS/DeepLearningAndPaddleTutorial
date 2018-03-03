@@ -3,8 +3,7 @@
 """
 打印模型训练和预测过程中的信息
 Created on 2017-12-2
-@author: PaddlePaddle CTR Model
-@copyright: www.baidu.com
+
 """
 import logging
 
