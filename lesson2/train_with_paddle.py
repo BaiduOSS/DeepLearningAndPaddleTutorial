@@ -20,11 +20,12 @@
     9.展示学习曲线plot_costs()
 """
 import matplotlib
+matplotlib.use('Agg')
+
 import matplotlib.pyplot as plt
 import numpy as np
 import paddle.v2 as paddle
 
-matplotlib.use('Agg')
 
 TRAIN_DATA = None
 X_RAW = None
@@ -251,7 +252,7 @@ def main():
     print_parameters(parameters)
 
     # 展示学习曲线
-    # plot_costs(costs)
+    plot_costs(costs)
 
 
 if __name__ == '__main__':
