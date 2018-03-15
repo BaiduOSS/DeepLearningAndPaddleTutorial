@@ -13,6 +13,8 @@
 
 * [utils.py](utils.py)：工具类，包含load_data()函数，用于载入数据
 
+* [show_image.py](show_image.py): 显示数据集情况
+
 * [train_with_numpy.py](train_with_numpy.py)：Logistic Regression的Python版本实现
 
 * [train_with_paddle.py](train_with_paddle.py)：Logistic Regression的Paddlepaddle版本实现
