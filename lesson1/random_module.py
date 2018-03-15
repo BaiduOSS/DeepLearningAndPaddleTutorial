@@ -2,9 +2,9 @@
 # -*- coding:utf-8 -*-
 
 """
-Numpy中random模块说明脚本
-Created on 2017-11-16
-author: denglelai
+    Numpy中random模块说明脚本
+    Created on 2017-11-16
+    author: denglelai
 """
 import numpy as np
 

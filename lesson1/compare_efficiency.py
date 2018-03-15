@@ -2,9 +2,9 @@
 # -*- coding:utf-8 -*-
 
 """
-Numpy中实现向量化与非向量化计算效率比较脚本
-Created on 2017-11-16
-author: denglelai
+    Numpy中实现向量化与非向量化计算效率比较脚本
+    Created on 2017-11-16
+    author: denglelai
 """
 import time
 import numpy as np

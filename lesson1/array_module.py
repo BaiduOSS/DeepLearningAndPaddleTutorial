@@ -2,9 +2,9 @@
 # -*- coding:utf-8 -*-
 
 """
-Array 基础操作脚本
-Created on 2017-11-16
-author: denglelai
+    Array 基础操作脚本
+    Created on 2017-11-16
+    author: denglelai
 """
 
 import numpy as np

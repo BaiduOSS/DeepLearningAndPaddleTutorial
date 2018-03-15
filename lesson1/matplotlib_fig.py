@@ -2,9 +2,9 @@
 # -*- coding:utf-8 -*-
 
 """
-Matplotlib模块绘制图像示例脚本
-Created on 2017-11-16
-author: denglelai
+    Matplotlib模块绘制图像示例脚本
+    Created on 2017-11-16
+    author: denglelai
 """
 import numpy as np
 import matplotlib.pyplot as plt
