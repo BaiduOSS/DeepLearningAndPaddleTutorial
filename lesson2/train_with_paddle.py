@@ -2,22 +2,22 @@
 # -*- coding:utf-8 -*-
 
 """
-Authors: yin xiaoting(y_tink@163.com)
-Date:    2017/11/16
+    Authors: yin xiaoting(y_tink@163.com)
+    Date:    2017/11/16
 
-使用PaddlePaddle来做线性回归，拟合房屋价格与房屋面积的线性关系，具体步骤如下：
-1.载入数据和预处理：load_data()
-2.定义train()和test()用于读取训练数据和测试数据，分别返回一个reader
-3.初始化
-4.配置网络结构和设置参数：
-    - 定义成本函数cost
-    - 创建parameters
-    - 定义优化器optimizer
-5.定义event_handler
-6.定义trainer
-7.开始训练
-8.打印参数和结果print_parameters()
-9.展示学习曲线plot_costs()
+    使用PaddlePaddle来做线性回归，拟合房屋价格与房屋面积的线性关系，具体步骤如下：
+    1.载入数据和预处理：load_data()
+    2.定义train()和test()用于读取训练数据和测试数据，分别返回一个reader
+    3.初始化
+    4.配置网络结构和设置参数：
+        - 定义成本函数cost
+        - 创建parameters
+        - 定义优化器optimizer
+    5.定义event_handler
+    6.定义trainer
+    7.开始训练
+    8.打印参数和结果print_parameters()
+    9.展示学习曲线plot_costs()
 """
 import matplotlib
 import matplotlib.pyplot as plt
@@ -117,7 +117,7 @@ def network_config():
         optimizer: 优化器
         feeding: 数据映射，python字典
     """
-    # 输入层，paddle.layer.data表示数据层,name=’x’：名称为input,
+    # 输入层，paddle.layer.data表示数据层,name=’x’：名称为x_input,
     # type=paddle.data_type.dense_vector(1)：数据类型为1维稠密向量
     x_input = paddle.layer.data(name='x',
                                 type=paddle.data_type.dense_vector(1))
@@ -176,7 +176,6 @@ def print_parameters(parameters):
     print "Result Parameters as below:"
     theta_a = parameters.get('___fc_layer_0__.w0')[0]
     theta_b = parameters.get('___fc_layer_0__.wbias')[0]
-    print(theta_a, theta_b)
 
     x_0 = X_RAW[0]
     y_0 = theta_a * TRAIN_DATA[0][0] + theta_b

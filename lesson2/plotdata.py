@@ -2,11 +2,11 @@
 # -*- coding:utf-8 -*-
 
 """
-Authors: yin xiaoting(y_tink@163.com)
-Date:    2017/11/16
+    Authors: yin xiaoting(y_tink@163.com)
+    Date:    2017/11/16
 
-使用matplotlib.pyplot输出房屋价格与房屋面积的分布以及参数a，b生成的线性回归结果。
-对比线性回归结果和真实分布，发现该回归结果可以大致根据房屋面积大小预测房屋价格。
+    使用matplotlib.pyplot输出房屋价格与房屋面积的分布以及参数a，b生成的线性回归结果。
+    对比线性回归结果和真实分布，发现该回归结果可以大致根据房屋面积大小预测房屋价格。
 """
 
 import numpy as np
