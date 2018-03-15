@@ -2,12 +2,12 @@
 #  -*- coding:utf-8 -*-
 
 """
-Authors: weixing(wx_crome@163.com)
-Date:    2017/11/12 17:23:06
+    Authors: weixing(wx_crome@163.com)
+    Date:    2017/11/12 17:23:06
 
-用于载入数据，目标数据源为两个.h5文件，分别为：
-train_images.h5：训练数据集（猫图片）
-test_images.h5：测试数据集（猫图片）
+    用于载入数据，目标数据源为两个.h5文件，分别为：
+    train_images.h5：训练数据集（猫图片）
+    test_images.h5：测试数据集（猫图片）
 """
 import h5py
 import numpy as np

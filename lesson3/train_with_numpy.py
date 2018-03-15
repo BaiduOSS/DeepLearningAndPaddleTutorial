@@ -2,19 +2,19 @@
 # -*- coding:utf-8 -*-
 
 """
-Authors: weixing(wx_crome@163.com)
-Date:    2017/01/30 17:23:06
+    Authors: weixing(wx_crome@163.com)
+    Date:    2017/01/30 17:23:06
 
-使用python及numpy库来实现逻辑回归识别猫案例，关键步骤如下：
-1.载入数据和预处理：load_data()
-2.初始化模型参数（Parameters）
-3.循环：
-    a)	计算成本（Cost）
-    b)	计算梯度（Gradient）
-    c)	更新参数（Gradient Descent）
-4.计算准确度
-5.展示学习曲线plot_costs()
-6.利用模型进行预测
+    使用python及numpy库来实现逻辑回归识别猫案例，关键步骤如下：
+    1.载入数据和预处理：load_data()
+    2.初始化模型参数（Parameters）
+    3.循环：
+        a)	计算成本（Cost）
+        b)	计算梯度（Gradient）
+        c)	更新参数（Gradient Descent）
+    4.计算准确度
+    5.展示学习曲线plot_costs()
+    6.利用模型进行预测
 """
 
 import matplotlib.pyplot as plt

@@ -2,22 +2,22 @@
 # -*- coding:utf-8 -*-
 
 """
-Authors: weixing(wx_crome@163.com)
-Date:    2017/11/12 17:23:06
+    Authors: weixing(wx_crome@163.com)
+    Date:    2017/11/12 17:23:06
 
-使用paddle框架实现逻辑回归识别猫案例，关键步骤如下：
-1.载入数据和预处理：load_data()
-2.定义train()和test()用于读取训练数据和测试数据，分别返回一个reader
-3.初始化
-4.配置网络结构和设置参数：
-    - 定义成本函数cost
-    - 创建parameters
-    - 定义优化器optimizer
-5.定义event_handler
-6.定义trainer
-7.开始训练
-8.预测infer()并输出准确率train_accuracy和test_accuracy
-9.展示学习曲线plot_costs()
+    使用paddle框架实现逻辑回归识别猫案例，关键步骤如下：
+    1.载入数据和预处理：load_data()
+    2.定义train()和test()用于读取训练数据和测试数据，分别返回一个reader
+    3.初始化
+    4.配置网络结构和设置参数：
+        - 定义成本函数cost
+        - 创建parameters
+        - 定义优化器optimizer
+    5.定义event_handler
+    6.定义trainer
+    7.开始训练
+    8.预测infer()并输出准确率train_accuracy和test_accuracy
+    9.展示学习曲线plot_costs()
 """
 
 import matplotlib
