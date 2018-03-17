@@ -72,7 +72,7 @@ def initialize_parameters(data_dim):
         b: 标量，代表偏置bias
     """
     w = np.zeros((data_dim, 1), dtype=np.float)
-    b = 0.1
+    b = 0.0
 
     return w, b
 
@@ -95,12 +95,15 @@ def forward_and_backward_propagate(X, Y, w, b):
     m = X.shape[1]
 
     # 前向传播，计算成本函数
-    A = sigmoid(np.dot(w.T, X) + b)
+    Z = np.dot(w.T, X) + b
+    A = sigmoid(Z)
+    dZ = A - Y
+
     cost = np.sum(-(Y * np.log(A) + (1 - Y) * np.log(1 - A))) / m
 
     # 后向传播，计算梯度
-    dw = np.dot(X, (A - Y).T) / m
-    db = np.sum(A - Y) / m
+    dw = np.dot(X, dZ.T) / m
+    db = np.sum(dZ) / m
 
     cost = np.squeeze(cost)
 
@@ -222,7 +225,7 @@ def plot_costs(costs, learning_rate):
     plt.ylabel('cost')
     plt.xlabel('Iterations (per hundreds)')
     plt.title("learning rate =" + str(learning_rate))
-    plt.show()
+    # plt.show()
     plt.savefig('costs.png')
 
 
