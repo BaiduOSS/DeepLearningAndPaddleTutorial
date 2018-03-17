@@ -254,13 +254,13 @@ def main():
     print "Accuracy on test set: {} %".format(calc_accuracy(predictions_test,
                                                             Y_test))
 
-    index = 15
+    index = 1  # index(1) is a cat, index(14) not a cat
     cat_img = X_test[:, index].reshape((px_num, px_num, 3))
     plt.imshow(cat_img)
     plt.axis('off')
     plt.show()
     print "The label of this picture is " + str(Y_test[0, index]) \
-          + ", which means it's a cat picture. " \
+          + ", 1 means it's a cat picture, 0 means not " \
           + "\nYou predict that it's a "\
           + classes[int(predictions_test[index])].decode("utf-8") \
           + " picture. \nCongrats!"
