@@ -2,12 +2,12 @@
 # -*- coding:utf-8 -*-
 
 """
-Authors: fuqiang(fqjeremybuaa@163.com)
-Date:    2017/11/29
+    Authors: fuqiang(fqjeremybuaa@163.com)
+    Date:    2017/11/29
 
-在paddlePaddle cloud平台上完成训练数据的预处理，关键步骤如下：
-1.获取文件路径和训练器参数
-2.根据训练文件路径对movielens数据集进行拆分
+    在paddlePaddle cloud平台上完成训练数据的预处理，关键步骤如下：
+    1.获取文件路径和训练器参数
+    2.根据训练文件路径对movielens数据集进行拆分
 """
 
 import os
