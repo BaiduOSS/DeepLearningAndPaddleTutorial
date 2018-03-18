@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 """
-Authors: Jiahui Liu(2505774110@qq.com)
-Date:    2017/11/17 17:27:06
+    Authors: Jiahui Liu(2505774110@qq.com)
+    Date:    2017/11/17 17:27:06
+    based on http://cs231n.github.io/neural-networks-case-study/
 """
 import random
 
@@ -37,19 +38,6 @@ def plot_decision_boundary(model, X, Y):
     plt.scatter(X[0, :], X[1, :], c=Y, cmap=plt.cm.Spectral)
 
 
-def sigmoid(x):
-    """
-    Compute the sigmoid of x
-
-    Args:
-        x: 输入数据x
-    Return:
-        s: sigmoid激活之后的数据
-    """
-    s = 1 / (1 + np.exp(-x))
-    return s
-
-
 def load_data_sets():
     """
     加载数据
@@ -63,6 +51,7 @@ def load_data_sets():
     N = 200  # number of points per class
     D = 2  # dimensionality
     K = 2  # number of classes
+    number = N * K
     X = np.zeros((N * K, D))  # data matrix (each row = single example)
     y = np.zeros(N * K, dtype='uint8')  # class labels
     for j in range(K):
@@ -72,12 +61,12 @@ def load_data_sets():
             np.random.randn(N) * 0.2  # theta
         X[ix] = np.c_[r * np.sin(t), r * np.cos(t)]
         y[ix] = j
-    # lets visualize the data:
+
     X = X.T
-    Y = y.reshape(1, 400)
+    Y = y.reshape(1, number)
 
     # 训练集
-    train_num = random.sample(range(400), 320)  # 共400组数据，训练集取其中80%，即320组
+    train_num = random.sample(range(number), 320)  # 共400组数据，训练集取其中80%，即320组
     train_x = X[:, train_num]
     train_y = Y[:, train_num]
 

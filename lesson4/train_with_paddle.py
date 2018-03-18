@@ -2,29 +2,29 @@
 # -*- coding:utf-8 -*-
 
 """
-Authors: Jiahui Liu(2505774110@qq.com)
-Date:    2017/11/17 17:27:06
-使用paddle框架实现浅层神经网络识别“花，型图案，关键步骤如下：
-1.载入数据和预处理：load_data()
-2.定义train()和test()用于读取训练数据和测试数据，分别返回一个reader
-3.初始化
-4.配置网络结构和设置参数：
-    - 定义成本函数cost
-    - 创建parameters
-    - 定义优化器optimizer
-5.定义event_handler
-6.定义trainer
-7.开始训练
-8.预测infer()并输出准确率train_accuracy和test_accuracy
-9.展示学习曲线plot_costs()
+    Authors: Jiahui Liu(2505774110@qq.com)
+    Date:    2017/11/17 17:27:06
+    使用paddle框架实现浅层神经网络识别“花，型图案，关键步骤如下：
+    1.载入数据和预处理：load_data()
+    2.定义train()和test()用于读取训练数据和测试数据，分别返回一个reader
+    3.初始化
+    4.配置网络结构和设置参数：
+        - 定义成本函数cost
+        - 创建parameters
+        - 定义优化器optimizer
+    5.定义event_handler
+    6.定义trainer
+    7.开始训练
+    8.预测infer()并输出准确率train_accuracy和test_accuracy
+    9.展示学习曲线plot_costs()
 """
 
 import matplotlib
+matplotlib.use('Agg')
+
+import matplotlib.pyplot as plt
 import numpy as np
 import paddle.v2 as paddle
-
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 
 import utils
 
