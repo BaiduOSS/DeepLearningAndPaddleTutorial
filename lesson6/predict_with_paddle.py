@@ -2,13 +2,13 @@
 # -*- coding:utf-8 -*-
 
 """
-Authors: xiake(kedou1993@163.com)
-Date:    2017/11/29
+    Authors: xiake(kedou1993@163.com)
+    Date:    2017/11/29
 
-使用PaddlePaddle框架实现数字识别案例的预测任务，关键步骤如下：
-1.定义分类器网络结构
-2.读取训练好的模型参数
-3.预测结果
+    使用PaddlePaddle框架实现数字识别案例的预测任务，关键步骤如下：
+    1.定义分类器网络结构
+    2.读取训练好的模型参数
+    3.预测结果
 """
 
 import os
