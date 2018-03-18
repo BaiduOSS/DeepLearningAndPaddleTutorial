@@ -2,19 +2,19 @@
 # -*- coding:utf-8 -*-
 
 """
-Authors: fuqiang(fqjeremybuaa@163.com)
-Date:    2017/11/29
+    Authors: fuqiang(fqjeremybuaa@163.com)
+    Date:    2017/11/29
 
-使用paddle框架实现个性化电影推荐系统的结果预测，
-无需重新训练模型，只需加载模型文件。关键步骤如下：
-1.初始化
-2.配置网络结构
-  - 构造用户融合特征模型
-  - 构造电影融合特征模型
-  - 定义特征相似性度量inference
-  - 定义feeding
-3.从parameters文件直接获取模型参数
-4.根据模型参数和测试数据来预测结果
+    使用paddle框架实现个性化电影推荐系统的结果预测，
+    无需重新训练模型，只需加载模型文件。关键步骤如下：
+    1.初始化
+    2.配置网络结构
+      - 构造用户融合特征模型
+      - 构造电影融合特征模型
+      - 定义特征相似性度量inference
+      - 定义feeding
+    3.从parameters文件直接获取模型参数
+    4.根据模型参数和测试数据来预测结果
 """
 
 import copy
