@@ -17,6 +17,7 @@ def main():
     # 获取数据相关信息
     train_num = train_X.shape[0]
     test_num = test_X.shape[0]
+
     # 本例中num_px=64
     px_num = train_X.shape[1]
 
@@ -30,10 +31,10 @@ def main():
 
     layer = [12288, 20, 7, 5, 1]
     parameters = utils.deep_neural_network(train_X, train_Y, layer, 2500)
-    print('Train Accuracy:', utils.predict_image(
-        parameters, train_X, train_Y), '%')
-    print('Test Accuracy:', utils.predict_image(
-        parameters, test_X, test_Y), '%')
+    print 'Train Accuracy:', utils.predict_image(
+        parameters, train_X, train_Y), '%'
+    print 'Test Accuracy:', utils.predict_image(
+        parameters, test_X, test_Y), '%'
 
 
 if __name__ == '__main__':

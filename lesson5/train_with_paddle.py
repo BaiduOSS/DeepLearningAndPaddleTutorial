@@ -235,7 +235,6 @@ def infer(y_predict, parameters):
     Args:
         y_predict: 输出层，DATADIM维稠密向量
         parameters: 训练完成的模型参数
-
     Return:
     """
     # 获取测试数据和训练数据，用来验证模型准确度
