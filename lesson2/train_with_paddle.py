@@ -162,7 +162,7 @@ def plot_costs(costs):
     plt.plot(costs)
     plt.ylabel('cost')
     plt.xlabel('iterations (per hundreds)')
-    plt.title("House Price Distributions of Beijing Beiyuan Area")
+    plt.title("House Price Distributions")
     plt.show()
     plt.savefig('costs.png')
 
