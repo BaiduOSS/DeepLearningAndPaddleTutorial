@@ -194,7 +194,7 @@ def main():
     binary_result = get_binary_result(probs)
 
     # 预测图片是否为猫
-    index = 15
+    index = 14
     print ("y = " + str(binary_result[index]) +
            ", you predicted that it is a \"" +
            CLASSES[binary_result[index]].decode("utf-8") + "\" picture.")

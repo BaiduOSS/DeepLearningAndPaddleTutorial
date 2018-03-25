@@ -33,15 +33,13 @@ TEST_SET = None
 DATA_DIM = None
 
 
-# 载入数据(cat/non-cat)
 def load_data():
     """
     载入数据，数据项包括：
-        train_set_x_orig：原始训练数据集
+        train_set_x：原始训练数据集
         train_set_y：原始训练数据标签
-        test_set_x_orig：原始测试数据集
+        test_set_x：原始测试数据集
         test_set_y：原始测试数据标签
-        classes(cat/non-cat)：分类list
     Args:
     Return:
     """
@@ -117,7 +115,7 @@ def network_config():
         feeding: 数据映射，python字典
     """
     # 输入层，paddle.layer.data表示数据层,name=’image’：名称为image,
-    # type=paddle.data_type.dense_vector(DATA_DIM)：数据类型为DATADIM维稠密向量
+    # type=paddle.data_type.dense_vector(DATA_DIM)：数据类型为DATA_DIM维稠密向量
     image = paddle.layer.data(
         name='image', type=paddle.data_type.dense_vector(DATA_DIM))
 

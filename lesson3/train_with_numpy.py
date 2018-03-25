@@ -63,119 +63,118 @@ def sigmoid(x):
 
 def initialize_parameters(data_dim):
     """
-    参数w和b初始化为0
+    参数W和b初始化为0
 
     Args:
-        data_dim: w向量的纬度
+        data_dim: W向量的纬度
     Returns:
-        w: (dim, 1)维向量
+        W: (dim, 1)维向量
         b: 标量，代表偏置bias
     """
-    w = np.zeros((data_dim, 1), dtype=np.float)
+    W = np.zeros((data_dim, 1), dtype=np.float)
     b = 0.0
 
-    return w, b
+    return W, b
 
 
-def forward_and_backward_propagate(X, Y, w, b):
+def forward_and_backward_propagate(X, Y, W, b):
     """
     计算成本Cost和梯度grads
 
     Args:
-        w: 权重， (num_px * num_px * 3, 1)维的numpy数组
+        W: 权重， (num_px * num_px * 3, 1)维的numpy数组
         b: 偏置bias
         X: 数据，shape为(num_px * num_px * 3, number of examples)
         Y: 数据的标签( 0 if non-cat, 1 if cat) ，shape (1, number of examples)
-
     Return:
         cost: 逻辑回归的损失函数
-        dw: cost对参数w的梯度，形状与参数w一致
+        dW: cost对参数W的梯度，形状与参数W一致
         db: cost对参数b的梯度，形状与参数b一致
     """
     m = X.shape[1]
 
     # 前向传播，计算成本函数
-    Z = np.dot(w.T, X) + b
+    Z = np.dot(W.T, X) + b
     A = sigmoid(Z)
     dZ = A - Y
 
     cost = np.sum(-(Y * np.log(A) + (1 - Y) * np.log(1 - A))) / m
 
     # 后向传播，计算梯度
-    dw = np.dot(X, dZ.T) / m
+    dW = np.dot(X, dZ.T) / m
     db = np.sum(dZ) / m
 
     cost = np.squeeze(cost)
 
     grads = {
-        "dw": dw,
+        "dW": dW,
         "db": db
     }
 
     return grads, cost
 
 
-def update_parameters(X, Y, w, b, learning_rate):
+def update_parameters(X, Y, W, b, learning_rate):
     """
     更新参数
     Args:
         X: 整理后的输入数据
         Y: 标签
-        w: 参数w
+        W: 参数W
         b: bias
         learning_rate: 学习步长
     Return：
-        w：更新后的参数w
+        W：更新后的参数W
         b：更新后的bias
         cost：成本
     """
-    grads, cost = forward_and_backward_propagate(X, Y, w, b)
+    grads, cost = forward_and_backward_propagate(X, Y, W, b)
 
-    w = w - learning_rate * grads['dw']
+    W = W - learning_rate * grads['dW']
     b = b - learning_rate * grads['db']
 
-    return w, b, cost
+    return W, b, cost
 
 
-def train(X, Y, w, b, iteration_nums, learning_rate):
+def train(X, Y, W, b, iteration_nums, learning_rate):
     """
-    训练的主过程，使用梯度下降算法优化参数w和b
+    训练的主过程，使用梯度下降算法优化参数W和b
 
     Args:
         X: 数据，shape为(num_px * num_px * 3, number of examples)
         Y: 数据的标签(0 if non-cat, 1 if cat) ，shape为 (1, number of examples)
-        w: 权重， (num_px * num_px * 3, 1)维的numpy数组
+        W: 权重， (num_px * num_px * 3, 1)维的numpy数组
         b: 偏置bias，标量
         iteration_nums: 训练的迭代次数
         learning_rate: 梯度下降的学习率，可控制收敛速度和效果
 
     Returns:
-        params: 包含参数w和b的python字典
+        params: 包含参数W和b的python字典
         costs: 保存了优化过程cost的list，可以用于输出cost变化曲线
     """
     costs = []
     for i in range(iteration_nums):
-        w, b, cost = update_parameters(X, Y, w, b, learning_rate)
+        W, b, cost = update_parameters(X, Y, W, b, learning_rate)
 
         if i % 100 == 0:
             costs.append(cost)
             print "Iteration %d, cost %f" % (i, cost)
 
     params = {
-        "w": w,
+        "W": W,
         "b": b
     }
 
     return params, costs
 
 
-def predict_image(X, w, b):
+def predict_image(X, W, b):
     """
     用学习到的逻辑回归模型来预测图片是否为猫（1 cat or 0 non-cat）
 
     Args:
         X: 数据，形状为(num_px * num_px * 3, number of examples)
-        w: 权重， (num_px * num_px * 3, 1)维的numpy数组
+        W: 权重， (num_px * num_px * 3, 1)维的numpy数组
         b: 偏置bias
 
     Returns:
@@ -188,10 +187,10 @@ def predict_image(X, w, b):
 
     predictions = []
 
-    w = w.reshape(data_dim, 1)
+    W = W.reshape(data_dim, 1)
 
     # 预测概率结果为A
-    A = sigmoid(np.dot(w.T, X) + b)
+    A = sigmoid(np.dot(W.T, X) + b)
 
     # 将连续值A转化为二分类结果0或1
     # 阈值设定为0.5即预测概率大于0.5则预测结果为1
@@ -241,20 +240,20 @@ def main():
 
     data_dim = X_train.shape[0]
 
-    w, b = initialize_parameters(data_dim)
+    W, b = initialize_parameters(data_dim)
 
-    params, costs = train(X_train, Y_train, w, b, iteration_nums,
+    params, costs = train(X_train, Y_train, W, b, iteration_nums,
                           learning_rate)
 
-    predictions_train = predict_image(X_train, params['w'], params['b'])
-    predictions_test = predict_image(X_test, params['w'], params['b'])
+    predictions_train = predict_image(X_train, params['W'], params['b'])
+    predictions_test = predict_image(X_test, params['W'], params['b'])
 
     print "Accuracy on train set: {} %".format(calc_accuracy(predictions_train,
                                                              Y_train))
     print "Accuracy on test set: {} %".format(calc_accuracy(predictions_test,
                                                             Y_test))
 
-    index = 1  # index(1) is a cat, index(14) not a cat
+    index = 15  # index(1) is a cat, index(14) not a cat
     cat_img = X_test[:, index].reshape((px_num, px_num, 3))
     plt.imshow(cat_img)
     plt.axis('off')

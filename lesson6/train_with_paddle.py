@@ -18,12 +18,13 @@
 import os
 
 import matplotlib
+matplotlib.use('Agg')
+
 import numpy as np
 import paddle.v2 as paddle
 from paddle.v2.plot import Ploter
 from PIL import Image
 
-matplotlib.use('Agg')
 
 WITH_GPU = os.getenv('WITH_GPU', '0') != '0'
 

@@ -36,10 +36,10 @@ DATA_DIM = None
 def load_data():
     """
     载入数据，数据项包括：
-        train_set_x_orig：原始训练数据集
-        train_set_y：原始训练数据标签
-        test_set_x_orig：原始测试数据集
-        test_set_y：原始测试数据标签
+        train_x_ori：原始训练数据集
+        train_y：原始训练数据标签
+        test_x_ori：原始测试数据集
+        test_y：原始测试数据标签
         classes(cat/non-cat)：分类list
 
     Args:
@@ -120,7 +120,7 @@ def test():
 
 def network_config():
     """
-    配置网络结构和设置参数
+    搭建浅层神经网络和配置网络参数
     Args:
     Return:
         image: 输入层，DATADIM维稠密向量

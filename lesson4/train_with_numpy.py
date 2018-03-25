@@ -15,8 +15,8 @@
     5.分析预测结果
     6.定义model函数来按顺序将上述步骤合并
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 import utils
 
@@ -26,13 +26,13 @@ def layer_sizes(X, Y):
     设置网络结构
 
     Args:
-        X -- 输入的数据
-        Y -- 输出值
+        X: 输入的数据
+        Y: 输出值
 
     Return:
-        n_x -- 输入层节点数
-        n_h -- 隐藏层节点数
-        n_y -- 输出层节点数
+        n_x: 输入层节点数
+        n_h: 隐藏层节点数
+        n_y: 输出层节点数
     """
     n_x = X.shape[0]  # 输入层大小（节点数）
     n_h = 4
@@ -45,16 +45,16 @@ def initialize_parameters(n_x, n_h, n_y):
     初始化参数
 
     Args:
-        n_x -- 输入层大小
-        n_h -- 隐藏层大小
-        n_y -- 输出层大小
+        n_x: 输入层大小
+        n_h: 隐藏层大小
+        n_y: 输出层大小
 
     Return:
-        params -- 一个包含所有参数的python字典:
-            W1 -- （隐藏层）权重，维度是 (n_h, n_x)
-            b1 -- （隐藏层）偏移量，维度是 (n_h, 1)
-            W2 -- （输出层）权重，维度是 (n_y, n_h)
-            b2 -- （输出层）偏移量，维度是 (n_y, 1)
+        parameters: 一个包含所有参数的python字典，参数如下
+            W1 -- 隐藏层权重，维度是 (n_h, n_x)
+            b1 -- 隐藏层偏移量，维度是 (n_h, 1)
+            W2 -- 输出层权重，维度是 (n_y, n_h)
+            b2 -- 输出层偏移量，维度是 (n_y, 1)
     """
 
     np.random.seed(2)  # 设置随机种子
@@ -82,11 +82,11 @@ def forward_propagation(X, parameters):
     前向传播
 
     Args:
-        X -- 输入值
-        parameters -- 一个python字典，包含计算所需全部参数
+        X: 输入值
+        parameters: 一个python字典，包含权值W1，W2和bias b1，b2
     Return:
-        A2 -- 模型输出值
-        cache -- 一个字典，包含 "Z1", "A1", "Z2" and "A2"
+        A2: 模型输出值
+        cache: 一个字典，包含 "Z1", "A1", "Z2" and "A2"
     """
 
     W1 = parameters["W1"]
@@ -94,8 +94,10 @@ def forward_propagation(X, parameters):
     W2 = parameters["W2"]
     b2 = parameters["b2"]
 
+    # 计算隐藏层
     Z1 = np.dot(W1, X) + b1
     A1 = np.tanh(Z1)
+    # 计算输出层
     Z2 = np.dot(W2, A1) + b2
     A2 = 1 / (1 + np.exp(-Z2))
 
@@ -109,17 +111,17 @@ def forward_propagation(X, parameters):
     return A2, cache
 
 
-def compute_cost(A2, Y, parameters):
+def calculate_cost(A2, Y, parameters):
     """
-    根据第三章给出的公式计算成本
+    根据第四章给出的公式计算成本
 
     Args:
-        A2 -- 模型输出值
-        Y -- 真实值
-        parameters -- 一个python字典包含参数 W1, b1, W2和b2
+        A2: 模型输出值
+        Y: 真实值
+        parameters: 一个python字典包含参数 W1, b1, W2和b2
 
     Return:
-        cost -- 成本函数
+        cost: 成本函数
     """
 
     m = Y.shape[1]  # 样本个数
@@ -139,13 +141,13 @@ def backward_propagation(parameters, cache, X, Y):
     后向传播
 
     Args:
-        parameters -- 一个python字典，包含所有参数
-        cache -- 一个python字典包含"Z1", "A1", "Z2"和"A2".
-        X -- 输入值
-        Y -- 真实值
+        parameters: 一个python字典，包含所有参数
+        cache: 一个python字典包含"Z1", "A1", "Z2"和"A2".
+        X: 输入值
+        Y: 真实值
 
     Return:
-        grads -- 一个pyth字典包含所有参数的梯度
+        grads: 一个pyth字典包含所有参数的梯度dW1，db1，dW2，db2
     """
     m = X.shape[1]
 
@@ -178,11 +180,11 @@ def update_parameters(parameters, grads, learning_rate=1.2):
     使用梯度更新参数
 
     Args:
-        parameters -- 包含所有参数的python字典
-        grads -- 包含所有参数梯度的python字典
-
+        parameters: 包含所有参数的python字典
+        grads: 包含所有参数梯度的python字典
+        learning_rate: 学习步长
     Return:
-        parameters -- 包含更新后参数的python
+        parameters: 包含更新后参数的python
     """
     # 从"parameters"中读取全部参数
     W1 = parameters["W1"]
@@ -215,14 +217,14 @@ def train(X, Y, n_h, num_iterations=10000, print_cost=False):
     定义神经网络模型，把之前的操作合并到一起
 
     Args:
-        X -- 输入值
-        Y -- 真实值
-        n_h -- 隐藏层大小/节点数
-        num_iterations -- 训练次数
-        print_cost -- 设置为True，则每1000次训练打印一次成本函数值
+        X: 输入值
+        Y: 真实值
+        n_h: 隐藏层大小/节点数
+        num_iterations: 训练次数
+        print_cost: 设置为True，则每1000次训练打印一次成本函数值
 
     Return:
-        parameters -- 训练结束，更新后的参数值
+        parameters: 模型训练所得参数，用于预测
     """
 
     np.random.seed(3)
@@ -242,7 +244,7 @@ def train(X, Y, n_h, num_iterations=10000, print_cost=False):
         A2, cache = forward_propagation(X, parameters)
 
         # 成本计算. 输入: "A2, Y, parameters". 输出: "cost".
-        cost = compute_cost(A2, Y, parameters)
+        cost = calculate_cost(A2, Y, parameters)
 
         # 后向传播， 输入: "parameters, cache, X, Y". 输出: "grads".
         grads = backward_propagation(parameters, cache, X, Y)
@@ -262,11 +264,11 @@ def predict(parameters, X):
     使用训练所得参数，对每个训练样本进行预测
 
     Args:
-        parameters -- 保安所有参数的python字典
-        X -- 输入值
+        parameters: 存有参数的python字典
+        X: 输入值
 
     Return：
-        predictions -- 模型预测值向量(红色: 0 / 蓝色: 1)
+        predictions: 模型预测值向量(红色: 0 / 蓝色: 1)
     """
 
     # 使用训练所得参数进行前向传播计算，并将模型输出值转化为预测值（大于0.5视作1，即True）
@@ -284,6 +286,11 @@ def main():
     train_X, train_Y, test_X, test_Y = utils.load_data_sets()
 
     print "1. show the data set"
+    shape_X = train_X.shape
+    shape_Y = train_Y.shape
+    print ('The shape of X is: ' + str(shape_X))
+    print ('The shape of Y is: ' + str(shape_Y))
+
     plt.scatter(test_X.T[:, 0], test_X.T[:, 1], c=test_Y, s=40,
                 cmap=plt.cm.Spectral)
     plt.title("show the data set")
